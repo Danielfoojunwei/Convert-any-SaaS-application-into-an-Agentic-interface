@@ -36,12 +36,17 @@ def _generate_server_py(
         # Build JSON schema for parameters
         json_schema = schema.to_json_schema()
 
+        # Build parameter assignment lines (join with newline + 4-space indent)
+        param_assignments = ("\n    ").join(
+            f'params["{p.name}"] = {p.name}' for p in schema.parameters
+        )
+
         tool_registrations.append(f'''
 @mcp.tool()
 async def {func_name}({params_str}) -> dict:
     """{schema.description}"""
     params = {{}}
-    {chr(10).join(f'    params["{p.name}"] = {p.name}' for p in schema.parameters)}
+    {param_assignments}
     return await execute_tool("{func_name}", params, ExecutionBackend.{schema.execution_backend.name})
 ''')
 

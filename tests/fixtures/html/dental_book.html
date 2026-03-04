@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><title>Book Appointment - Bright Smile Dental</title></head>
+<body>
+  <h1>Book Your Appointment</h1>
+  <p>Check availability and schedule your appointment online.</p>
+  <form method="POST" action="/appointments">
+    <select name="service_id" required>
+      <option value="">Select a Service</option>
+      <option value="cleaning">Dental Cleaning</option>
+      <option value="filling">Cavity Filling</option>
+      <option value="crown">Crown Placement</option>
+      <option value="consultation">Consultation</option>
+    </select>
+    <input type="date" name="date" placeholder="Select Date" required />
+    <input type="time" name="time" placeholder="Select Time" required />
+    <input type="text" name="patient_name" placeholder="Full Name" required />
+    <input type="email" name="patient_email" placeholder="Email" required />
+    <input type="tel" name="patient_phone" placeholder="Phone Number" />
+    <textarea name="notes" placeholder="Any special notes?"></textarea>
+    <button type="submit">Book Appointment</button>
+  </form>
+</body>
+</html>
