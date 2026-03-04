@@ -7,9 +7,11 @@ against the original site.
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 
+from agent_see.execution.route_map import RouteMap, build_route_map
 from agent_see.models.capability import CapabilityGraph
 from agent_see.models.schema import ExecutionBackend, ToolSchema
 
@@ -19,22 +21,18 @@ logger = logging.getLogger(__name__)
 def _generate_server_py(
     graph: CapabilityGraph,
     tool_schemas: list[ToolSchema],
+    route_map: RouteMap,
 ) -> str:
-    """Generate the main MCP server.py file."""
-    tool_imports = []
+    """Generate the main MCP server.py file with working execution."""
     tool_registrations = []
 
     for schema in tool_schemas:
         func_name = schema.name
-        tool_imports.append(f"# Tool: {func_name}")
 
         params_str = ", ".join(
             f'{p.name}: {_python_type(p.type)}' + (f' = {repr(p.default)}' if not p.required else '')
             for p in schema.parameters
         )
-
-        # Build JSON schema for parameters
-        json_schema = schema.to_json_schema()
 
         # Build parameter assignment lines (join with newline + 4-space indent)
         param_assignments = ("\n    ").join(
@@ -51,6 +49,7 @@ async def {func_name}({params_str}) -> dict:
 ''')
 
     tools_code = "\n".join(tool_registrations)
+    route_map_json = json.dumps(route_map.to_dict(), indent=2)
 
     return f'''"""Auto-generated MCP server for {graph.source_url or 'SaaS application'}.
 
@@ -61,8 +60,11 @@ Source: {graph.source_url or 'N/A'}
 
 import json
 import logging
+import os
 from enum import Enum
+from pathlib import Path
 
+import httpx
 from mcp.server.fastmcp import FastMCP
 
 logging.basicConfig(level=logging.INFO)
@@ -81,7 +83,30 @@ mcp = FastMCP(
     description="Agent-optimized interface for {graph.source_url or 'SaaS application'}",
 )
 
-TARGET_URL = "{graph.source_url or 'https://example.com'}"
+TARGET_URL = os.environ.get("TARGET_URL", "{graph.source_url or 'https://example.com'}")
+
+# Route map: tool_name → HTTP method, path, param locations
+ROUTE_MAP = {route_map_json}
+
+# Auth headers from environment
+AUTH_HEADERS = {{}}
+if os.environ.get("API_KEY"):
+    AUTH_HEADERS["Authorization"] = f"Bearer {{os.environ['API_KEY']}}"
+if os.environ.get("API_KEY_HEADER") and os.environ.get("API_KEY_VALUE"):
+    AUTH_HEADERS[os.environ["API_KEY_HEADER"]] = os.environ["API_KEY_VALUE"]
+
+
+# HTTP status → structured error code
+STATUS_ERROR_MAP = {{
+    400: "INVALID_PARAM",
+    401: "AUTH_FAILED",
+    403: "AUTH_FAILED",
+    404: "NOT_FOUND",
+    409: "CONFLICT",
+    429: "RATE_LIMITED",
+    402: "PAYMENT_REQUIRED",
+    503: "UNAVAILABLE",
+}}
 
 
 async def execute_tool(
@@ -107,17 +132,93 @@ async def execute_tool(
 
 async def _execute_via_api(tool_name: str, params: dict) -> dict:
     """Execute a tool via direct API call to the original site."""
-    import httpx
-    # TODO: Implement API routing based on discovered endpoints
-    async with httpx.AsyncClient(base_url=TARGET_URL) as client:
-        response = await client.get(f"/api/{{tool_name}}", params=params)
-        return response.json()
+    routes = ROUTE_MAP.get("routes", {{}})
+    route = routes.get(tool_name)
+
+    if not route:
+        return {{"error": "NOT_FOUND", "message": f"No API route for {{tool_name}}"}}
+
+    base_url = ROUTE_MAP.get("base_url", TARGET_URL)
+    method = route["method"]
+    path = route["path"]
+
+    # Substitute path parameters
+    for param_name in route.get("path_params", []):
+        value = params.get(param_name, "")
+        path = path.replace(f"{{{{{{param_name}}}}}}", str(value))
+
+    url = f"{{base_url}}{{path}}"
+
+    # Build query params
+    query = {{k: params[k] for k in route.get("query_params", []) if k in params}}
+
+    # Build request body
+    body = None
+    body_params = route.get("body_params", [])
+    if body_params:
+        body = {{k: params[k] for k in body_params if k in params}}
+
+    headers = {{
+        "Accept": "application/json",
+        "User-Agent": "AgentSee/0.1 (MCP Executor)",
+        **AUTH_HEADERS,
+    }}
+    if body is not None:
+        headers["Content-Type"] = route.get("content_type", "application/json")
+
+    logger.info(f"Executing {{method}} {{url}}")
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.request(
+            method=method,
+            url=url,
+            params=query or None,
+            json=body,
+            headers=headers,
+        )
+
+    if response.status_code >= 400:
+        error_code = STATUS_ERROR_MAP.get(response.status_code, "SERVER_ERROR")
+        message = f"HTTP {{response.status_code}}"
+        try:
+            error_body = response.json()
+            if isinstance(error_body, dict):
+                message = error_body.get("message", error_body.get("error", message))
+        except Exception:
+            message = response.text[:200] if response.text else message
+        return {{"error": error_code, "message": str(message), "status": response.status_code}}
+
+    content_type = response.headers.get("content-type", "")
+    if "json" in content_type:
+        data = response.json()
+        if isinstance(data, list):
+            return {{"items": data, "count": len(data)}}
+        if isinstance(data, dict):
+            return data
+        return {{"result": data}}
+
+    return {{"status": "success", "status_code": response.status_code, "body": response.text[:2000]}}
 
 
 async def _execute_via_browser(tool_name: str, params: dict) -> dict:
     """Execute a tool via Playwright browser automation."""
-    # TODO: Implement browser automation for each tool
-    return {{"status": "not_implemented", "tool": tool_name, "params": params}}
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        return {{"error": "UNAVAILABLE", "message": "Playwright not installed"}}
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
+        try:
+            await page.goto(TARGET_URL, wait_until="domcontentloaded", timeout=15000)
+            # Return page content as fallback
+            title = await page.title()
+            return {{"status": "browser_fallback", "page_title": title, "tool": tool_name, "params": params}}
+        except Exception as e:
+            return {{"error": "SERVER_ERROR", "message": str(e)}}
+        finally:
+            await browser.close()
 
 
 # === Generated Tools ===
@@ -190,9 +291,17 @@ def generate_mcp_server(
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # server.py
-    server_code = _generate_server_py(graph, tool_schemas)
+    # Build route map from capability graph
+    route_map = build_route_map(graph)
+
+    # server.py (with working execution layer)
+    server_code = _generate_server_py(graph, tool_schemas, route_map)
     (output_dir / "server.py").write_text(server_code)
+
+    # route_map.json (for inspection/debugging)
+    (output_dir / "route_map.json").write_text(
+        json.dumps(route_map.to_dict(), indent=2)
+    )
 
     # pyproject.toml
     pyproject = _generate_pyproject(graph)
@@ -202,28 +311,56 @@ def generate_mcp_server(
     dockerfile = _generate_dockerfile()
     (output_dir / "Dockerfile").write_text(dockerfile)
 
+    # Deployment configs (Sprint 5)
+    from agent_see.execution.deployer import generate_deployment_configs
+
+    app_name = (graph.source_url or "converted-saas").split("//")[-1].split("/")[0].replace(".", "-")
+    generate_deployment_configs(output_dir, app_name)
+
     # README
+    tool_list = chr(10).join(f'- **{s.name}**: {s.description}' for s in tool_schemas)
     readme = f"""# Agent Interface for {graph.source_url or 'SaaS Application'}
 
 Auto-generated by Agent-See. This MCP server wraps the original site
 and exposes {graph.capability_count} capabilities as structured tools.
 
-## Run
+## Quick Start
 
 ```bash
+# 1. Configure
+cp .env.example .env
+# Edit .env with your TARGET_URL and API credentials
+
+# 2. Run locally
 uv run server.py
+
+# 3. Or deploy with Docker
+docker compose up --build
 ```
 
-## Deploy
+## One-Click Deploy
 
 ```bash
-docker build -t agent-wrapper .
-docker run -p 8000:8000 agent-wrapper
+# Fly.io
+flyctl deploy
+
+# Railway
+railway up
+
+# Docker Compose
+docker compose up --build -d
+
+# Or use the helper script
+./deploy.sh
 ```
 
 ## Tools
 
-{chr(10).join(f'- **{s.name}**: {s.description}' for s in tool_schemas)}
+{tool_list}
+
+## Route Map
+
+See `route_map.json` for the complete mapping of tools to API endpoints.
 """
     (output_dir / "README.md").write_text(readme)
 

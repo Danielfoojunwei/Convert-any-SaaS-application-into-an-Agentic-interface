@@ -171,5 +171,62 @@ def verify(
     )
 
 
+@app.command()
+def deploy(
+    server_dir: str = typer.Argument(
+        "agent-output/mcp_server",
+        help="Path to generated MCP server directory",
+    ),
+    method: str = typer.Option(
+        "docker",
+        "--method",
+        "-m",
+        help="Deployment method: docker, fly, railway, render, local",
+    ),
+) -> None:
+    """Deploy a generated MCP server.
+
+    Runs the server locally or deploys to a cloud platform.
+    """
+    import subprocess
+
+    server_path = Path(server_dir)
+    if not server_path.exists():
+        console.print(f"[red]Server directory not found: {server_dir}[/red]")
+        console.print("Run 'agent-see convert' first to generate the server.")
+        sys.exit(1)
+
+    if not (server_path / "server.py").exists():
+        console.print(f"[red]No server.py found in {server_dir}[/red]")
+        sys.exit(1)
+
+    console.print(
+        Panel(
+            f"Deploying from: [cyan]{server_path}[/cyan]\n"
+            f"Method: [cyan]{method}[/cyan]",
+            title="MCP Server Deployment",
+        )
+    )
+
+    if method == "local":
+        console.print("[bold]Starting MCP server locally...[/bold]")
+        console.print(f"  cd {server_path} && python server.py")
+        subprocess.run(["python", "server.py"], cwd=server_path)
+    elif method == "docker":
+        console.print("[bold]Building and running with Docker Compose...[/bold]")
+        subprocess.run(["docker", "compose", "up", "--build", "-d"], cwd=server_path)
+        console.print("[green]Server running at http://localhost:8000[/green]")
+    elif method == "fly":
+        console.print("[bold]Deploying to Fly.io...[/bold]")
+        subprocess.run(["flyctl", "deploy"], cwd=server_path)
+    elif method == "railway":
+        console.print("[bold]Deploying to Railway...[/bold]")
+        subprocess.run(["railway", "up"], cwd=server_path)
+    else:
+        console.print(f"[red]Unknown deployment method: {method}[/red]")
+        console.print("Available: local, docker, fly, railway, render")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     app()
