@@ -1,0 +1,283 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bright Smile Dental",
+    "description": "API for a dental practice — services, availability, and appointment booking",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/services": {
+      "get": {
+        "operationId": "getServices",
+        "summary": "List all dental services offered",
+        "tags": ["services"],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by service category"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Service" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/availability": {
+      "get": {
+        "operationId": "checkAvailability",
+        "summary": "Check available time slots for a service",
+        "tags": ["booking"],
+        "parameters": [
+          {
+            "name": "service_id",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Service identifier"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" },
+            "description": "Start date (YYYY-MM-DD)"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "End date (YYYY-MM-DD)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available time slots",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AvailabilityResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments": {
+      "post": {
+        "operationId": "bookAppointment",
+        "summary": "Book an appointment for a dental service",
+        "tags": ["booking"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["service_id", "datetime", "patient_name", "patient_email"],
+                "properties": {
+                  "service_id": { "type": "string", "description": "Service identifier" },
+                  "datetime": { "type": "string", "format": "date-time", "description": "Appointment date/time" },
+                  "patient_name": { "type": "string", "description": "Patient full name" },
+                  "patient_email": { "type": "string", "description": "Patient email" },
+                  "patient_phone": { "type": "string", "description": "Patient phone number" },
+                  "notes": { "type": "string", "description": "Additional notes" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appointment booked",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Booking" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments/{bookingId}": {
+      "get": {
+        "operationId": "getBookingStatus",
+        "summary": "Get the status of an existing booking",
+        "tags": ["booking"],
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Booking identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Booking" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cancelBooking",
+        "summary": "Cancel an existing booking",
+        "tags": ["booking"],
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Booking identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "booking_id": { "type": "string" },
+                    "status": { "type": "string" },
+                    "refund_amount": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/business-info": {
+      "get": {
+        "operationId": "getBusinessInfo",
+        "summary": "Get practice location, hours, and contact information",
+        "tags": ["business"],
+        "responses": {
+          "200": {
+            "description": "Business information",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BusinessInfo" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact": {
+      "post": {
+        "operationId": "sendMessage",
+        "summary": "Send a message or inquiry to the practice",
+        "tags": ["contact"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["subject", "body", "sender_name", "sender_email"],
+                "properties": {
+                  "subject": { "type": "string", "description": "Message subject" },
+                  "body": { "type": "string", "description": "Message body" },
+                  "sender_name": { "type": "string", "description": "Sender name" },
+                  "sender_email": { "type": "string", "description": "Sender email" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message_id": { "type": "string" },
+                    "status": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Service": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "price": { "type": "number" },
+          "currency": { "type": "string" },
+          "duration_minutes": { "type": "integer" },
+          "category": { "type": "string" }
+        }
+      },
+      "AvailabilityResponse": {
+        "type": "object",
+        "properties": {
+          "service_id": { "type": "string" },
+          "available_slots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "datetime": { "type": "string" },
+                "duration_minutes": { "type": "integer" }
+              }
+            }
+          },
+          "next_available": { "type": "string" }
+        }
+      },
+      "Booking": {
+        "type": "object",
+        "properties": {
+          "booking_id": { "type": "string" },
+          "service_id": { "type": "string" },
+          "service_name": { "type": "string" },
+          "datetime": { "type": "string" },
+          "status": { "type": "string" },
+          "patient_name": { "type": "string" }
+        }
+      },
+      "BusinessInfo": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "address": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" },
+          "website": { "type": "string" },
+          "hours": { "type": "object" },
+          "categories": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

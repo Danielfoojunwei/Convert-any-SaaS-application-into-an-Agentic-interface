@@ -73,8 +73,31 @@ async def analyze_url(url: str) -> list[Capability]:
             f"{f' (platform: {api_result.detected_platform})' if api_result.detected_platform else ''}"
         )
 
-    # Deduplicate: keep highest confidence version of each capability
-    deduped = _deduplicate(all_capabilities)
+    # Step 5: Apply vertical templates if patterns detected
+    template_caps = _apply_templates(crawl_result, url)
+    if template_caps:
+        logger.info(f"Step 5: Applied {len(template_caps)} template capabilities")
+        all_capabilities.extend(template_caps)
+
+    # Cross-validate and merge all extractions
+    from agent_see.grounding.cross_validator import cross_validate
+
+    # Group by source for cross-validation
+    openapi_group = [c for c in all_capabilities if c.source.source_type.value == "openapi"]
+    browser_group = [c for c in all_capabilities if c.source.source_type.value in ("browser_dom", "browser_network")]
+    template_group = [c for c in all_capabilities if c.source.source_type.value == "template"]
+
+    groups = [g for g in [openapi_group, browser_group, template_group] if g]
+    if len(groups) > 1:
+        merge_result = cross_validate(*groups)
+        deduped = merge_result.merged
+        logger.info(
+            f"Cross-validation: {merge_result.duplicates_resolved} duplicates resolved, "
+            f"{merge_result.confidence_boosted} boosted"
+        )
+    else:
+        deduped = _deduplicate(all_capabilities)
+
     logger.info(
         f"Analysis complete: {len(deduped)} unique capabilities "
         f"(from {len(all_capabilities)} total extractions)"
@@ -103,6 +126,33 @@ def analyze_openapi_file(spec_path: Path) -> list[Capability]:
     from agent_see.extractors.openapi import extract_from_openapi
 
     return extract_from_openapi(spec, spec_url=str(spec_path))
+
+
+def _apply_templates(crawl_result: object, url: str) -> list[Capability]:
+    """Apply vertical templates based on crawl analysis."""
+    from agent_see.templates.booking import detect_booking, get_booking_capabilities
+    from agent_see.templates.ecommerce import detect_ecommerce, get_ecommerce_capabilities
+
+    template_caps: list[Capability] = []
+
+    # Combine page text from crawl for detection
+    page_text = ""
+    if hasattr(crawl_result, "pages"):
+        for page in crawl_result.pages:
+            if hasattr(page, "title"):
+                page_text += f" {page.title}"
+            if hasattr(page, "domain_hints"):
+                page_text += f" {' '.join(page.domain_hints)}"
+
+    if detect_ecommerce(page_text):
+        logger.info("E-commerce patterns detected, applying templates")
+        template_caps.extend(get_ecommerce_capabilities(url))
+
+    if detect_booking(page_text):
+        logger.info("Service/booking patterns detected, applying templates")
+        template_caps.extend(get_booking_capabilities(url))
+
+    return template_caps
 
 
 def _deduplicate(capabilities: list[Capability]) -> list[Capability]:

@@ -20,6 +20,7 @@ from agent_see.generators.agent_card import generate_agent_card
 from agent_see.generators.agents_md import generate_agents_md
 from agent_see.generators.mcp_server import generate_mcp_server
 from agent_see.generators.openapi_spec import generate_openapi_spec
+from agent_see.generators.skill_md import generate_all_skill_mds
 from agent_see.models.capability import CapabilityGraph
 from agent_see.models.schema import ToolSchema
 
@@ -71,7 +72,11 @@ def generate_all(
     md_path.write_text(agents_md)
     artifacts["agents_md"] = md_path
 
-    # 5. Capability graph (for debugging/inspection)
+    # 5. SKILL.md files (per-capability)
+    skills_dir = generate_all_skill_mds(graph, tool_schemas, output_dir)
+    artifacts["skills"] = skills_dir
+
+    # 6. Capability graph (for debugging/inspection)
     graph_path = output_dir / "capability_graph.json"
     graph_path.write_text(graph.model_dump_json(indent=2))
     artifacts["capability_graph"] = graph_path
