@@ -1,0 +1,183 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Petstore",
+    "description": "A sample pet store API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/pets": {
+      "get": {
+        "operationId": "listPets",
+        "summary": "List all pets",
+        "tags": ["pets"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Maximum number of pets to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of pets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {"type": "integer", "description": "Pet ID"},
+                      "name": {"type": "string", "description": "Pet name"},
+                      "species": {"type": "string", "description": "Pet species"},
+                      "price": {"type": "number", "description": "Price in dollars"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPet",
+        "summary": "Create a new pet",
+        "tags": ["pets"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "species"],
+                "properties": {
+                  "name": {"type": "string", "description": "Pet name"},
+                  "species": {"type": "string", "description": "Pet species"},
+                  "price": {"type": "number", "description": "Price in dollars"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pet created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {"type": "integer", "description": "Pet ID"},
+                    "name": {"type": "string", "description": "Pet name"},
+                    "species": {"type": "string", "description": "Pet species"},
+                    "price": {"type": "number", "description": "Price in dollars"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pets/{petId}": {
+      "get": {
+        "operationId": "getPetById",
+        "summary": "Get a pet by ID",
+        "tags": ["pets"],
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "integer"},
+            "description": "The pet ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A pet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {"type": "integer", "description": "Pet ID"},
+                    "name": {"type": "string", "description": "Pet name"},
+                    "species": {"type": "string", "description": "Pet species"},
+                    "price": {"type": "number", "description": "Price in dollars"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deletePet",
+        "summary": "Delete a pet",
+        "tags": ["pets"],
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "integer"},
+            "description": "The pet ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Pet deleted"
+          }
+        }
+      }
+    },
+    "/store/orders": {
+      "post": {
+        "operationId": "placeOrder",
+        "summary": "Place an order for a pet",
+        "tags": ["store"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["petId", "quantity"],
+                "properties": {
+                  "petId": {"type": "integer", "description": "Pet to order"},
+                  "quantity": {"type": "integer", "description": "Number of pets"},
+                  "shipDate": {"type": "string", "description": "Shipping date"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order placed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {"type": "integer", "description": "Order ID"},
+                    "petId": {"type": "integer", "description": "Pet ID"},
+                    "quantity": {"type": "integer", "description": "Quantity"},
+                    "status": {"type": "string", "description": "Order status"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

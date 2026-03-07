@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><title>Products - Sweet Bakery</title></head>
+<body>
+  <h1>Our Products</h1>
+  <form method="GET" action="/products">
+    <input type="text" name="query" placeholder="Search products..." />
+    <button type="submit">Search</button>
+  </form>
+  <div class="product-grid">
+    <div class="product-card">
+      <h2>Birthday Cake</h2>
+      <span class="price">$29.99</span>
+      <button class="add-to-cart" data-product-id="cake-42">Add to Cart</button>
+    </div>
+    <div class="product-card">
+      <h2>Chocolate Croissant</h2>
+      <span class="price">$4.99</span>
+      <button class="add-to-cart" data-product-id="croissant-7">Add to Cart</button>
+    </div>
+    <div class="product-card">
+      <h2>Sourdough Bread</h2>
+      <span class="price">$8.50</span>
+      <button class="add-to-cart" data-product-id="bread-12">Add to Cart</button>
+    </div>
+  </div>
+</body>
+</html>
