@@ -50,6 +50,24 @@ agent-see deploy --method fly
 
 After conversion, the generated folder becomes your **agent integration bundle**. The runtime gives the harness callable tools. The OpenAPI file gives it a structured contract. The AGENTS and skills documents explain the interface. The tool metadata and runtime state files tell you what is actually operational, what requires approval, and where workflows are stateful.
 
+### Turn Agent-See Itself into a Skill
+
+One of the most useful patterns is to make **Agent-See itself** a reusable skill inside your agent environment. In that setup, you do not manually think through every conversion step each time. Instead, you give your agent a higher-level instruction such as, “Convert this business surface into an agent-ready interface, deploy the generated runtime, inspect readiness, and then use the resulting tools to complete the task.”
+
+This changes Agent-See from a one-off developer utility into a **meta-capability** for your agent stack. The same agent can first use Agent-See to produce the interface bundle and then immediately switch roles and use what it created to interact with the target service. That is especially compelling when the business surface is changing often, when you are onboarding many customer sites, or when operators do not want to hand-wire every integration themselves.
+
+| Step | What the agent does when Agent-See is wrapped as a skill | Final effect |
+| --- | --- | --- |
+| **1. Receive a business task** | The agent is told something like “make this booking site agent-usable and then schedule an appointment” or “convert this ecommerce site and then collect product data” | The agent starts from business intent, not low-level integration work |
+| **2. Invoke the Agent-See skill** | The agent runs the conversion flow against the URL or OpenAPI spec | The target surface is transformed into an integration bundle |
+| **3. Review generated readiness artifacts** | The agent reads `AGENTS.md`, `tool_metadata.json`, `runtime_state.json`, and `operationalization_report.json` | It knows which tools are ready, which are approval-gated, and which are stateful |
+| **4. Run or deploy the generated runtime** | The agent starts the MCP server locally or via the deployment package | The converted business now exposes a callable operational surface |
+| **5. Switch from builder to user** | The same agent begins using the generated tools, contract, and skills docs | The system moves directly from generation into execution |
+| **6. Complete the original task** | The agent performs the business workflow through the generated interface | The target website or SaaS becomes actionably usable without manual rewiring |
+| **7. Reuse the skill on the next surface** | The same pattern is applied to another customer site, API, or SaaS workflow | Agent-See becomes a repeatable integration capability, not a one-time script |
+
+The final outcome is powerful: you can ask your agent to **make a system agent-ready and then use the generated interface on your behalf**. That removes much of the operator burden. Instead of separately building integrations and then separately teaching the agent how to use them, the same workflow creates the interface layer and operationalizes it for follow-on tasks.
+
 ### Step-by-Step for Claude Cowork
 
 In a Claude Cowork-style setup, the main job is to give the agent a surface it can call and reason about instead of asking it to infer everything from a landing page or scattered API docs.
