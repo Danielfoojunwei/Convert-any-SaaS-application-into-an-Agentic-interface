@@ -184,6 +184,49 @@ Agent-See is strongest today when the source is either a **URL-backed business s
 | **Live SaaS URL with mixed API + browser surface** | Hybrid applications where some actions are in APIs and some remain browser-only | Supported through route mapping plus browser fallback |
 | **Local codebase or directory** | Direct code-first conversion | Not the primary supported path in the current product framing; unsupported cases should fail truthfully |
 
+## What Has Been Tested and Validated So Far
+
+Agent-See has been validated across **multiple conversion modes**, not just a single happy-path demo. The current repository test suite exercises deterministic OpenAPI conversion, live URL discovery, browser-DOM form extraction, template-assisted cross-validation, end-to-end CLI conversion, generated artifact validation, route mapping, execution behavior, and deployment/package generation. In the latest full repository validation run covering `test_sprint2.py`, `test_sprint3_5.py`, `test_e2e.py`, and `test_full_pipeline.py`, the suite completed with **122 passing tests**.
+
+That does **not** mean every arbitrary website, every anti-bot environment, or every private SaaS product has been proven automatically production-ready. It does mean the core conversion pipeline has been exercised across a wide set of realistic patterns and that the generated outputs have been checked at the levels that matter most for agent-facing functionality.
+
+| Validated conversion path | What has been exercised |
+| --- | --- |
+| **OpenAPI spec to full agent package** | Deterministic extraction, graph building, workflow inference, MCP runtime generation, OpenAPI regeneration, agent card generation, AGENTS documentation, skills generation, and proof output |
+| **Live HTTP site discovery** | Discovery of OpenAPI from a live served site, page crawling, domain classification, page and form counting, and URL-based analysis flows |
+| **Browser DOM to capability extraction** | Form extraction, parameter inference, contact/checkout/booking capability detection, product listing detection, and business-information detection from HTML surfaces |
+| **Template-assisted conversion** | Cross-validation and merge behavior between discovered capabilities and domain templates for ecommerce and booking flows |
+| **CLI conversion path** | `agent-see convert` execution against multiple fixture types and verification that expected artifacts are emitted end to end |
+| **Execution-layer validation** | Route-map generation, API execution against a local test server, parameter handling, path-parameter substitution, checkout execution, and error-path handling |
+| **Generated runtime validation** | Syntax validation of generated `server.py`, tool registration checks, health/readiness/runtime snapshot surface generation, session metadata generation, and approval-policy behavior |
+| **Packaging and deployment validation** | Presence and correctness of `pyproject.toml`, Docker and cloud deployment scaffolds, generated wheel configuration, stable runtime entry points, and successful wheel/sdist build validation |
+
+The validation coverage also spans **different business shapes**, which matters because a tool that only works on one domain is not enough for the product positioning here. The suite currently includes ecommerce storefront flows, booking and appointment flows, a Petstore-style API baseline, live-site HTML discovery flows, and mixed browser-plus-API conversion scenarios.
+
+| Business or conversion type | What has been validated in practice |
+| --- | --- |
+| **Ecommerce** | Product listing, product detail retrieval, cart state, add-to-cart relationships, checkout semantics, order-status flows, transaction-aware workflow inference, and generated MCP runtime behavior |
+| **Booking and services** | Service discovery, availability, appointment booking, booking status, cancellation, business-info extraction, contact-message handling, and booking workflow detection |
+| **General API baseline** | Petstore-style endpoint extraction, parameter and return-schema generation, graph/domain inference, proof validation, and artifact generation from a clean OpenAPI reference spec |
+| **Public website and HTML surface** | Contact forms, checkout forms, booking forms, product-listing patterns, about/business-information surfaces, and browser-derived field mapping |
+| **Hybrid API plus browser surfaces** | Cases where route-mapped API actions coexist with browser-derived workflows and both need to be represented in the generated interface bundle |
+
+From a systems perspective, the project has been tested at several layers rather than only at the final output. Extraction has been validated for evidence grounding, confidence, parameters, and return schemas. Mapping has been validated for domains, edges, workflows, and state relationships. Generation has been validated for artifact presence and content shape. Verification has been validated for coverage, hallucination control, and proof output. Execution has been validated for route correctness, API invocation behavior, and generated runtime logic.
+
+| Validation layer | What is checked |
+| --- | --- |
+| **Extraction** | Capability count, evidence presence, confidence expectations, parameter extraction, return-schema extraction, and naming conventions |
+| **Mapping** | Domain grouping, edge inference, workflow detection, route-map construction, and state/session relationships |
+| **Generation** | Existence and structure of MCP runtime files, OpenAPI output, agent card, AGENTS manifest, workflow skills, and capability graph artifacts |
+| **Proof and grounding** | Coverage completeness, hallucination checks, fidelity thresholds, and proof artifact generation |
+| **Execution** | Route dispatch, GET/POST handling, body and query behavior, path-parameter substitution, checkout execution, and multi-step workflow execution against a local API server |
+| **Operational runtime** | Health endpoints, readiness endpoints, runtime snapshot generation, approval metadata, session requirements, and deployment environment templates |
+| **Packaging** | Generated runtime packaging metadata, deterministic wheel inclusion, console entry points, generated package build success, and root package wheel build success |
+
+Recent validation also included the repaired operational-readiness work added in this branch. That specifically rechecked that login-style capabilities are treated as **session-establishing** rather than payment-like confirmation flows, that generated runtimes correctly substitute path parameters at execution time, and that generated MCP runtimes build cleanly as installable packages.
+
+The honest boundary is that Agent-See has been validated **broadly and functionally across representative conversion types**, but not universally against every production SaaS edge case. The strongest current evidence is for OpenAPI-driven systems, structured ecommerce and booking flows, live discovery against controlled HTTP fixtures, browser-form extraction, generated runtime packaging, and local end-to-end execution against known test servers. Systems with heavy bot mitigation, exotic client-side rendering, undocumented private backends, CAPTCHA-heavy authentication, or unusual business logic may still require site-specific hardening even when the base conversion succeeds.
+
 ## Access Levels: How Much Control You Need to Get Full Value
 
 You do **not** need to own the URL or own the business to start using Agent-See. What matters more is the level of **authorized access** you have to the target surface. A public site can still be converted into a useful agent-facing package, but the package becomes materially more powerful as you gain access to authenticated flows, operational controls, and deployment context.
