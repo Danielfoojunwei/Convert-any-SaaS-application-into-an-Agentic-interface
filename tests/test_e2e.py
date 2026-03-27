@@ -631,13 +631,16 @@ class TestE2E_OutputValidation:
         """AGENTS.md has all required sections."""
         content = (self.output_dir / "AGENTS.md").read_text()
         assert "---" in content  # Frontmatter
+        assert "## Highest-Fidelity Conversion Intake Protocol" in content
         assert "## Quick Reference" in content
         assert "## Tools by Domain" in content
         assert "## Workflows" in content
         assert "## Error Handling" in content
+        assert "**Primary target**" in content
+        assert "**Success criteria**" in content
 
     def test_skill_files_have_correct_structure(self) -> None:
-        """Each SKILL.md has frontmatter, parameters, output, errors."""
+        """Each SKILL.md has frontmatter, intake guidance, parameters, output, and errors."""
         skills_dir = self.output_dir / "skills"
         skill_files = list(skills_dir.glob("*.md"))
         assert len(skill_files) == self.graph.capability_count
@@ -645,18 +648,24 @@ class TestE2E_OutputValidation:
         for skill_file in skill_files:
             content = skill_file.read_text()
             assert content.startswith("---")  # Frontmatter
+            assert "## Highest-Fidelity Intake" in content
             assert "## Parameters" in content
             assert "## Output" in content
             assert "## Errors" in content
             assert "## Retry Safety" in content
+            assert "ask follow-up questions first" in content
 
     def test_workflow_skill_files(self) -> None:
-        """Workflow SKILL.md files exist for detected workflows."""
+        """Workflow SKILL.md files exist for detected workflows and include intake guidance."""
         wf_dir = self.output_dir / "skills" / "workflows"
         if self.graph.workflows:
             assert wf_dir.exists()
             wf_files = list(wf_dir.glob("*.md"))
             assert len(wf_files) == len(self.graph.workflows)
+            for wf_file in wf_files:
+                content = wf_file.read_text()
+                assert "## Highest-Fidelity Intake" in content
+                assert "Do not assume the workflow can be safely executed from a URL alone." in content
 
     def test_proof_json_complete(self) -> None:
         """proof.json contains all metric sections."""
