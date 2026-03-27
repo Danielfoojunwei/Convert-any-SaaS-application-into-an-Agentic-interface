@@ -14,6 +14,78 @@ Discover → Extract → Map → Generate → Verify → Deploy
          MCP server + OpenAPI + Agent Card + AGENTS.md + Skills + Runtime Metadata
 ```
 
+## Outcomes
+
+Agent-See is designed to change the operational state of a business surface after conversion. The goal is not only to emit files. The goal is to turn an existing URL, API, or SaaS surface into something an agentic harness can inspect, call, validate, deploy, and improve with less guesswork. After a successful conversion, the business surface should be easier to operationalize, easier to govern, and easier to reuse across different agent workflows.
+
+| Outcome | What it means in practice |
+| --- | --- |
+| **Callable interface instead of a raw surface** | A business website, SaaS workflow, or API is translated into MCP tools, OpenAPI, manifests, skills, and runtime metadata rather than being left as an unstructured target |
+| **Clearer execution boundaries** | The generated package makes it easier to see which actions are public, authenticated, stateful, approval-gated, browser-backed, or API-backed |
+| **Faster integration into agentic harnesses** | Claude Cowork-style workspaces, Manus-style agents, OpenClaw-like orchestrators, and custom runtimes can consume a cleaner integration bundle instead of guessing directly from the source system |
+| **Better operator visibility** | `AGENTS.md`, `tool_metadata.json`, `runtime_state.json`, `route_map.json`, and the operationalization report make it easier to understand what was grounded and what still needs hardening |
+| **Iterative improvement instead of one-off conversion** | The conversion can be reviewed, edited, re-run, redeployed, and hardened as the source system, access level, or business priorities change |
+| **Lower operator burden over time** | Instead of repeatedly reverse-engineering the same system for every new task, the converted package becomes a reusable execution layer |
+
+These outcomes matter because conversion is only the beginning. In real use, teams need to manage the generated package after the first run, revisit it when workflows change, and know how to modify it without starting from zero.
+
+## What Happens After Conversion
+
+After conversion, the output should be treated as a **working integration bundle**, not as a dead export. The next step is to inspect what Agent-See generated, decide whether the current conversion fidelity is good enough for the intended task, and then either run the package as-is or refine it through another conversion pass. In practice, good usage is iterative: convert, inspect, validate, adjust, and re-run when the source system or requirements change.
+
+| Step | What to do after conversion | Why it matters |
+| --- | --- | --- |
+| **1. Inspect the generated package** | Review `AGENTS.md`, `openapi.yaml`, `agent_card.json`, `skills/`, `tool_metadata.json`, `runtime_state.json`, `route_map.json`, and `operationalization_report.json` | This tells you what was actually discovered, what is runnable, and where the boundaries still are |
+| **2. Check whether the right workflows were captured** | Confirm that the important tasks such as booking, checkout, lead capture, catalog lookup, order status, support intake, or admin actions are present | This prevents you from deploying a technically complete package that still misses the business workflow you care about |
+| **3. Run or deploy the generated runtime** | Start the MCP server locally or deploy it with the generated packaging and infrastructure files | This turns the conversion into a live callable execution layer |
+| **4. Test the critical paths** | Exercise the most important tools and workflows first, especially anything stateful, authenticated, or approval-sensitive | This validates operational usefulness rather than just artifact presence |
+| **5. Decide whether to accept, edit, or re-run** | Determine whether the current output is already fit for purpose, needs light manual hardening, or should be regenerated with better inputs or access | This is the core control point for post-conversion management |
+| **6. Reconnect the harness with the updated package** | If you changed or regenerated the conversion, point your harness to the updated runtime, docs, or manifests | This ensures the agent is using the latest grounded interface instead of stale artifacts |
+| **7. Keep iterating as the source evolves** | Re-run Agent-See when routes change, login behavior changes, new workflows appear, or deployment expectations change | This keeps the integration package aligned with the real system over time |
+
+### How to Manage, Edit, and Modify a Conversion
+
+The most practical way to think about post-conversion management is to separate **inspection**, **manual hardening**, and **re-conversion**. Inspection means reading the generated artifacts and confirming what Agent-See believes to be true. Manual hardening means editing the generated package when you want to improve naming, deployment settings, prompts, runbooks, or harness integration details. Re-conversion means running Agent-See again when the source system, desired outputs, access level, or validation depth has changed enough that the underlying extraction should be refreshed.
+
+| Change scenario | Recommended action | Why this is the right move |
+| --- | --- | --- |
+| **The source website or SaaS UI changed** | Re-run `agent-see convert <target>` and compare the newly generated artifacts to the previous package | The safest way to reflect real source changes is to refresh the extraction and route mapping |
+| **The user gave better requirements after the first run** | Re-run the conversion with the fuller scope, stronger access details, and clearer success criteria | Better inputs usually improve workflow prioritization and generated guidance quality |
+| **A critical workflow is missing** | Re-check the target, provide the missing workflow explicitly, and re-run the conversion | Missing workflows often indicate that the original scope or access level was too shallow |
+| **Authentication or session behavior was incomplete** | Re-run with the correct authenticated context and verify the resulting state and approval metadata | Session-aware behavior is grounded by access and runtime context, not only by public discovery |
+| **The generated runtime works but needs deployment changes** | Keep the conversion, edit the deployment or packaging assets, then revalidate and redeploy | Packaging, environment, and runtime operations often need local hardening without changing the whole extraction |
+| **The harness needs different grounding artifacts** | Keep the conversion but update how you feed `AGENTS.md`, skills, `agent_card.json`, or `openapi.yaml` into the harness | The same conversion can support multiple harness styles with different grounding preferences |
+| **You want cleaner names, runbooks, or documentation** | Manually refine the generated docs and operational notes while keeping the grounded runtime intact | Not every improvement requires a full regeneration |
+| **The source system gained new routes or business logic** | Re-run conversion and then re-test the changed workflows first | New logic should be rediscovered and validated rather than patched by assumption |
+
+### Step-by-Step: When to Use Agent-See Again
+
+When a conversion no longer reflects the source of truth, the recommended path is to use Agent-See again rather than relying on stale assumptions. The step-by-step approach is straightforward: first confirm what changed, then decide whether the change affects discovery, execution, or only packaging, then re-run the conversion if the source-of-truth layer changed, and finally reconnect and revalidate the updated package.
+
+| Reuse step | What to do |
+| --- | --- |
+| **1. Identify the reason for the update** | Decide whether the trigger is a changed UI, changed API, new workflow, stronger access, deployment issue, or harness integration issue |
+| **2. Preserve the previous package** | Keep the last working conversion so you can compare artifacts and roll back if needed |
+| **3. Re-run `agent-see convert` against the target** | Use the current URL, OpenAPI file, or supported target with the improved scope or access context |
+| **4. Compare the generated artifacts** | Review differences in `openapi.yaml`, `tool_metadata.json`, `route_map.json`, `runtime_state.json`, `AGENTS.md`, and skills docs |
+| **5. Re-test the changed workflows first** | Focus validation on the flows that actually changed, especially login, checkout, booking, support, and admin operations |
+| **6. Redeploy or reconnect the runtime** | Start the new runtime locally or deploy it, then update your harness to use the current package |
+| **7. Archive the validated revision** | Keep the accepted output as the new baseline for future updates |
+
+### Edge Cases and How to Handle Them
+
+The most important edge cases are usually not failures of the tool alone. They are mismatches between the original conversion context and the current operational need. That is why the right response is often to improve the inputs, increase the access level, or re-run the conversion with a clearer target rather than trying to force a stale package to represent a changed system.
+
+| Edge case | What usually happened | What to do next |
+| --- | --- | --- |
+| **The first conversion was URL-only and too shallow** | The agent did not have enough detail to prioritize the right workflows | Re-run with fuller task scope, workflow priorities, access details, and success criteria |
+| **The site mixes browser-only flows with hidden APIs** | The first pass captured only part of the operational surface | Re-run with stronger access and inspect both route mapping and browser-backed tool coverage |
+| **The harness can read docs but cannot execute reliably** | The runtime or deployment layer was not connected or validated deeply enough | Re-run the validation path, check packaging and deployment assets, and reconnect the live runtime |
+| **Protected flows were requested without the right authorization** | The conversion context did not support truthful modeling of those actions | Stop treating the package as full fidelity, gather the missing authorization details, then re-run |
+| **A workflow exists but is approval-sensitive** | The action is destructive, transactional, or identity-sensitive | Keep the workflow, but review approval boundaries and operator expectations before automating it |
+| **The package works for one harness but not another** | The execution layer is valid, but the grounding or connection method differs by harness | Reuse the same core conversion and adjust how each harness consumes the runtime, manifests, and docs |
+| **The output is broadly right but operationally incomplete** | Discovery succeeded, but deployment, monitoring, or retry posture still needs hardening | Treat the conversion as a strong baseline, then manually harden the generated runtime and deploy config |
+
 ## How to Use Agent-See with Claude Cowork, Manus, OpenClaw, and Similar Harnesses
 
 The simplest way to think about Agent-See is that it creates the **missing interface layer** between a business system and an agent runtime. If you already have a business landing page, an operations dashboard, a booking system, an ecommerce storefront, or an internal API, Agent-See packages that surface so an agent can use it more reliably.
@@ -67,6 +139,25 @@ This changes Agent-See from a one-off developer utility into a **meta-capability
 | **7. Reuse the skill on the next surface** | The same pattern is applied to another customer site, API, or SaaS workflow | Agent-See becomes a repeatable integration capability, not a one-time script |
 
 The final outcome is powerful: you can ask your agent to **make a system agent-ready and then use the generated interface on your behalf**. That removes much of the operator burden. Instead of separately building integrations and then separately teaching the agent how to use them, the same workflow creates the interface layer and operationalizes it for follow-on tasks.
+
+### Canonical Intake Guarantee Across Agentic Harnesses
+
+A core design principle of Agent-See is that the generated agent guidance should **strictly collect the required information before attempting a highest-fidelity conversion**. In practical terms, this means the generated `AGENTS.md` and `SKILL.md` outputs are intended to make the agent ask first and convert second. The user should not have to worry that they forgot to mention an important detail when the task is meant to be done at the highest quality level.
+
+This guarantee is designed to hold across different agentic harnesses, including Claude Cowork-style workspaces, Manus-style autonomous agents, OpenClaw-like orchestrators, and custom internal runtimes that consume the generated guidance documents. The goal is not to let the harness guess from a URL alone. The goal is to make the harness explicitly request the missing truth from the user before it proceeds.
+
+| Canonical intake behavior | What the generated agent should do |
+| --- | --- |
+| **Vague prompt or URL-only input** | Stop and ask clarifying questions instead of claiming a full-fidelity conversion |
+| **Missing access or auth information** | Ask for permissions, login method, or access boundaries before modeling protected flows |
+| **Unclear workflow priorities** | Ask which business flows matter most before optimizing the conversion |
+| **Unspecified output package** | Ask whether the user wants MCP runtime, OpenAPI, AGENTS.md, SKILL.md, deployment assets, or the full bundle |
+| **Unclear validation depth** | Ask whether the user wants structural conversion, authenticated walkthroughs, packaging validation, or deployment-grade hardening |
+| **Missing success criteria or constraints** | Ask for completion criteria, environment boundaries, policy limits, and sensitive actions before continuing |
+
+For canonical use, the harness should treat this intake as a **required gate**, not as optional politeness. If critical inputs are missing, the generated agent should pause, request the missing information, restate the gathered scope back to the user, and only then proceed with a highest-fidelity conversion. If the user cannot provide the required information, the agent should continue only with a clearly labeled reduced-scope conversion and should state exactly what cannot yet be guaranteed.
+
+This is especially important across different harness styles because the same conversion may be used by a collaborative copilot, an autonomous operator, or a workflow orchestrator. The harness may change, but the rule should remain canonical: **do not guess when the user can specify the truth**.
 
 ### Step-by-Step for Claude Cowork
 
@@ -128,18 +219,6 @@ Not every team uses the same runtime. Some are browser-first. Some are API-first
 | **Human-in-the-loop orchestration** | Use readiness metadata, approval requirements, and runtime snapshot tools to decide which actions can be automated and which require review |
 
 The final outcome in these variants is the same. Agent-See gives you a reusable interface package that helps the harness move from unstructured interpretation to grounded execution.
-
-## Why This Matters
-
-Most businesses are not blocked by lack of product value. They are blocked by lack of **agent usability**. A business may already have a landing page, a booking form, a product catalog, a support flow, or a private API, yet none of that is easy for an autonomous agent to call safely and reliably.
-
-That gap is exactly what Agent-See is built to close. It turns the interfaces you already have into a package that agents can reason about, invoke, recover from, and deploy against.
-
-| Existing business surface | Typical problem for agents | What Agent-See adds |
-| --- | --- | --- |
-| **Landing page** | Agents can read text but cannot reliably discover forms, actions, or structured outputs | Crawling, DOM extraction, browser-backed tools, form mappings, scraping rules |
-| **Public or private API** | APIs are powerful but often not packaged for agent tooling, schemas, or workflow reasoning | Capability extraction, route mapping, MCP runtime, OpenAPI output, deterministic tool schemas |
-| **Operational SaaS product** | Agents need state, approval rules, session handling, and deployment posture | Runtime metadata, session model, approval requirements, health and readiness surfaces |
 
 ## Built for OpenClaw and Other Agentic Harnesses
 
