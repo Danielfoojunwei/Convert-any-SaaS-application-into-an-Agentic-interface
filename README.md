@@ -184,6 +184,75 @@ Agent-See is strongest today when the source is either a **URL-backed business s
 | **Live SaaS URL with mixed API + browser surface** | Hybrid applications where some actions are in APIs and some remain browser-only | Supported through route mapping plus browser fallback |
 | **Local codebase or directory** | Direct code-first conversion | Not the primary supported path in the current product framing; unsupported cases should fail truthfully |
 
+## Access Levels: How Much Control You Need to Get Full Value
+
+You do **not** need to own the URL or own the business to start using Agent-See. What matters more is the level of **authorized access** you have to the target surface. A public site can still be converted into a useful agent-facing package, but the package becomes materially more powerful as you gain access to authenticated flows, operational controls, and deployment context.
+
+The practical rule is simple: **ownership is optional, authorization is decisive**. The more of the system you are allowed to inspect, authenticate against, configure, and validate, the more complete the generated runtime can become.
+
+| Access level | What you typically have | What Agent-See can reliably do | What remains constrained |
+| --- | --- | --- | --- |
+| **Level 1: Public-only observer** | A public URL, public pages, maybe public docs or a public OpenAPI spec | Crawl visible pages, extract public forms and actions, infer workflows, generate MCP/OpenAPI/docs artifacts, build browser-backed read paths, package public interaction surfaces | No private dashboards, no authenticated state, no user-specific data, no stable validation of protected workflows |
+| **Level 2: Authenticated end user** | A normal user account, session cookies, access to post-login pages and standard user flows | Model logged-in workflows, preserve session-dependent actions, convert account-level pages, test user-visible operations, ground tools against real authenticated navigation | Limited visibility into admin routes, internal APIs, feature flags, operational settings, and backend error handling |
+| **Level 3: Admin or operator** | Administrative dashboard access, broader workflow permissions, operational pages, sometimes internal documentation | Convert higher-value workflows such as inventory, support, booking management, order operations, and operator dashboards; surface more complete state models and approval boundaries | Still limited if deployment internals, source code, staging, secrets, or API contracts are not available |
+| **Level 4: Owner, developer, or authorized integration team** | Full business authorization, API credentials, staging or development environment, deployment control, logs, and architecture context | Use Agent-See to the maximum: deterministic API routing, stronger environment config, deeper verification, safer deployment, approval tuning, packaging validation, and production hardening | Mostly limited by the quality of the original system rather than access level |
+
+### Level 1: Public-Only Observer
+
+At the public-only level, Agent-See can still generate meaningful value. It can crawl marketing pages, help centers, public catalogs, pricing pages, documentation pages, lead forms, booking entry points, and any other unauthenticated surfaces that a normal visitor can reach. This is enough to build a first-pass **capability graph**, infer public workflows, and generate an agent package that documents what appears to be callable from the outside.
+
+Technically, this level is strongest for **discovery and packaging**, not for deep operational execution. Agent-See can extract visible actions, infer parameter shapes from forms and URLs, generate browser-backed tools, emit `AGENTS.md`, `openapi.yaml`, and `tool_metadata.json`, and create a deployable runtime package for evaluation. However, the runtime will only be able to validate what the public surface actually exposes. If the most important action happens only after login, inside a customer portal, or behind anti-bot and permission controls, the package will necessarily remain partial.
+
+| Technical dimension | What Level 1 usually enables |
+| --- | --- |
+| **Discovery surface** | Public HTML, public navigation, public forms, public catalogs, public docs, public OpenAPI specs |
+| **Generated execution mode** | Browser-backed public actions, inferred workflow steps, API-backed routes only when openly documented or discoverable |
+| **Validation quality** | Structural and evidence-grounded, but limited for protected workflows |
+| **Best fit** | Prospecting, capability audits, prototyping, competitive analysis on permitted public surfaces, first-pass integration planning |
+| **Main limitation** | No authenticated state, no privileged actions, no reliable access to business-critical back-office operations |
+
+### Level 2: Authenticated End User
+
+With an authenticated user account, Agent-See moves from public discovery into **real session-aware workflow modeling**. It can observe post-login navigation, capture workflows that require cookies or session continuity, and distinguish between tools that are stateless and tools that depend on account context. This is often the first level where the generated runtime becomes genuinely useful for day-to-day task execution rather than only documentation and prototyping.
+
+At this level, the technical gain is that the generated package can represent **stateful user journeys**. Account pages, saved carts, appointment history, support tickets, order views, profile settings, usage dashboards, and similar logged-in surfaces become part of the capability graph. Session-dependent tools can be marked as requiring state, and the resulting metadata becomes more truthful about what the agent can execute directly versus what still needs approval or stronger access.
+
+| Technical dimension | What Level 2 usually enables |
+| --- | --- |
+| **Discovery surface** | Everything from Level 1 plus standard logged-in pages and user workflows |
+| **Runtime behavior** | Session-aware execution, authenticated browser flows, account-scoped read/write tools |
+| **Useful artifacts** | More accurate `runtime_state.json`, stronger `tool_metadata.json`, better workflow modeling for session continuity |
+| **Best fit** | Customer-account automation, authenticated research, support operations from a normal user perspective, internal dogfooding |
+| **Main limitation** | No operator-only controls, incomplete visibility into internal APIs, weak coverage of failure and approval behavior for administrative tasks |
+
+### Level 3: Admin or Operator
+
+Admin or operator access materially changes the ceiling. At this level, Agent-See can inspect not just the customer-facing journey but also the **business-operational control plane**. That includes dashboards, moderation or review queues, booking management interfaces, order administration, lead triage, support tooling, and settings pages that shape how the business actually runs.
+
+From a technical standpoint, this level improves both **coverage** and **operational truthfulness**. The generated tools can represent higher-value actions, the workflow graph can capture more realistic state transitions, and approval boundaries become easier to define because the system now reveals which actions are genuinely sensitive. This is also where health, readiness, and runbook-style artifacts become more useful, because the operator can compare generated behavior against the actual business workflow.
+
+| Technical dimension | What Level 3 usually enables |
+| --- | --- |
+| **Discovery surface** | Customer-facing flows plus admin dashboards, management pages, operator tools, broader settings surfaces |
+| **Generated execution mode** | Richer browser automation and hybrid API-plus-browser execution for operational workflows |
+| **Validation quality** | Stronger because operator-visible success states, queue transitions, and workflow side effects can be checked directly |
+| **Best fit** | Operations enablement, support tooling, order and booking management, internal process automation |
+| **Main limitation** | Full production hardening is still constrained without source-level knowledge, staging access, credentials policy, and deploy control |
+
+### Level 4: Owner, Developer, or Authorized Integration Team
+
+This is the level that unlocks the maximum value. Full business authorization, API credentials, staging access, deployment control, logs, and architecture knowledge allow Agent-See to operate as a **true integration and operationalization layer** rather than only a discovery and browser automation layer. Ownership itself is not the key variable; what matters is that the team has legitimate authority to configure and validate the system end to end.
+
+Technically, this level enables the cleanest path to **deterministic routing, packaging integrity, and production hardening**. API-backed capabilities can be mapped more precisely. Environment variables and authentication headers can be configured intentionally. Generated runtimes can be tested against staging, packaged into wheels and containers, deployed with clearer runbooks, and validated with more confidence. This is also the level where approval rules, monitoring, secrets handling, retry posture, and deployment choices can be reviewed by the people who actually control the system.
+
+| Technical dimension | What Level 4 usually enables |
+| --- | --- |
+| **Discovery surface** | Public, authenticated, administrative, and documented backend surfaces across environments |
+| **Execution quality** | Highest fidelity through direct API routing, verified browser flows, stronger session control, and environment-aware deployment |
+| **Packaging and deployment** | Reliable installability, containerization, cloud deployment, staging validation, and runtime configuration management |
+| **Best fit** | Production integrations, enterprise onboarding, internal platform tooling, customer-specific deployment packages |
+| **Main limitation** | Usually the underlying product architecture, not Agent-See access |
+
 ## Quick Start
 
 The fastest way to understand the product is to convert a real business surface and inspect the generated package.

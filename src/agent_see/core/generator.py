@@ -36,7 +36,6 @@ _TRANSACTION_HINTS = (
     "submit",
     "delete",
     "cancel",
-    "login",
 )
 
 _STATEFUL_HINTS = (
@@ -116,12 +115,37 @@ def generate_all(
         f"Generated {len(artifacts)} artifacts in {output_dir}: "
         f"{', '.join(artifacts.keys())}"
     )
-
     return artifacts
+
+
+_AUTH_SESSION_HINTS = (
+    "login",
+    "signin",
+    "sign_in",
+    "authenticate",
+    "auth",
+    "session",
+    "token",
+    "oauth",
+)
+
+
+def _looks_like_auth_session_capability(cap: Capability) -> bool:
+    name = cap.name.lower()
+    side_effect_text = " ".join(cap.side_effects).lower()
+    prereq_text = " ".join(cap.prerequisites).lower()
+    combined = " ".join((name, side_effect_text, prereq_text))
+    return any(hint in combined for hint in _AUTH_SESSION_HINTS)
+
 
 
 def _capability_requires_approval(cap: Capability) -> bool:
     name = cap.name.lower()
+    side_effect_text = " ".join(cap.side_effects).lower()
+
+    if _looks_like_auth_session_capability(cap):
+        return False
+
     if any(hint in name for hint in _TRANSACTION_HINTS):
         return True
 
@@ -129,13 +153,13 @@ def _capability_requires_approval(cap: Capability) -> bool:
     if sensitive_params & _SENSITIVE_PARAM_HINTS:
         return True
 
-    side_effect_text = " ".join(cap.side_effects).lower()
     if any(hint in side_effect_text for hint in _TRANSACTION_HINTS):
         return True
 
     return not cap.idempotent and any(
         hint in side_effect_text or hint in name for hint in ("submit", "delete", "book")
     )
+
 
 
 def _capability_requires_session(cap: Capability, graph: CapabilityGraph) -> bool:

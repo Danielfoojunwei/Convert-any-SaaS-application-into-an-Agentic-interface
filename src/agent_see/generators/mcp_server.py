@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 
 from agent_see.execution.browser_executor import (
@@ -102,6 +103,7 @@ async def {func_name}({params_str}) -> dict:
         indent=2,
     )
     tools_code = "\n".join(tool_registrations)
+    runtime_path_placeholder_expr = 'f"{{{param_name}}}"'
 
     return f'''"""Auto-generated MCP server for {graph.source_url or 'SaaS application'}.
 
@@ -451,7 +453,7 @@ async def _execute_via_api(tool_name: str, params: dict[str, Any]) -> dict[str, 
 
     for param_name in route.get("path_params", []):
         value = params.get(param_name, "")
-        path = path.replace("{" + param_name + "}", str(value))
+        path = path.replace({runtime_path_placeholder_expr}, str(value))
 
     url = f"{{base_url}}{{path}}"
     query = {{key: params[key] for key in route.get("query_params", []) if key in params}}
@@ -583,13 +585,18 @@ async def _execute_via_browser(tool_name: str, params: dict[str, Any]) -> dict[s
 # === Generated Tools ===
 {tools_code}
 
-if __name__ == "__main__":
+
+def main() -> None:
     logger.info(
         "Starting MCP runtime on port %s for %s",
         SETTINGS.port,
         SETTINGS.target_url,
     )
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()
 '''
 
 
@@ -606,18 +613,22 @@ def _python_type(json_type: str) -> str:
     return type_map.get(json_type, "str")
 
 
+def _distribution_name(graph: CapabilityGraph) -> str:
+    """Generate a PEP 503-safe distribution name for the emitted runtime."""
+    raw_name = (graph.source_url or "generated-mcp-server").split("//")[-1].split("/")[0]
+    normalized = re.sub(r"[^a-z0-9]+", "-", raw_name.lower()).strip("-")
+    return f"{normalized}-agent" if normalized else "generated-mcp-server"
+
+
+
 def _generate_pyproject(graph: CapabilityGraph) -> str:
     """Generate pyproject.toml for the MCP server."""
-    name = (
-        (graph.source_url or "converted-saas")
-        .split("//")[-1]
-        .split("/")[0]
-        .replace(".", "-")
-    )
+    name = _distribution_name(graph)
     return f'''[project]
-name = "{name}-agent"
+name = "{name}"
 version = "0.1.0"
 description = "Agent-optimized MCP server for {graph.source_url or 'SaaS application'}"
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "mcp[cli]>=1.0.0",
@@ -626,9 +637,15 @@ dependencies = [
     "agent-see>=0.1.0",
 ]
 
+[project.scripts]
+{name.replace('-', '_')}_runtime = "server:main"
+
 [build-system]
 requires = ["hatchling"]
-build-backend = "hatchling.backends"
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["server.py"]
 '''
 
 
