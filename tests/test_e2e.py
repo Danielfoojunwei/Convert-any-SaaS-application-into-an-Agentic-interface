@@ -636,8 +636,11 @@ class TestE2E_OutputValidation:
         assert "## Tools by Domain" in content
         assert "## Workflows" in content
         assert "## Error Handling" in content
+        assert "### Required question checklist" in content
+        assert "### Explicit stop conditions" in content
         assert "**Primary target**" in content
         assert "**Success criteria**" in content
+        assert "Before starting a highest-fidelity conversion" in content
 
     def test_skill_files_have_correct_structure(self) -> None:
         """Each SKILL.md has frontmatter, intake guidance, parameters, output, and errors."""
@@ -653,7 +656,9 @@ class TestE2E_OutputValidation:
             assert "## Output" in content
             assert "## Errors" in content
             assert "## Retry Safety" in content
-            assert "ask follow-up questions first" in content
+            assert "### Required checklist" in content
+            assert "### Stop conditions" in content
+            assert "Treat intake as a **required gate**" in content
 
     def test_workflow_skill_files(self) -> None:
         """Workflow SKILL.md files exist for detected workflows and include intake guidance."""
@@ -665,7 +670,8 @@ class TestE2E_OutputValidation:
             for wf_file in wf_files:
                 content = wf_file.read_text()
                 assert "## Highest-Fidelity Intake" in content
-                assert "Do not assume the workflow can be safely executed from a URL alone." in content
+                assert "### Stop conditions" in content
+                assert "Treat workflow intake as a **mandatory pre-run checklist**" in content
 
     def test_proof_json_complete(self) -> None:
         """proof.json contains all metric sections."""
