@@ -232,7 +232,7 @@ class TestSkillMdGeneration:
     """Test SKILL.md file generation."""
 
     def test_generates_skill_files(self, ecommerce_spec: dict, tmp_output: Path) -> None:
-        from agent_see.core.generator import _graph_to_tool_schemas, generate_all
+        from agent_see.core.generator import generate_all
         from agent_see.core.mapper import build_capability_graph
         from agent_see.extractors.openapi import extract_from_openapi
 
@@ -494,7 +494,7 @@ class TestBookingPipeline:
 
         caps = extract_from_openapi(booking_spec)
         graph = build_capability_graph(caps, source_url="test://dental")
-        artifacts = generate_all(graph, tmp_output)
+        generate_all(graph, tmp_output)
         schemas = _graph_to_tool_schemas(graph)
         proof = run_full_verification(graph, schemas)
 

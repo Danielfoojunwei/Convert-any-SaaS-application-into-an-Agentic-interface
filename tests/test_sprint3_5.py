@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import threading
-from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import Any, Generator
@@ -230,6 +229,43 @@ class TestRouteMap:
         assert "email" in route.body_params
 
 
+@pytest.fixture
+
+def transient_api_server() -> Generator[str, None, None]:
+    """Start a local API server that fails once before succeeding."""
+
+    class TransientAPIHandler(SimpleHTTPRequestHandler):
+        failure_count = 0
+
+        def do_GET(self) -> None:  # noqa: N802
+            if self.path == "/flaky":
+                if TransientAPIHandler.failure_count == 0:
+                    TransientAPIHandler.failure_count += 1
+                    self._json_response({"message": "temporary outage"}, status=503)
+                    return
+                self._json_response({"ok": True, "source": "retry-success"})
+                return
+            self.send_error(404)
+
+        def _json_response(self, data: Any, status: int = 200) -> None:
+            body = json.dumps(data).encode()
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", len(body))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, format: str, *args: Any) -> None:
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), TransientAPIHandler)
+    port = server.server_address[1]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    yield f"http://127.0.0.1:{port}"
+    server.shutdown()
+
+
 class TestAPIExecutor:
     """Test the API executor against a real local HTTP server."""
 
@@ -356,6 +392,34 @@ class TestAPIExecutor:
         result = await executor.execute("get_cart", {})
         assert result["cart_id"] == "c1"
 
+    @pytest.mark.asyncio
+    async def test_execute_retries_transient_http_failures(
+        self, transient_api_server: str
+    ) -> None:
+        """Executor retries a transient upstream failure and eventually succeeds."""
+        from agent_see.execution.api_executor import APIExecutor
+        from agent_see.execution.route_map import APIRoute, RouteMap, RouteMethod
+
+        route_map = RouteMap(
+            base_url=transient_api_server,
+            routes={
+                "check_flaky": APIRoute(
+                    tool_name="check_flaky",
+                    method=RouteMethod.GET,
+                    path="/flaky",
+                    path_params=[],
+                    query_params=[],
+                    body_params=[],
+                    content_type="application/json",
+                )
+            },
+        )
+        executor = APIExecutor(route_map, max_retries=2, retry_backoff_seconds=0)
+
+        result = await executor.execute("check_flaky", {})
+        assert result["ok"] is True
+        assert result["_attempts"] == 2
+
 
 # ═══════════════════════════════════════════════════════════
 # SPRINT 4: BROWSER AUTOMATION
@@ -368,7 +432,6 @@ class TestBrowserExecutor:
     def test_form_mapping_construction(self) -> None:
         """Build FormMappings from browser-extracted capabilities."""
         from agent_see.execution.browser_executor import (
-            FormMapping,
             build_form_mappings_from_graph,
         )
 
@@ -550,6 +613,21 @@ class TestDeploymentConfigs:
         assert "TARGET_URL" in content
         assert "API_KEY" in content
         assert "PORT" in content
+        assert "REQUEST_TIMEOUT_SECONDS" in content
+        assert "SESSION_TTL_SECONDS" in content
+        assert "AGENT_SEE_ALLOW_UNSAFE_AUTOMATION" in content
+
+    def test_generate_docker_compose_has_runtime_controls(self, tmp_output: Path) -> None:
+        """Docker Compose includes the production runtime control environment variables."""
+        from agent_see.execution.deployer import generate_docker_compose
+
+        content = generate_docker_compose(tmp_output)
+        assert "REQUEST_TIMEOUT_SECONDS" in content
+        assert "API_MAX_RETRIES" in content
+        assert "BROWSER_MAX_RETRIES" in content
+        assert "SESSION_TTL_SECONDS" in content
+        assert "MAX_SESSIONS" in content
+        assert "start_period" in content
 
     def test_generate_deploy_script(self) -> None:
         """Deploy script has correct structure."""
@@ -557,6 +635,7 @@ class TestDeploymentConfigs:
 
         content = generate_deploy_script()
         assert "#!/bin/bash" in content
+        assert "set -euo pipefail" in content
         assert "flyctl" in content
         assert "railway" in content
         assert "docker" in content
@@ -651,6 +730,9 @@ class TestFullPipelineWithExecution:
         assert (mcp_dir / "deploy.sh").exists()
         assert (mcp_dir / "Dockerfile").exists()
         assert (mcp_dir / "pyproject.toml").exists()
+        assert (mcp_dir / "tool_metadata.json").exists()
+        assert (mcp_dir / "runtime_state.json").exists()
+        assert (mcp_dir / "operationalization_report.json").exists()
 
     def test_generated_server_is_valid_python(self, tmp_output: Path) -> None:
         """Generated server.py compiles without syntax errors."""
@@ -664,6 +746,22 @@ class TestFullPipelineWithExecution:
 
         server_py = (tmp_output / "mcp_server" / "server.py").read_text()
         compile(server_py, "server.py", "exec")  # Syntax check passes
+
+    def test_generated_server_has_operational_runtime_tools(self, tmp_output: Path) -> None:
+        """Generated runtime exposes health, readiness, and snapshot inspection surfaces."""
+        from agent_see.core.analyzer import analyze_openapi_file
+        from agent_see.core.generator import generate_all
+        from agent_see.core.mapper import build_capability_graph
+
+        caps = analyze_openapi_file(ECOMMERCE_SPEC)
+        graph = build_capability_graph(caps, source_url="http://bakery.com")
+        generate_all(graph, tmp_output)
+
+        server_py = (tmp_output / "mcp_server" / "server.py").read_text()
+        assert "async def healthcheck()" in server_py
+        assert "async def readiness()" in server_py
+        assert "async def runtime_snapshot()" in server_py
+        assert "SESSION_TTL_SECONDS" in (tmp_output / "mcp_server" / ".env.example").read_text()
 
     def test_proof_still_passes_with_execution(self, tmp_output: Path) -> None:
         """Full verification still passes after adding execution layer."""

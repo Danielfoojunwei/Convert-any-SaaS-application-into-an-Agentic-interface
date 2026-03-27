@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from agent_see.models.capability import CapabilityGraph
 from agent_see.models.schema import ToolSchema
 
@@ -9,17 +11,20 @@ from agent_see.models.schema import ToolSchema
 def generate_agent_card(
     graph: CapabilityGraph,
     tool_schemas: list[ToolSchema],
-) -> dict:
+) -> dict[str, Any]:
     """Generate an A2A Agent Card JSON document.
 
-    The Agent Card is the "business card" for the agent interface,
-    enabling other agents to discover and understand what this
-    converted SaaS can do.
+    The Agent Card is the discovery document that lets other agents understand
+    what the converted SaaS can do.
     """
     source = graph.source_url or "converted-saas"
-    name = source.split("//")[-1].split("/")[0].replace(".", "-") if "//" in source else source
+    name = (
+        source.split("//")[-1].split("/")[0].replace(".", "-")
+        if "//" in source
+        else source
+    )
 
-    skills = []
+    skills: list[dict[str, Any]] = []
     for schema in tool_schemas:
         skills.append(
             {
@@ -34,9 +39,11 @@ def generate_agent_card(
 
     return {
         "name": f"{name}-agent",
-        "description": f"Agent-optimized interface for {source}. "
-        f"{graph.capability_count} capabilities across "
-        f"{len(graph.domains)} domains.",
+        "description": (
+            f"Agent-optimized interface for {source}. "
+            f"{graph.capability_count} capabilities across "
+            f"{len(graph.domains)} domains."
+        ),
         "url": f"https://{name}-agent.example.com",
         "provider": {
             "organization": "Agent-See",

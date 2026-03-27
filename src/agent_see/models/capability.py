@@ -206,6 +206,14 @@ class Workflow(BaseModel):
     is_transactional: bool = Field(
         default=False, description="Whether this workflow involves payment/booking"
     )
+    requires_session: bool = Field(
+        default=False,
+        description="Whether the workflow depends on runtime session or state continuity",
+    )
+    operational_notes: list[str] = Field(
+        default_factory=list,
+        description="Truthful notes about how operationalized or inferred this workflow is",
+    )
 
 
 class AuthType(str, Enum):
@@ -234,6 +242,18 @@ class StateModel(BaseModel):
     states: dict[str, list[str]] = Field(
         default_factory=dict,
         description="State name → list of valid transitions",
+    )
+    workflow_states: dict[str, list[str]] = Field(
+        default_factory=dict,
+        description="Workflow name → ordered state sequence for runtime scaffolding",
+    )
+    session_entities: list[str] = Field(
+        default_factory=list,
+        description="Named stateful entities the generated runtime may need to persist",
+    )
+    operational_notes: list[str] = Field(
+        default_factory=list,
+        description="Truthful notes about how complete the inferred runtime state model is",
     )
     description: str = ""
 

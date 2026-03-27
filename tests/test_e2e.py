@@ -13,12 +13,11 @@ Tests the complete pipeline from input → discovery → extraction → mapping
 from __future__ import annotations
 
 import json
-import os
 import threading
 from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import Generator
+from typing import TYPE_CHECKING, Generator
 
 import pytest
 import yaml
@@ -28,6 +27,9 @@ HTML_DIR = FIXTURES_DIR / "html"
 ECOMMERCE_SPEC = FIXTURES_DIR / "ecommerce_openapi.json"
 BOOKING_SPEC = FIXTURES_DIR / "booking_openapi.json"
 PETSTORE_SPEC = FIXTURES_DIR / "petstore_openapi.json"
+
+if TYPE_CHECKING:
+    from agent_see.discovery.page_crawler import CrawlResult
 
 
 # ─── Test Server Fixture ───
@@ -169,7 +171,7 @@ class TestE2E_OpenAPISpec:
         assert len(caps) == 7
 
         graph = build_capability_graph(caps, source_url="file://dental")
-        artifacts = generate_all(graph, tmp_output)
+        generate_all(graph, tmp_output)
         schemas = _graph_to_tool_schemas(graph)
         proof = run_full_verification(graph, schemas)
 
@@ -199,7 +201,7 @@ class TestE2E_OpenAPISpec:
         assert len(caps) >= 3  # At least list, create, get pets
 
         graph = build_capability_graph(caps, source_url="file://petstore")
-        artifacts = generate_all(graph, tmp_output)
+        generate_all(graph, tmp_output)
         schemas = _graph_to_tool_schemas(graph)
         proof = run_full_verification(graph, schemas)
 
@@ -268,7 +270,7 @@ class TestE2E_LiveHTTPServer:
         assert len(caps) >= 6  # From OpenAPI spec discovery
 
         graph = build_capability_graph(caps, source_url=bakery_with_api_server)
-        artifacts = generate_all(graph, tmp_output)
+        generate_all(graph, tmp_output)
         schemas = _graph_to_tool_schemas(graph)
         proof = run_full_verification(graph, schemas)
 
@@ -291,7 +293,7 @@ class TestE2E_BrowserDOM:
     with crawl results constructed from test HTML files.
     """
 
-    def _build_crawl_from_html(self, base_url: str = "http://test") -> "CrawlResult":
+    def _build_crawl_from_html(self, base_url: str = "http://test") -> CrawlResult:
         """Build a CrawlResult from test HTML fixtures."""
         from agent_see.discovery.page_crawler import (
             CrawlResult,

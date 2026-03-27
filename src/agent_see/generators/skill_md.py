@@ -23,7 +23,7 @@ def _generate_skill_frontmatter(schema: ToolSchema) -> str:
         "---",
         f'name: "{schema.name}"',
         f'description: "{schema.description}"',
-        f"version: 0.1.0",
+        "version: 0.1.0",
         f"idempotent: {str(schema.idempotent).lower()}",
         f"domain: {schema.domain or 'general'}",
         f"execution_backend: {schema.execution_backend.value}",
@@ -50,7 +50,8 @@ def _generate_parameters_section(schema: ToolSchema) -> str:
     if enum_params:
         lines.append("")
         for p in enum_params:
-            lines.append(f"**`{p.name}` values**: {', '.join(f'`{v}`' for v in p.enum)}")
+            enum_values = p.enum or []
+            lines.append(f"**`{p.name}` values**: {', '.join(f'`{v}`' for v in enum_values)}")
 
     return "\n".join(lines)
 
@@ -175,7 +176,7 @@ def generate_workflow_skill_md(workflow: Workflow, graph: CapabilityGraph) -> st
         "---",
         f'name: "{workflow.name}"',
         f'description: "{workflow.description}"',
-        f"version: 0.1.0",
+        "version: 0.1.0",
         f"transactional: {str(workflow.is_transactional).lower()}",
         f"steps: {len(workflow.steps)}",
         "---",

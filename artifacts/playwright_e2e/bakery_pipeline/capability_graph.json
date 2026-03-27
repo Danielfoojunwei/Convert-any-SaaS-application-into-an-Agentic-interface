@@ -1,0 +1,1285 @@
+{
+  "nodes": {
+    "openapi_get_products": {
+      "id": "openapi_get_products",
+      "name": "list_products",
+      "description": "List all products in the bakery catalog",
+      "source": {
+        "source_type": "openapi",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//products/get",
+        "raw_snippet": "GET /products - List all products in the bakery catalog",
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.242973"
+      },
+      "parameters": [
+        {
+          "name": "category",
+          "param_type": "enum",
+          "description": "Filter by product category",
+          "required": false,
+          "default": null,
+          "enum_values": [
+            "cakes",
+            "pastries",
+            "bread",
+            "custom"
+          ],
+          "example": null
+        },
+        {
+          "name": "limit",
+          "param_type": "integer",
+          "description": "Number of results per page",
+          "required": false,
+          "default": 20,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "page",
+          "param_type": "integer",
+          "description": "Page number for pagination",
+          "required": false,
+          "default": 1,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "query",
+          "param_type": "string",
+          "description": "Search query for products",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "min_price",
+          "param_type": "number",
+          "description": "Minimum price filter",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "max_price",
+          "param_type": "number",
+          "description": "Maximum price filter",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "id",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "name",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "description",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "price",
+            "field_type": "number",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "currency",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "category",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "in_stock",
+            "field_type": "boolean",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "images",
+            "field_type": "array",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "image_url",
+            "field_type": "string",
+            "description": "Product image URL",
+            "nullable": false
+          }
+        ],
+        "is_array": true,
+        "description": "List of products"
+      },
+      "side_effects": [],
+      "prerequisites": [],
+      "confidence": 1.0,
+      "evidence": [
+        "GET /products",
+        "operationId: listProducts",
+        "summary: List all products in the bakery catalog",
+        "Product listing page: http://127.0.0.1:43987/products",
+        "Page title: Products - Sweet Bakery",
+        "Product indicators found: 5",
+        "Price mentions: 3",
+        "E-commerce product listing pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "products"
+    },
+    "openapi_get_products_productId": {
+      "id": "openapi_get_products_productId",
+      "name": "get_product_details",
+      "description": "Get full details for a specific product",
+      "source": {
+        "source_type": "openapi",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//products/{productId}/get",
+        "raw_snippet": "GET /products/{productId} - Get full details for a specific product",
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243086"
+      },
+      "parameters": [
+        {
+          "name": "productId",
+          "param_type": "string",
+          "description": "Product identifier",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "product_id",
+          "param_type": "string",
+          "description": "Product identifier",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "id",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "name",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "description",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "price",
+            "field_type": "number",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "currency",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "category",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "in_stock",
+            "field_type": "boolean",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "images",
+            "field_type": "array",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "variants",
+            "field_type": "array",
+            "description": "Product variants (size, color, etc.)",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": "Product details"
+      },
+      "side_effects": [],
+      "prerequisites": [],
+      "confidence": 1.0,
+      "evidence": [
+        "GET /products/{productId}",
+        "operationId: getProductDetails",
+        "summary: Get full details for a specific product",
+        "E-commerce product detail pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "products"
+    },
+    "openapi_get_cart": {
+      "id": "openapi_get_cart",
+      "name": "get_cart",
+      "description": "Get current shopping cart contents",
+      "source": {
+        "source_type": "openapi",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//cart/get",
+        "raw_snippet": "GET /cart - Get current shopping cart contents",
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243149"
+      },
+      "parameters": [],
+      "returns": {
+        "fields": [
+          {
+            "name": "cart_id",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "items",
+            "field_type": "array",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "item_count",
+            "field_type": "integer",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "subtotal",
+            "field_type": "number",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "currency",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": "Cart contents"
+      },
+      "side_effects": [],
+      "prerequisites": [],
+      "confidence": 1.0,
+      "evidence": [
+        "GET /cart",
+        "operationId: getCart",
+        "summary: Get current shopping cart contents",
+        "E-commerce cart view pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "cart"
+    },
+    "openapi_post_cart_items": {
+      "id": "openapi_post_cart_items",
+      "name": "add_to_cart",
+      "description": "Add a product to the shopping cart",
+      "source": {
+        "source_type": "openapi",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//cart/items/post",
+        "raw_snippet": "POST /cart/items - Add a product to the shopping cart",
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243227"
+      },
+      "parameters": [
+        {
+          "name": "product_id",
+          "param_type": "string",
+          "description": "Product identifier",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "quantity",
+          "param_type": "integer",
+          "description": "Number of items to add",
+          "required": true,
+          "default": 1,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "variant_id",
+          "param_type": "string",
+          "description": "Product variant (size, flavor)",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "cart_id",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "items",
+            "field_type": "array",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "item_count",
+            "field_type": "integer",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "subtotal",
+            "field_type": "number",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "currency",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": "Item added to cart"
+      },
+      "side_effects": [
+        "creates_resource",
+        "modifies_cart"
+      ],
+      "prerequisites": [],
+      "confidence": 1.0,
+      "evidence": [
+        "POST /cart/items",
+        "operationId: addToCart",
+        "summary: Add a product to the shopping cart",
+        "E-commerce add to cart pattern detected"
+      ],
+      "idempotent": false,
+      "domain": "cart"
+    },
+    "openapi_post_checkout": {
+      "id": "openapi_post_checkout",
+      "name": "submit_checkout",
+      "description": "Initiate checkout - returns payment URL for confirmation",
+      "source": {
+        "source_type": "openapi",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//checkout/post",
+        "raw_snippet": "POST /checkout - Initiate checkout - returns payment URL for confirmation",
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243291"
+      },
+      "parameters": [
+        {
+          "name": "shipping_address",
+          "param_type": "object",
+          "description": "Delivery address",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "email",
+          "param_type": "string",
+          "description": "Customer email for confirmation",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "shipping_method",
+          "param_type": "string",
+          "description": "Selected shipping method",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "full_name",
+          "param_type": "string",
+          "description": "Full Name",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "address",
+          "param_type": "string",
+          "description": "Shipping Address",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "zip_code",
+          "param_type": "string",
+          "description": "ZIP Code",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "checkout_id",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "payment_url",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "total",
+            "field_type": "number",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "currency",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "expires_at",
+            "field_type": "string",
+            "description": "When this checkout session expires",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": "Checkout session created"
+      },
+      "side_effects": [
+        "creates_resource",
+        "Submits form to http://127.0.0.1:43987/checkout",
+        "creates_checkout_session"
+      ],
+      "prerequisites": [
+        "cart must have items"
+      ],
+      "confidence": 1.0,
+      "evidence": [
+        "POST /checkout",
+        "operationId: submitCheckout",
+        "summary: Initiate checkout - returns payment URL for confirmation",
+        "Form found on page: http://127.0.0.1:43987/cart",
+        "Form action: http://127.0.0.1:43987/checkout",
+        "Form method: POST",
+        "Submit button text: Proceed to Payment",
+        "Fields: full_name, email, address, zip_code, shipping_method",
+        "E-commerce checkout pattern detected"
+      ],
+      "idempotent": false,
+      "domain": "checkout"
+    },
+    "openapi_get_orders_orderId": {
+      "id": "openapi_get_orders_orderId",
+      "name": "get_order_status",
+      "description": "Get order status and tracking info",
+      "source": {
+        "source_type": "openapi",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//orders/{orderId}/get",
+        "raw_snippet": "GET /orders/{orderId} - Get order status and tracking info",
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243350"
+      },
+      "parameters": [
+        {
+          "name": "orderId",
+          "param_type": "string",
+          "description": "Order identifier",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "order_id",
+          "param_type": "string",
+          "description": "Order identifier",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "order_id",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "status",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "items",
+            "field_type": "array",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "total",
+            "field_type": "number",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "tracking_number",
+            "field_type": "string",
+            "description": "",
+            "nullable": false
+          },
+          {
+            "name": "tracking_url",
+            "field_type": "string",
+            "description": "Tracking URL",
+            "nullable": true
+          },
+          {
+            "name": "estimated_delivery",
+            "field_type": "string",
+            "description": "Estimated delivery date",
+            "nullable": true
+          }
+        ],
+        "is_array": false,
+        "description": "Order details"
+      },
+      "side_effects": [],
+      "prerequisites": [
+        "valid order_id required"
+      ],
+      "confidence": 1.0,
+      "evidence": [
+        "GET /orders/{orderId}",
+        "operationId: getOrderStatus",
+        "summary: Get order status and tracking info",
+        "E-commerce order tracking pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "orders"
+    },
+    "browser_form_search_search_items": {
+      "id": "browser_form_search_search_items",
+      "name": "search_items",
+      "description": "Search for items on the site",
+      "source": {
+        "source_type": "browser_dom",
+        "location": "http://127.0.0.1:43987/products#form[0]",
+        "raw_snippet": "<form action='http://127.0.0.1:43987/products' method='GET'> fields: query submit: 'Search'",
+        "url": "http://127.0.0.1:43987/products",
+        "timestamp": "2026-03-27T03:42:06.312451"
+      },
+      "parameters": [
+        {
+          "name": "query",
+          "param_type": "string",
+          "description": "Search products...",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [],
+        "is_array": false,
+        "description": "Form submission result"
+      },
+      "side_effects": [
+        "Submits form to http://127.0.0.1:43987/products"
+      ],
+      "prerequisites": [],
+      "confidence": 0.7,
+      "evidence": [
+        "Form found on page: http://127.0.0.1:43987/products",
+        "Form action: http://127.0.0.1:43987/products",
+        "Form method: GET",
+        "Submit button text: Search",
+        "Fields: query"
+      ],
+      "idempotent": true,
+      "domain": "search"
+    },
+    "browser_form_contact_send_message": {
+      "id": "browser_form_contact_send_message",
+      "name": "send_message",
+      "description": "Send a message to the business",
+      "source": {
+        "source_type": "browser_dom",
+        "location": "http://127.0.0.1:43987/contact#form[0]",
+        "raw_snippet": "<form action='http://127.0.0.1:43987/contact/submit' method='POST'> fields: sender_name, sender_email, subject, body submit: 'Send Message'",
+        "url": "http://127.0.0.1:43987/contact",
+        "timestamp": "2026-03-27T03:42:06.312603"
+      },
+      "parameters": [
+        {
+          "name": "sender_name",
+          "param_type": "string",
+          "description": "Your Name",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "sender_email",
+          "param_type": "string",
+          "description": "Your Email",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "subject",
+          "param_type": "string",
+          "description": "Subject",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "body",
+          "param_type": "string",
+          "description": "Your Message",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [],
+        "is_array": false,
+        "description": "Form submission result"
+      },
+      "side_effects": [
+        "Submits form to http://127.0.0.1:43987/contact/submit"
+      ],
+      "prerequisites": [],
+      "confidence": 0.7,
+      "evidence": [
+        "Form found on page: http://127.0.0.1:43987/contact",
+        "Form action: http://127.0.0.1:43987/contact/submit",
+        "Form method: POST",
+        "Submit button text: Send Message",
+        "Fields: sender_name, sender_email, subject, body"
+      ],
+      "idempotent": false,
+      "domain": "contact"
+    },
+    "browser_get_business_info": {
+      "id": "browser_get_business_info",
+      "name": "get_business_info",
+      "description": "Get business contact information, hours, and location",
+      "source": {
+        "source_type": "browser_dom",
+        "location": "http://127.0.0.1:43987/about",
+        "raw_snippet": "About/contact page found on site",
+        "url": "http://127.0.0.1:43987/about",
+        "timestamp": "2026-03-27T03:42:06.312616"
+      },
+      "parameters": [],
+      "returns": {
+        "fields": [],
+        "is_array": false,
+        "description": "Business name, address, phone, hours, email"
+      },
+      "side_effects": [],
+      "prerequisites": [],
+      "confidence": 0.7,
+      "evidence": [
+        "About/contact page found at: http://127.0.0.1:43987/about"
+      ],
+      "idempotent": true,
+      "domain": "info"
+    },
+    "tpl_check_inventory": {
+      "id": "tpl_check_inventory",
+      "name": "check_inventory",
+      "description": "Check real-time stock status for a product variant",
+      "source": {
+        "source_type": "template",
+        "location": "http://127.0.0.1:43987",
+        "raw_snippet": "E-commerce inventory check template",
+        "url": null,
+        "timestamp": "2026-03-27T03:42:06.405231"
+      },
+      "parameters": [
+        {
+          "name": "product_id",
+          "param_type": "string",
+          "description": "Product identifier",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "variant_id",
+          "param_type": "string",
+          "description": "Specific variant (size, color)",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "product_id",
+            "field_type": "string",
+            "description": "Product ID",
+            "nullable": false
+          },
+          {
+            "name": "in_stock",
+            "field_type": "boolean",
+            "description": "Whether in stock",
+            "nullable": false
+          },
+          {
+            "name": "quantity",
+            "field_type": "integer",
+            "description": "Available quantity",
+            "nullable": false
+          },
+          {
+            "name": "restock_date",
+            "field_type": "string",
+            "description": "Expected restock date",
+            "nullable": true
+          }
+        ],
+        "is_array": false,
+        "description": ""
+      },
+      "side_effects": [],
+      "prerequisites": [],
+      "confidence": 0.65,
+      "evidence": [
+        "E-commerce inventory check pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "products"
+    },
+    "tpl_remove_from_cart": {
+      "id": "tpl_remove_from_cart",
+      "name": "remove_from_cart",
+      "description": "Remove a product from the shopping cart",
+      "source": {
+        "source_type": "template",
+        "location": "http://127.0.0.1:43987",
+        "raw_snippet": "E-commerce remove from cart template",
+        "url": null,
+        "timestamp": "2026-03-27T03:42:06.405285"
+      },
+      "parameters": [
+        {
+          "name": "product_id",
+          "param_type": "string",
+          "description": "Product identifier to remove",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "variant_id",
+          "param_type": "string",
+          "description": "Specific variant to remove",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "cart_id",
+            "field_type": "string",
+            "description": "Cart session ID",
+            "nullable": false
+          },
+          {
+            "name": "item_count",
+            "field_type": "integer",
+            "description": "Remaining items",
+            "nullable": false
+          },
+          {
+            "name": "subtotal",
+            "field_type": "number",
+            "description": "Updated subtotal",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": ""
+      },
+      "side_effects": [
+        "modifies_cart"
+      ],
+      "prerequisites": [],
+      "confidence": 0.65,
+      "evidence": [
+        "E-commerce remove from cart pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "cart"
+    },
+    "tpl_apply_coupon": {
+      "id": "tpl_apply_coupon",
+      "name": "apply_coupon",
+      "description": "Apply a coupon or discount code to the cart",
+      "source": {
+        "source_type": "template",
+        "location": "http://127.0.0.1:43987",
+        "raw_snippet": "E-commerce coupon template",
+        "url": null,
+        "timestamp": "2026-03-27T03:42:06.405300"
+      },
+      "parameters": [
+        {
+          "name": "code",
+          "param_type": "string",
+          "description": "Coupon or discount code",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "applied",
+            "field_type": "boolean",
+            "description": "Whether the code was accepted",
+            "nullable": false
+          },
+          {
+            "name": "discount_amount",
+            "field_type": "number",
+            "description": "Discount amount",
+            "nullable": false
+          },
+          {
+            "name": "new_subtotal",
+            "field_type": "number",
+            "description": "Cart subtotal after discount",
+            "nullable": false
+          },
+          {
+            "name": "message",
+            "field_type": "string",
+            "description": "Coupon status message",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": ""
+      },
+      "side_effects": [
+        "modifies_cart"
+      ],
+      "prerequisites": [],
+      "confidence": 0.65,
+      "evidence": [
+        "E-commerce coupon/discount pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "cart"
+    },
+    "tpl_calculate_shipping": {
+      "id": "tpl_calculate_shipping",
+      "name": "calculate_shipping",
+      "description": "Calculate shipping options and costs for delivery address",
+      "source": {
+        "source_type": "template",
+        "location": "http://127.0.0.1:43987",
+        "raw_snippet": "E-commerce shipping calculation template",
+        "url": null,
+        "timestamp": "2026-03-27T03:42:06.405314"
+      },
+      "parameters": [
+        {
+          "name": "zip_code",
+          "param_type": "string",
+          "description": "Delivery ZIP/postal code",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "country",
+          "param_type": "string",
+          "description": "Delivery country code (ISO 3166-1 alpha-2)",
+          "required": false,
+          "default": "US",
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "options",
+            "field_type": "array",
+            "description": "Available shipping options",
+            "nullable": false
+          },
+          {
+            "name": "cheapest_option",
+            "field_type": "object",
+            "description": "Lowest cost option",
+            "nullable": false
+          },
+          {
+            "name": "fastest_option",
+            "field_type": "object",
+            "description": "Fastest delivery option",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": ""
+      },
+      "side_effects": [],
+      "prerequisites": [],
+      "confidence": 0.65,
+      "evidence": [
+        "E-commerce shipping calculation pattern detected"
+      ],
+      "idempotent": true,
+      "domain": "checkout"
+    },
+    "tpl_initiate_return": {
+      "id": "tpl_initiate_return",
+      "name": "initiate_return",
+      "description": "Start a return or refund request for an order",
+      "source": {
+        "source_type": "template",
+        "location": "http://127.0.0.1:43987",
+        "raw_snippet": "E-commerce return/refund template",
+        "url": null,
+        "timestamp": "2026-03-27T03:42:06.405589"
+      },
+      "parameters": [
+        {
+          "name": "order_id",
+          "param_type": "string",
+          "description": "Order identifier",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "item_ids",
+          "param_type": "array",
+          "description": "List of item IDs to return",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        },
+        {
+          "name": "reason",
+          "param_type": "string",
+          "description": "Reason for return",
+          "required": true,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [
+          {
+            "name": "return_id",
+            "field_type": "string",
+            "description": "Return request ID",
+            "nullable": false
+          },
+          {
+            "name": "status",
+            "field_type": "string",
+            "description": "Return request status",
+            "nullable": false
+          },
+          {
+            "name": "return_label_url",
+            "field_type": "string",
+            "description": "Return shipping label URL",
+            "nullable": true
+          },
+          {
+            "name": "refund_amount",
+            "field_type": "number",
+            "description": "Expected refund amount",
+            "nullable": false
+          }
+        ],
+        "is_array": false,
+        "description": ""
+      },
+      "side_effects": [
+        "creates_return_request"
+      ],
+      "prerequisites": [
+        "valid order_id required"
+      ],
+      "confidence": 0.65,
+      "evidence": [
+        "E-commerce return/refund pattern detected"
+      ],
+      "idempotent": false,
+      "domain": "orders"
+    }
+  },
+  "edges": [
+    {
+      "source_id": "openapi_get_products",
+      "target_id": "openapi_get_products_productId",
+      "edge_type": "produces_input_for",
+      "description": "list_products provides IDs for get_product_details"
+    },
+    {
+      "source_id": "openapi_post_cart_items",
+      "target_id": "openapi_post_checkout",
+      "edge_type": "produces_input_for",
+      "description": "Cart must have items before checkout"
+    },
+    {
+      "source_id": "openapi_get_products",
+      "target_id": "openapi_post_cart_items",
+      "edge_type": "produces_input_for",
+      "description": "Need product IDs to add to cart"
+    }
+  ],
+  "domains": [
+    {
+      "name": "products",
+      "description": "Capabilities related to products",
+      "capability_ids": [
+        "openapi_get_products",
+        "openapi_get_products_productId",
+        "tpl_check_inventory"
+      ]
+    },
+    {
+      "name": "cart",
+      "description": "Capabilities related to cart",
+      "capability_ids": [
+        "openapi_get_cart",
+        "openapi_post_cart_items",
+        "tpl_remove_from_cart",
+        "tpl_apply_coupon"
+      ]
+    },
+    {
+      "name": "checkout",
+      "description": "Capabilities related to checkout",
+      "capability_ids": [
+        "openapi_post_checkout",
+        "tpl_calculate_shipping"
+      ]
+    },
+    {
+      "name": "orders",
+      "description": "Capabilities related to orders",
+      "capability_ids": [
+        "openapi_get_orders_orderId",
+        "tpl_initiate_return"
+      ]
+    },
+    {
+      "name": "search",
+      "description": "Capabilities related to search",
+      "capability_ids": [
+        "browser_form_search_search_items"
+      ]
+    },
+    {
+      "name": "contact",
+      "description": "Capabilities related to contact",
+      "capability_ids": [
+        "browser_form_contact_send_message"
+      ]
+    },
+    {
+      "name": "info",
+      "description": "Capabilities related to info",
+      "capability_ids": [
+        "browser_get_business_info"
+      ]
+    }
+  ],
+  "workflows": [
+    {
+      "name": "purchase_flow",
+      "description": "Complete purchase workflow: browse → cart → checkout → order tracking",
+      "steps": [
+        {
+          "capability_id": "openapi_get_products",
+          "description": "List all products in the bakery catalog",
+          "output_maps_to": {
+            "items[].id": "add_to_cart.product_id"
+          }
+        },
+        {
+          "capability_id": "openapi_get_products_productId",
+          "description": "Get full details for a specific product",
+          "output_maps_to": {
+            "id": "add_to_cart.product_id"
+          }
+        },
+        {
+          "capability_id": "openapi_post_cart_items",
+          "description": "Add a product to the shopping cart",
+          "output_maps_to": {
+            "cart_id": "get_cart.cart_id"
+          }
+        },
+        {
+          "capability_id": "openapi_get_cart",
+          "description": "Get current shopping cart contents",
+          "output_maps_to": {}
+        },
+        {
+          "capability_id": "openapi_post_checkout",
+          "description": "Initiate checkout - returns payment URL for confirmation",
+          "output_maps_to": {
+            "order_id": "get_order_status.orderId",
+            "checkout_id": "get_order_status.orderId"
+          }
+        },
+        {
+          "capability_id": "openapi_get_orders_orderId",
+          "description": "Get order status and tracking info",
+          "output_maps_to": {}
+        }
+      ],
+      "is_transactional": true,
+      "requires_session": true,
+      "operational_notes": [
+        "State transitions are inferred from discovered capabilities rather than live checkout instrumentation.",
+        "Generated runtime can scaffold session continuity, but durable persistence still requires production storage."
+      ]
+    }
+  ],
+  "auth_model": {
+    "auth_type": "none",
+    "description": "",
+    "token_url": null,
+    "scopes": []
+  },
+  "state_model": {
+    "states": {
+      "browsing": [
+        "cart_review"
+      ],
+      "cart_review": [
+        "checkout_ready",
+        "browsing"
+      ],
+      "checkout_ready": [
+        "payment_pending",
+        "cart_review"
+      ],
+      "payment_pending": [
+        "order_tracking"
+      ],
+      "order_tracking": []
+    },
+    "workflow_states": {
+      "purchase_flow": [
+        "browsing",
+        "cart_review",
+        "checkout_ready",
+        "payment_pending",
+        "order_tracking"
+      ]
+    },
+    "session_entities": [
+      "cart_session"
+    ],
+    "operational_notes": [
+      "This state model is inferred from discovered capabilities and workflow order.",
+      "It is intended to scaffold runtime continuity and should not be interpreted as a proof of live production behavior.",
+      "E-commerce flows are modeled with an in-memory cart-style session unless the generated server is integrated with durable storage."
+    ],
+    "description": "Starter-grade runtime state model inferred from workflow structure. Useful for generated execution scaffolding, approvals, and session continuity."
+  },
+  "source_url": "http://127.0.0.1:43987",
+  "source_hash": "d213d1d684bb6a516985adb84055bf0dae5b3da640fbf9561879fcc9a92f66ff",
+  "extracted_at": "2026-03-27T03:42:06.406987"
+}

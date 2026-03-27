@@ -7,7 +7,7 @@ confidence = 1.0. The spec IS the source of truth.
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from agent_see.models.capability import (
     Capability,
@@ -41,16 +41,16 @@ METHOD_VERB_MAP: dict[str, str] = {
 }
 
 
-def _resolve_ref(spec: dict, ref: str) -> dict:
+def _resolve_ref(spec: dict[str, Any], ref: str) -> dict[str, Any]:
     """Resolve a $ref pointer in an OpenAPI spec."""
     parts = ref.lstrip("#/").split("/")
     current: Any = spec
     for part in parts:
         current = current[part]
-    return current  # type: ignore[return-value]
+    return cast(dict[str, Any], current)
 
 
-def _schema_to_param_type(schema: dict) -> ParameterType:
+def _schema_to_param_type(schema: dict[str, Any]) -> ParameterType:
     """Convert an OpenAPI schema type to our ParameterType."""
     schema_type = schema.get("type", "string")
     if "enum" in schema:
@@ -69,7 +69,7 @@ def _camel_to_snake(name: str) -> str:
     return s2.lower()
 
 
-def _extract_operation_name(method: str, path: str, operation: dict) -> str:
+def _extract_operation_name(method: str, path: str, operation: dict[str, Any]) -> str:
     """Generate a verb_noun name from an OpenAPI operation.
 
     Uses operationId if available, otherwise constructs from method + path.
@@ -105,7 +105,7 @@ def _extract_operation_name(method: str, path: str, operation: dict) -> str:
 
 
 def _extract_parameters(
-    spec: dict, operation: dict, path_params: list[dict] | None = None
+    spec: dict[str, Any], operation: dict[str, Any], path_params: list[dict[str, Any]] | None = None
 ) -> list[Parameter]:
     """Extract parameters from an OpenAPI operation."""
     params: list[Parameter] = []
@@ -169,7 +169,7 @@ def _extract_parameters(
     return params
 
 
-def _extract_return_schema(spec: dict, operation: dict) -> ReturnSchema:
+def _extract_return_schema(spec: dict[str, Any], operation: dict[str, Any]) -> ReturnSchema:
     """Extract the return schema from an OpenAPI operation's responses."""
     responses = operation.get("responses", {})
 
@@ -242,7 +242,7 @@ def _is_idempotent(method: str) -> bool:
 
 
 def extract_from_openapi(
-    spec: dict,
+    spec: dict[str, Any],
     spec_url: str = "",
 ) -> list[Capability]:
     """Extract capabilities from an OpenAPI specification.
