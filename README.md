@@ -68,6 +68,25 @@ This changes Agent-See from a one-off developer utility into a **meta-capability
 
 The final outcome is powerful: you can ask your agent to **make a system agent-ready and then use the generated interface on your behalf**. That removes much of the operator burden. Instead of separately building integrations and then separately teaching the agent how to use them, the same workflow creates the interface layer and operationalizes it for follow-on tasks.
 
+### Canonical Intake Guarantee Across Agentic Harnesses
+
+A core design principle of Agent-See is that the generated agent guidance should **strictly collect the required information before attempting a highest-fidelity conversion**. In practical terms, this means the generated `AGENTS.md` and `SKILL.md` outputs are intended to make the agent ask first and convert second. The user should not have to worry that they forgot to mention an important detail when the task is meant to be done at the highest quality level.
+
+This guarantee is designed to hold across different agentic harnesses, including Claude Cowork-style workspaces, Manus-style autonomous agents, OpenClaw-like orchestrators, and custom internal runtimes that consume the generated guidance documents. The goal is not to let the harness guess from a URL alone. The goal is to make the harness explicitly request the missing truth from the user before it proceeds.
+
+| Canonical intake behavior | What the generated agent should do |
+| --- | --- |
+| **Vague prompt or URL-only input** | Stop and ask clarifying questions instead of claiming a full-fidelity conversion |
+| **Missing access or auth information** | Ask for permissions, login method, or access boundaries before modeling protected flows |
+| **Unclear workflow priorities** | Ask which business flows matter most before optimizing the conversion |
+| **Unspecified output package** | Ask whether the user wants MCP runtime, OpenAPI, AGENTS.md, SKILL.md, deployment assets, or the full bundle |
+| **Unclear validation depth** | Ask whether the user wants structural conversion, authenticated walkthroughs, packaging validation, or deployment-grade hardening |
+| **Missing success criteria or constraints** | Ask for completion criteria, environment boundaries, policy limits, and sensitive actions before continuing |
+
+For canonical use, the harness should treat this intake as a **required gate**, not as optional politeness. If critical inputs are missing, the generated agent should pause, request the missing information, restate the gathered scope back to the user, and only then proceed with a highest-fidelity conversion. If the user cannot provide the required information, the agent should continue only with a clearly labeled reduced-scope conversion and should state exactly what cannot yet be guaranteed.
+
+This is especially important across different harness styles because the same conversion may be used by a collaborative copilot, an autonomous operator, or a workflow orchestrator. The harness may change, but the rule should remain canonical: **do not guess when the user can specify the truth**.
+
 ### Step-by-Step for Claude Cowork
 
 In a Claude Cowork-style setup, the main job is to give the agent a surface it can call and reason about instead of asking it to infer everything from a landing page or scattered API docs.
