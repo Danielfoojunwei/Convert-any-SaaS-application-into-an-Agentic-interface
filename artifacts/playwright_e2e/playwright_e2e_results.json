@@ -1,7 +1,7 @@
 {
   "booking": {
     "scenario": "booking_form_submission",
-    "base_url": "http://127.0.0.1:41029",
+    "base_url": "http://127.0.0.1:39587",
     "crawl_pages": 1,
     "crawl_forms": 1,
     "result": {
@@ -10,13 +10,15 @@
       "patient_name": "Daniel Foo",
       "service_id": "cleaning",
       "datetime": "2026-04-15T10:30",
-      "final_url": "http://127.0.0.1:41029/appointments"
+      "final_url": "http://127.0.0.1:39587/appointments",
+      "_attempts": 1,
+      "_transport": "browser"
     },
     "passed": true
   },
   "bakery": {
     "scenario": "bakery_pipeline_with_scraping_and_checkout",
-    "base_url": "http://127.0.0.1:33235",
+    "base_url": "http://127.0.0.1:43987",
     "capability_count": 14,
     "domains": [
       "cart",
@@ -53,7 +55,10 @@
           "price": "$8.50"
         }
       ],
-      "count": 3
+      "count": 3,
+      "final_url": "http://127.0.0.1:43987/products",
+      "_attempts": 1,
+      "_transport": "browser"
     },
     "checkout": {
       "status": "submitted",
@@ -62,7 +67,9 @@
       "customer_email": "daniel@example.com",
       "shipping_method": "express",
       "payment_url": "https://payments.example.test/session/checkout-123",
-      "final_url": "http://127.0.0.1:33235/checkout"
+      "final_url": "http://127.0.0.1:43987/checkout",
+      "_attempts": 1,
+      "_transport": "browser"
     },
     "passed": true
   },

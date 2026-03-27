@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 echo "=== Agent-See MCP Server Deployment ==="
 echo ""
@@ -12,13 +12,18 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Source .env
-export $(grep -v '^#' .env | xargs)
+# Source .env safely
+set -a
+. ./.env
+set +a
 
-if [ -z "$TARGET_URL" ] || [ "$TARGET_URL" = "https://your-saas-site.com" ]; then
+if [ -z "${TARGET_URL:-}" ] || [ "${TARGET_URL}" = "https://your-saas-site.com" ]; then
     echo "ERROR: Please set TARGET_URL in .env"
     exit 1
 fi
+
+echo "Validated configuration for TARGET_URL=${TARGET_URL}"
+echo ""
 
 # Detect deployment method
 if command -v flyctl &> /dev/null; then

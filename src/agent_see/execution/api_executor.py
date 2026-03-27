@@ -1,12 +1,15 @@
-"""Execute tool calls via direct HTTP API calls to the original site.
+"""API-backed execution engine for converted Agent-See tools.
 
-This is the Sprint 3 execution engine. Given a tool name and parameters,
-it looks up the route, builds an HTTP request, sends it, and returns
-a structured response.
+This module routes a tool call to the original application's API using the
+precomputed route map. The implementation is intentionally conservative: it
+applies explicit timeouts, bounded retries for transient failures, and
+structured error reporting so callers can distinguish retryable outages from
+terminal request problems.
 """
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
@@ -20,13 +23,19 @@ logger = logging.getLogger(__name__)
 STATUS_ERROR_MAP: dict[int, str] = {
     400: "INVALID_PARAM",
     401: "AUTH_FAILED",
+    402: "PAYMENT_REQUIRED",
     403: "AUTH_FAILED",
     404: "NOT_FOUND",
+    408: "UNAVAILABLE",
     409: "CONFLICT",
     429: "RATE_LIMITED",
-    402: "PAYMENT_REQUIRED",
+    500: "SERVER_ERROR",
+    502: "UNAVAILABLE",
     503: "UNAVAILABLE",
+    504: "UNAVAILABLE",
 }
+
+DEFAULT_RETRYABLE_STATUS_CODES: set[int] = {408, 425, 429, 500, 502, 503, 504}
 
 
 class APIExecutionError(Exception):
@@ -42,9 +51,10 @@ class APIExecutionError(Exception):
 class APIExecutor:
     """Executes tool calls by routing them to the original site's API.
 
-    Usage:
-        executor = APIExecutor(route_map)
-        result = await executor.execute("list_products", {"category": "cakes"})
+    The executor is intended for production-facing usage where transient
+    transport failures, timeouts, and temporary upstream degradation are
+    expected. For that reason it applies explicit retry limits instead of
+    relying on a single optimistic request.
     """
 
     def __init__(
@@ -52,23 +62,34 @@ class APIExecutor:
         route_map: RouteMap,
         auth_headers: dict[str, str] | None = None,
         timeout: float = 30.0,
+        max_retries: int = 2,
+        retry_backoff_seconds: float = 0.5,
+        retryable_status_codes: set[int] | None = None,
     ):
         self.route_map = route_map
         self.auth_headers = auth_headers or {}
         self.timeout = timeout
+        self.max_retries = max(0, max_retries)
+        self.retry_backoff_seconds = max(0.0, retry_backoff_seconds)
+        self.retryable_status_codes = (
+            set(retryable_status_codes)
+            if retryable_status_codes is not None
+            else set(DEFAULT_RETRYABLE_STATUS_CODES)
+        )
 
     async def execute(self, tool_name: str, params: dict[str, Any]) -> dict[str, Any]:
         """Execute a tool call against the original API.
 
         Args:
-            tool_name: The MCP tool name (e.g., "list_products")
-            params: Tool parameters from the agent
+            tool_name: The MCP tool name (for example, ``list_products``).
+            params: Tool parameters from the calling agent.
 
         Returns:
-            Parsed JSON response from the original API
+            Parsed API response as a structured tool result.
 
         Raises:
-            APIExecutionError: If the API returns an error
+            APIExecutionError: If the request cannot be completed or the API
+                returns a terminal error.
         """
         route = self.route_map.get_route(tool_name)
         if route is None:
@@ -77,23 +98,19 @@ class APIExecutor:
                 message=f"No route configured for tool '{tool_name}'",
             )
 
-        # Build the URL with path parameters substituted
         path = route.path
         for param_name in route.path_params:
             value = params.get(param_name, "")
             path = path.replace(f"{{{param_name}}}", str(value))
 
         url = f"{self.route_map.base_url}{path}"
+        query = {key: params[key] for key in route.query_params if key in params}
+        body = (
+            {key: params[key] for key in route.body_params if key in params}
+            if route.body_params
+            else None
+        )
 
-        # Build query params
-        query = {k: params[k] for k in route.query_params if k in params}
-
-        # Build request body
-        body = None
-        if route.body_params:
-            body = {k: params[k] for k in route.body_params if k in params}
-
-        # Build headers
         headers = {
             "Accept": "application/json",
             "User-Agent": "AgentSee/0.1 (MCP Executor)",
@@ -102,28 +119,92 @@ class APIExecutor:
         if body is not None:
             headers["Content-Type"] = route.content_type
 
-        logger.info(f"Executing {route.method.value} {url}")
+        logger.info("Executing %s %s", route.method.value, url)
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.request(
-                method=route.method.value,
-                url=url,
-                params=query or None,
-                json=body,
-                headers=headers,
-            )
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                async with httpx.AsyncClient(timeout=self.timeout) as client:
+                    response = await client.request(
+                        method=route.method.value,
+                        url=url,
+                        params=query or None,
+                        json=body,
+                        headers=headers,
+                    )
+            except httpx.TimeoutException as exc:
+                if attempt <= self.max_retries:
+                    await self._sleep_before_retry(attempt, tool_name, str(exc))
+                    continue
+                raise APIExecutionError(
+                    code="UNAVAILABLE",
+                    message=(
+                        f"Request timed out for tool '{tool_name}' after "
+                        f"{attempt} attempt(s)"
+                    ),
+                ) from exc
+            except httpx.TransportError as exc:
+                if attempt <= self.max_retries:
+                    await self._sleep_before_retry(attempt, tool_name, str(exc))
+                    continue
+                raise APIExecutionError(
+                    code="UNAVAILABLE",
+                    message=(
+                        f"Transport failure for tool '{tool_name}' after "
+                        f"{attempt} attempt(s): {exc}"
+                    ),
+                ) from exc
 
-        return self._process_response(response, tool_name)
+            if self._should_retry_status(response.status_code, attempt):
+                message = self._extract_retry_message(response)
+                await self._sleep_before_retry(attempt, tool_name, message)
+                continue
+
+            result = self._process_response(response, tool_name)
+            result.setdefault("_attempts", attempt)
+            result.setdefault("_transport", "api")
+            return result
+
+    async def _sleep_before_retry(
+        self,
+        attempt: int,
+        tool_name: str,
+        reason: str,
+    ) -> None:
+        """Wait before retrying a transient failure."""
+        delay = self.retry_backoff_seconds * (2 ** (attempt - 1))
+        logger.warning(
+            "Retrying tool %s after transient failure on attempt %s: %s",
+            tool_name,
+            attempt,
+            reason,
+        )
+        if delay > 0:
+            await asyncio.sleep(delay)
+
+    def _should_retry_status(self, status_code: int, attempt: int) -> bool:
+        """Return whether the current HTTP status should be retried."""
+        return status_code in self.retryable_status_codes and attempt <= self.max_retries
+
+    def _extract_retry_message(self, response: httpx.Response) -> str:
+        """Create a log-friendly retry message from a transient response."""
+        try:
+            data = response.json()
+            if isinstance(data, dict):
+                raw_message = data.get("message", data.get("error"))
+                if isinstance(raw_message, str) and raw_message:
+                    return raw_message
+        except Exception:
+            pass
+        return f"HTTP {response.status_code}"
 
     def _process_response(
         self, response: httpx.Response, tool_name: str
     ) -> dict[str, Any]:
         """Process an HTTP response into a structured tool result."""
         if response.status_code >= 400:
-            error_code = STATUS_ERROR_MAP.get(
-                response.status_code, "SERVER_ERROR"
-            )
-            # Try to extract error message from response body
+            error_code = STATUS_ERROR_MAP.get(response.status_code, "SERVER_ERROR")
             message = f"HTTP {response.status_code}"
             try:
                 error_body = response.json()
@@ -145,18 +226,15 @@ class APIExecutor:
                 status=response.status_code,
             )
 
-        # Parse successful response
         content_type = response.headers.get("content-type", "")
         if "json" in content_type:
             data = response.json()
-            # Wrap arrays and primitives in a dict for consistent tool output
             if isinstance(data, list):
                 return {"items": data, "count": len(data)}
             if isinstance(data, dict):
                 return data
             return {"result": data}
 
-        # Non-JSON response
         return {
             "status": "success",
             "status_code": response.status_code,

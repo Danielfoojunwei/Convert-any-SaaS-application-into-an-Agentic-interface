@@ -1,4 +1,4 @@
-app = "127-0-0-1-33235"
+app = "127-0-0-1-43987"
 primary_region = "iad"
 
 [build]
@@ -9,6 +9,14 @@ primary_region = "iad"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
+  processes = ["app"]
 
 [env]
   PORT = "8000"
+  LOG_LEVEL = "INFO"
+  REQUEST_TIMEOUT_SECONDS = "30"
+  API_MAX_RETRIES = "2"
+  BROWSER_TIMEOUT_MS = "30000"
+  BROWSER_MAX_RETRIES = "1"
+  SESSION_TTL_SECONDS = "3600"
+  MAX_SESSIONS = "200"

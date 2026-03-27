@@ -66,7 +66,7 @@
       "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context."
     ]
   },
-  "send_message": {
+  "search_items": {
     "backend": "browser",
     "readiness": "generated_browser",
     "verification": "inferred",
@@ -77,7 +77,7 @@
       "Human confirmation should be required before executing irreversible, payment-related, or identity-sensitive actions."
     ]
   },
-  "search_items": {
+  "send_message": {
     "backend": "browser",
     "readiness": "generated_browser",
     "verification": "inferred",

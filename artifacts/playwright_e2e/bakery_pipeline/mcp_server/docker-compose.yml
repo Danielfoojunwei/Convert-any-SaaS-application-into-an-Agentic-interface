@@ -10,9 +10,19 @@ services:
       - API_KEY=${API_KEY:-}
       - API_KEY_HEADER=${API_KEY_HEADER:-}
       - API_KEY_VALUE=${API_KEY_VALUE:-}
+      - REQUEST_TIMEOUT_SECONDS=${REQUEST_TIMEOUT_SECONDS:-30}
+      - API_MAX_RETRIES=${API_MAX_RETRIES:-2}
+      - BROWSER_TIMEOUT_MS=${BROWSER_TIMEOUT_MS:-30000}
+      - BROWSER_MAX_RETRIES=${BROWSER_MAX_RETRIES:-1}
+      - RETRY_BACKOFF_SECONDS=${RETRY_BACKOFF_SECONDS:-0.5}
+      - SESSION_TTL_SECONDS=${SESSION_TTL_SECONDS:-3600}
+      - MAX_SESSIONS=${MAX_SESSIONS:-200}
+      - BROWSER_HEADLESS=${BROWSER_HEADLESS:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 8000)); s.close()"]
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.settimeout(3); s.connect(('127.0.0.1', 8000)); s.close()"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 20s

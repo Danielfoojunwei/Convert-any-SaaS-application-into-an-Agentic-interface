@@ -1,13 +1,32 @@
 services:
   - type: web
-    name: 127-0-0-1:33235
+    name: 127-0-0-1:43987
     runtime: docker
     plan: free
     healthCheckPath: /
+    autoDeploy: false
     envVars:
       - key: TARGET_URL
         sync: false
       - key: API_KEY
         sync: false
+      - key: API_KEY_HEADER
+        sync: false
+      - key: API_KEY_VALUE
+        sync: false
+      - key: REQUEST_TIMEOUT_SECONDS
+        value: 30
+      - key: API_MAX_RETRIES
+        value: 2
+      - key: BROWSER_TIMEOUT_MS
+        value: 30000
+      - key: BROWSER_MAX_RETRIES
+        value: 1
+      - key: SESSION_TTL_SECONDS
+        value: 3600
+      - key: MAX_SESSIONS
+        value: 200
+      - key: LOG_LEVEL
+        value: INFO
       - key: PORT
         value: 8000

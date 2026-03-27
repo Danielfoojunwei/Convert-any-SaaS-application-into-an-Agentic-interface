@@ -1,7 +1,7 @@
 {
-  "name": "127-0-0-1:33235-agent",
-  "description": "Agent-optimized interface for http://127.0.0.1:33235. 14 capabilities across 7 domains.",
-  "url": "https://127-0-0-1:33235-agent.example.com",
+  "name": "127-0-0-1:43987-agent",
+  "description": "Agent-optimized interface for http://127.0.0.1:43987. 14 capabilities across 7 domains.",
+  "url": "https://127-0-0-1:43987-agent.example.com",
   "provider": {
     "organization": "Agent-See",
     "url": "https://github.com/Agent-See"
@@ -109,20 +109,6 @@
       ]
     },
     {
-      "id": "send_message",
-      "name": "Send Message",
-      "description": "Send a message to the business",
-      "inputModes": [
-        "application/json"
-      ],
-      "outputModes": [
-        "application/json"
-      ],
-      "tags": [
-        "contact"
-      ]
-    },
-    {
       "id": "search_items",
       "name": "Search Items",
       "description": "Search for items on the site",
@@ -134,6 +120,20 @@
       ],
       "tags": [
         "search"
+      ]
+    },
+    {
+      "id": "send_message",
+      "name": "Send Message",
+      "description": "Send a message to the business",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "contact"
       ]
     },
     {

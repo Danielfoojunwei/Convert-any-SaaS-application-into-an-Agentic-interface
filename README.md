@@ -2,10 +2,10 @@
 
 Convert any SaaS application into an agent-optimized interface — without changing the original software.
 
-Point Agent-See at any URL, OpenAPI spec, or codebase and get back a **working, deployable MCP server** that any AI agent can call, backed by a **mathematical proof** of correctness.
+Point Agent-See at a URL or OpenAPI spec and get back a **tested MCP server package** that AI agents can call, backed by a **verification report** and explicit operational metadata.
 
 ```
-URL / OpenAPI spec / codebase
+URL / OpenAPI spec
     → Discover → Extract → Map → Generate → Verify → Deploy
                                                         ↓
                                     Working MCP Server + Proof Certificate
@@ -27,9 +27,9 @@ Agent-See handles the entire pipeline end-to-end:
 1. **Discovers** APIs (OpenAPI specs, hidden endpoints, crawled pages)
 2. **Extracts** every capability with grounded evidence (zero hallucination)
 3. **Maps** capabilities into a structured graph with domains, edges, and workflows
-4. **Generates** 8+ deployment-ready artifacts including a working MCP server
-5. **Proves** the conversion is correct with mathematical verification
-6. **Deploys** to Docker, Fly.io, Railway, or Render with one command
+4. **Generates** deployment-ready artifacts including a working MCP server runtime
+5. **Verifies** coverage, fidelity, and hallucination boundaries with deterministic checks
+6. **Emits** deployment configs for Docker, Fly.io, Railway, or Render plus an operator deploy helper
 
 The original website stays unchanged. The generated server acts as a proxy.
 
@@ -54,6 +54,22 @@ agent-see deploy --method docker
 agent-see deploy --method fly
 ```
 
+Agent-See is currently strongest for **URL** and **OpenAPI** inputs. Unsupported directory or codebase targets should fail truthfully rather than claim a completed conversion.
+
+## Production Readiness
+
+The generated runtime now includes a stronger operational baseline for real deployments. It emits bounded retry settings, timeout controls, session lifecycle limits, approval metadata, and dedicated runtime inspection surfaces for health, readiness, and snapshot reporting.
+
+| Production surface | What is now generated |
+| --- | --- |
+| **Runtime controls** | Request timeout, API retry budget, browser retry budget, backoff, headless toggle |
+| **State controls** | Session TTL, stale session pruning, max session cap |
+| **Operational metadata** | `tool_metadata.json`, `runtime_state.json`, `operationalization_report.json` |
+| **Runtime inspection** | `healthcheck()`, `readiness()`, `runtime_snapshot()` in generated server runtime |
+| **Deployment guidance** | Hardened `.env.example`, safer `deploy.sh`, stronger cloud config defaults |
+
+For deployment and operational guidance, see [`PRODUCTION_RUNBOOK.md`](./PRODUCTION_RUNBOOK.md).
+
 ## Output Artifacts
 
 Every conversion produces a complete deployment package:
@@ -69,6 +85,9 @@ Every conversion produces a complete deployment package:
 | `mcp_server/render.yaml` | YAML | Render | Render deployment config |
 | `mcp_server/deploy.sh` | Shell | Developer | One-click deploy helper |
 | `mcp_server/.env.example` | Env | Developer | Required environment variables |
+| `mcp_server/tool_metadata.json` | JSON | Operators + runtime | Per-tool readiness, approval, verification, and error metadata |
+| `mcp_server/runtime_state.json` | JSON | Operators + runtime | Generated state model, workflow states, and session entities |
+| `mcp_server/operationalization_report.json` | JSON | Reviewers + operators | Readiness summary for generated execution surfaces |
 | `agent_card.json` | JSON | Other agents | A2A discovery (Google Agent-to-Agent protocol) |
 | `openapi.yaml` | OpenAPI 3.1 | API gateways | Standard API contract |
 | `AGENTS.md` | Markdown | Developers + LLMs | Capability manifest with progressive disclosure |
@@ -109,7 +128,7 @@ Measured on real OpenAPI specs representing three verticals:
 | Hallucination count | 0 | **0** across all specs | Count of generated tools with no backing capability + ungrounded capabilities |
 | Context efficiency | > 1.0x | **5.0x** compression | Baseline tokens / interface tokens |
 | Token budget per tool | < 500 | **20-34 avg** | Character-based estimation (1 token ~ 4 chars) |
-| Test pass rate | 100% | **116/116 (100%)** | pytest across 5 test suites |
+| Test pass rate | 100% | **119/119 (100%)** | pytest across 5 test suites |
 
 ---
 
@@ -191,15 +210,15 @@ These properties hold **by construction** — they are enforced at the type/vali
 
 ### Empirical Evidence (Test Results)
 
-**116 tests across 5 test suites**, all passing:
+**119 tests across 5 test suites**, all passing:
 
 | Test Suite | Tests | What It Proves |
 |------------|:-----:|----------------|
 | `test_full_pipeline.py` | 25 | OpenAPI extraction, graph mapping, verification math, model validation |
 | `test_sprint2.py` | 34 | E-commerce + booking templates, SKILL.md generation, cross-validation merge |
 | `test_e2e.py` | 22 | Full pipeline (spec file, live HTTP server, browser DOM, CLI runner), output artifact validation |
-| `test_sprint3_5.py` | 35 | Route mapping, live API execution, browser automation, deployment configs |
-| **Total** | **116** | **100% pass rate** |
+| `test_sprint3_5.py` | 38 | Route mapping, live API execution, browser automation, deployment configs, and production runtime controls |
+| **Total** | **119** | **100% pass rate** |
 
 #### E2E Execution Test (Live HTTP Server)
 
@@ -291,6 +310,9 @@ mcp_server/
 ├── render.yaml          # Render deployment
 ├── deploy.sh            # Auto-detect and deploy
 ├── .env.example         # Required environment variables
+├── tool_metadata.json   # Per-tool readiness and approval metadata
+├── runtime_state.json   # Generated session and workflow state model
+├── operationalization_report.json  # Execution readiness summary
 ├── pyproject.toml       # Python package config
 └── README.md            # Usage instructions
 ```

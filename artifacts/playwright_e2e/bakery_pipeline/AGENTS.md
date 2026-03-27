@@ -1,13 +1,13 @@
 ---
-name: "http://127.0.0.1:33235"
-description: "Agent-optimized interface for http://127.0.0.1:33235"
+name: "http://127.0.0.1:43987"
+description: "Agent-optimized interface for http://127.0.0.1:43987"
 version: 0.1.0
 tools: 14
 ---
 
-# Agent Interface: http://127.0.0.1:33235
+# Agent Interface: http://127.0.0.1:43987
 
-This interface provides 14 tools across 7 domains for interacting with http://127.0.0.1:33235. The generated interface is intentionally explicit about **operational readiness**: some tools are route-mapped or browser-generated, while others still require additional hardening before they should be treated as production-ready automation.
+This interface provides 14 tools across 7 domains for interacting with http://127.0.0.1:43987. The generated interface is intentionally explicit about **operational readiness**: some tools are route-mapped or browser-generated, while others still require additional hardening before they should be treated as production-ready automation.
 
 ## Quick Reference
 

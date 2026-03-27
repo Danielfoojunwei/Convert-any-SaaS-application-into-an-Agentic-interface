@@ -6,10 +6,10 @@
       "description": "List all products in the bakery catalog",
       "source": {
         "source_type": "openapi",
-        "location": "http://127.0.0.1:33235/openapi.json#/paths//products/get",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//products/get",
         "raw_snippet": "GET /products - List all products in the bakery catalog",
-        "url": "http://127.0.0.1:33235/openapi.json",
-        "timestamp": "2026-03-27T02:48:10.183345"
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.242973"
       },
       "parameters": [
         {
@@ -139,7 +139,7 @@
         "GET /products",
         "operationId: listProducts",
         "summary: List all products in the bakery catalog",
-        "Product listing page: http://127.0.0.1:33235/products",
+        "Product listing page: http://127.0.0.1:43987/products",
         "Page title: Products - Sweet Bakery",
         "Product indicators found: 5",
         "Price mentions: 3",
@@ -154,10 +154,10 @@
       "description": "Get full details for a specific product",
       "source": {
         "source_type": "openapi",
-        "location": "http://127.0.0.1:33235/openapi.json#/paths//products/{productId}/get",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//products/{productId}/get",
         "raw_snippet": "GET /products/{productId} - Get full details for a specific product",
-        "url": "http://127.0.0.1:33235/openapi.json",
-        "timestamp": "2026-03-27T02:48:10.183459"
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243086"
       },
       "parameters": [
         {
@@ -257,10 +257,10 @@
       "description": "Get current shopping cart contents",
       "source": {
         "source_type": "openapi",
-        "location": "http://127.0.0.1:33235/openapi.json#/paths//cart/get",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//cart/get",
         "raw_snippet": "GET /cart - Get current shopping cart contents",
-        "url": "http://127.0.0.1:33235/openapi.json",
-        "timestamp": "2026-03-27T02:48:10.183512"
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243149"
       },
       "parameters": [],
       "returns": {
@@ -317,10 +317,10 @@
       "description": "Add a product to the shopping cart",
       "source": {
         "source_type": "openapi",
-        "location": "http://127.0.0.1:33235/openapi.json#/paths//cart/items/post",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//cart/items/post",
         "raw_snippet": "POST /cart/items - Add a product to the shopping cart",
-        "url": "http://127.0.0.1:33235/openapi.json",
-        "timestamp": "2026-03-27T02:48:10.183577"
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243227"
       },
       "parameters": [
         {
@@ -408,10 +408,10 @@
       "description": "Initiate checkout - returns payment URL for confirmation",
       "source": {
         "source_type": "openapi",
-        "location": "http://127.0.0.1:33235/openapi.json#/paths//checkout/post",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//checkout/post",
         "raw_snippet": "POST /checkout - Initiate checkout - returns payment URL for confirmation",
-        "url": "http://127.0.0.1:33235/openapi.json",
-        "timestamp": "2026-03-27T02:48:10.183623"
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243291"
       },
       "parameters": [
         {
@@ -507,7 +507,7 @@
       },
       "side_effects": [
         "creates_resource",
-        "Submits form to http://127.0.0.1:33235/checkout",
+        "Submits form to http://127.0.0.1:43987/checkout",
         "creates_checkout_session"
       ],
       "prerequisites": [
@@ -518,8 +518,8 @@
         "POST /checkout",
         "operationId: submitCheckout",
         "summary: Initiate checkout - returns payment URL for confirmation",
-        "Form found on page: http://127.0.0.1:33235/cart",
-        "Form action: http://127.0.0.1:33235/checkout",
+        "Form found on page: http://127.0.0.1:43987/cart",
+        "Form action: http://127.0.0.1:43987/checkout",
         "Form method: POST",
         "Submit button text: Proceed to Payment",
         "Fields: full_name, email, address, zip_code, shipping_method",
@@ -534,10 +534,10 @@
       "description": "Get order status and tracking info",
       "source": {
         "source_type": "openapi",
-        "location": "http://127.0.0.1:33235/openapi.json#/paths//orders/{orderId}/get",
+        "location": "http://127.0.0.1:43987/openapi.json#/paths//orders/{orderId}/get",
         "raw_snippet": "GET /orders/{orderId} - Get order status and tracking info",
-        "url": "http://127.0.0.1:33235/openapi.json",
-        "timestamp": "2026-03-27T02:48:10.183663"
+        "url": "http://127.0.0.1:43987/openapi.json",
+        "timestamp": "2026-03-27T03:42:06.243350"
       },
       "parameters": [
         {
@@ -621,16 +621,58 @@
       "idempotent": true,
       "domain": "orders"
     },
+    "browser_form_search_search_items": {
+      "id": "browser_form_search_search_items",
+      "name": "search_items",
+      "description": "Search for items on the site",
+      "source": {
+        "source_type": "browser_dom",
+        "location": "http://127.0.0.1:43987/products#form[0]",
+        "raw_snippet": "<form action='http://127.0.0.1:43987/products' method='GET'> fields: query submit: 'Search'",
+        "url": "http://127.0.0.1:43987/products",
+        "timestamp": "2026-03-27T03:42:06.312451"
+      },
+      "parameters": [
+        {
+          "name": "query",
+          "param_type": "string",
+          "description": "Search products...",
+          "required": false,
+          "default": null,
+          "enum_values": null,
+          "example": null
+        }
+      ],
+      "returns": {
+        "fields": [],
+        "is_array": false,
+        "description": "Form submission result"
+      },
+      "side_effects": [
+        "Submits form to http://127.0.0.1:43987/products"
+      ],
+      "prerequisites": [],
+      "confidence": 0.7,
+      "evidence": [
+        "Form found on page: http://127.0.0.1:43987/products",
+        "Form action: http://127.0.0.1:43987/products",
+        "Form method: GET",
+        "Submit button text: Search",
+        "Fields: query"
+      ],
+      "idempotent": true,
+      "domain": "search"
+    },
     "browser_form_contact_send_message": {
       "id": "browser_form_contact_send_message",
       "name": "send_message",
       "description": "Send a message to the business",
       "source": {
         "source_type": "browser_dom",
-        "location": "http://127.0.0.1:33235/contact#form[0]",
-        "raw_snippet": "<form action='http://127.0.0.1:33235/contact/submit' method='POST'> fields: sender_name, sender_email, subject, body submit: 'Send Message'",
-        "url": "http://127.0.0.1:33235/contact",
-        "timestamp": "2026-03-27T02:48:10.248508"
+        "location": "http://127.0.0.1:43987/contact#form[0]",
+        "raw_snippet": "<form action='http://127.0.0.1:43987/contact/submit' method='POST'> fields: sender_name, sender_email, subject, body submit: 'Send Message'",
+        "url": "http://127.0.0.1:43987/contact",
+        "timestamp": "2026-03-27T03:42:06.312603"
       },
       "parameters": [
         {
@@ -676,13 +718,13 @@
         "description": "Form submission result"
       },
       "side_effects": [
-        "Submits form to http://127.0.0.1:33235/contact/submit"
+        "Submits form to http://127.0.0.1:43987/contact/submit"
       ],
       "prerequisites": [],
       "confidence": 0.7,
       "evidence": [
-        "Form found on page: http://127.0.0.1:33235/contact",
-        "Form action: http://127.0.0.1:33235/contact/submit",
+        "Form found on page: http://127.0.0.1:43987/contact",
+        "Form action: http://127.0.0.1:43987/contact/submit",
         "Form method: POST",
         "Submit button text: Send Message",
         "Fields: sender_name, sender_email, subject, body"
@@ -690,58 +732,16 @@
       "idempotent": false,
       "domain": "contact"
     },
-    "browser_form_search_search_items": {
-      "id": "browser_form_search_search_items",
-      "name": "search_items",
-      "description": "Search for items on the site",
-      "source": {
-        "source_type": "browser_dom",
-        "location": "http://127.0.0.1:33235/products#form[0]",
-        "raw_snippet": "<form action='http://127.0.0.1:33235/products' method='GET'> fields: query submit: 'Search'",
-        "url": "http://127.0.0.1:33235/products",
-        "timestamp": "2026-03-27T02:48:10.248546"
-      },
-      "parameters": [
-        {
-          "name": "query",
-          "param_type": "string",
-          "description": "Search products...",
-          "required": false,
-          "default": null,
-          "enum_values": null,
-          "example": null
-        }
-      ],
-      "returns": {
-        "fields": [],
-        "is_array": false,
-        "description": "Form submission result"
-      },
-      "side_effects": [
-        "Submits form to http://127.0.0.1:33235/products"
-      ],
-      "prerequisites": [],
-      "confidence": 0.7,
-      "evidence": [
-        "Form found on page: http://127.0.0.1:33235/products",
-        "Form action: http://127.0.0.1:33235/products",
-        "Form method: GET",
-        "Submit button text: Search",
-        "Fields: query"
-      ],
-      "idempotent": true,
-      "domain": "search"
-    },
     "browser_get_business_info": {
       "id": "browser_get_business_info",
       "name": "get_business_info",
       "description": "Get business contact information, hours, and location",
       "source": {
         "source_type": "browser_dom",
-        "location": "http://127.0.0.1:33235/about",
+        "location": "http://127.0.0.1:43987/about",
         "raw_snippet": "About/contact page found on site",
-        "url": "http://127.0.0.1:33235/about",
-        "timestamp": "2026-03-27T02:48:10.248719"
+        "url": "http://127.0.0.1:43987/about",
+        "timestamp": "2026-03-27T03:42:06.312616"
       },
       "parameters": [],
       "returns": {
@@ -753,7 +753,7 @@
       "prerequisites": [],
       "confidence": 0.7,
       "evidence": [
-        "About/contact page found at: http://127.0.0.1:33235/about"
+        "About/contact page found at: http://127.0.0.1:43987/about"
       ],
       "idempotent": true,
       "domain": "info"
@@ -764,10 +764,10 @@
       "description": "Check real-time stock status for a product variant",
       "source": {
         "source_type": "template",
-        "location": "http://127.0.0.1:33235",
+        "location": "http://127.0.0.1:43987",
         "raw_snippet": "E-commerce inventory check template",
         "url": null,
-        "timestamp": "2026-03-27T02:48:10.337616"
+        "timestamp": "2026-03-27T03:42:06.405231"
       },
       "parameters": [
         {
@@ -834,10 +834,10 @@
       "description": "Remove a product from the shopping cart",
       "source": {
         "source_type": "template",
-        "location": "http://127.0.0.1:33235",
+        "location": "http://127.0.0.1:43987",
         "raw_snippet": "E-commerce remove from cart template",
         "url": null,
-        "timestamp": "2026-03-27T02:48:10.337664"
+        "timestamp": "2026-03-27T03:42:06.405285"
       },
       "parameters": [
         {
@@ -900,10 +900,10 @@
       "description": "Apply a coupon or discount code to the cart",
       "source": {
         "source_type": "template",
-        "location": "http://127.0.0.1:33235",
+        "location": "http://127.0.0.1:43987",
         "raw_snippet": "E-commerce coupon template",
         "url": null,
-        "timestamp": "2026-03-27T02:48:10.337679"
+        "timestamp": "2026-03-27T03:42:06.405300"
       },
       "parameters": [
         {
@@ -963,10 +963,10 @@
       "description": "Calculate shipping options and costs for delivery address",
       "source": {
         "source_type": "template",
-        "location": "http://127.0.0.1:33235",
+        "location": "http://127.0.0.1:43987",
         "raw_snippet": "E-commerce shipping calculation template",
         "url": null,
-        "timestamp": "2026-03-27T02:48:10.337694"
+        "timestamp": "2026-03-27T03:42:06.405314"
       },
       "parameters": [
         {
@@ -1027,10 +1027,10 @@
       "description": "Start a return or refund request for an order",
       "source": {
         "source_type": "template",
-        "location": "http://127.0.0.1:33235",
+        "location": "http://127.0.0.1:43987",
         "raw_snippet": "E-commerce return/refund template",
         "url": null,
-        "timestamp": "2026-03-27T02:48:10.337749"
+        "timestamp": "2026-03-27T03:42:06.405589"
       },
       "parameters": [
         {
@@ -1162,17 +1162,17 @@
       ]
     },
     {
-      "name": "contact",
-      "description": "Capabilities related to contact",
-      "capability_ids": [
-        "browser_form_contact_send_message"
-      ]
-    },
-    {
       "name": "search",
       "description": "Capabilities related to search",
       "capability_ids": [
         "browser_form_search_search_items"
+      ]
+    },
+    {
+      "name": "contact",
+      "description": "Capabilities related to contact",
+      "capability_ids": [
+        "browser_form_contact_send_message"
       ]
     },
     {
@@ -1279,7 +1279,7 @@
     ],
     "description": "Starter-grade runtime state model inferred from workflow structure. Useful for generated execution scaffolding, approvals, and session continuity."
   },
-  "source_url": "http://127.0.0.1:33235",
-  "source_hash": "d3de891c921164b4c55b60e1d7f429a1bdf89c35bbd202402e43af8c6bf1aa01",
-  "extracted_at": "2026-03-27T02:48:10.339134"
+  "source_url": "http://127.0.0.1:43987",
+  "source_hash": "d213d1d684bb6a516985adb84055bf0dae5b3da640fbf9561879fcc9a92f66ff",
+  "extracted_at": "2026-03-27T03:42:06.406987"
 }
