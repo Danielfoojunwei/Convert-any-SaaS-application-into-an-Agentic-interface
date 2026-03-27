@@ -1,4 +1,4 @@
-"""Agent-See CLI: Convert any SaaS into an agent-optimized interface.
+"""Command-line interface for Agent-See.
 
 Usage:
     agent-see convert https://mybakery.com
@@ -22,6 +22,12 @@ app = typer.Typer(
     help="Convert any SaaS application into an agent-optimized interface.",
     no_args_is_help=True,
 )
+launch_app = typer.Typer(
+    name="launch",
+    help="Generate, refresh, and validate public launch artifacts for Agent-See outputs.",
+    no_args_is_help=True,
+)
+app.add_typer(launch_app, name="launch")
 console = Console()
 
 
@@ -31,6 +37,13 @@ def _setup_logging(verbose: bool) -> None:
         level=level,
         format="%(levelname)s %(name)s: %(message)s",
     )
+
+
+def _parse_launch_steps(value: str | None) -> list[str] | None:
+    if value is None:
+        return None
+    steps = [item.strip() for item in value.split(",") if item.strip()]
+    return steps or None
 
 
 @app.command()
@@ -44,29 +57,78 @@ def convert(
         "-o",
         help="Output directory for generated artifacts",
     ),
+    launch_intake: str | None = typer.Option(
+        None,
+        "--launch-intake",
+        help="Optional path to a launch intake JSON file for generating public launch artifacts.",
+    ),
+    with_launch: bool = typer.Option(
+        False,
+        "--with-launch",
+        help="Generate the full launch/discovery artifact layer after conversion.",
+    ),
+    launch_output: str | None = typer.Option(
+        None,
+        "--launch-output",
+        help="Optional directory for launch artifacts. Defaults to <output>/launch.",
+    ),
+    launch_steps: str | None = typer.Option(
+        None,
+        "--launch-steps",
+        help="Comma-separated launch steps to run. Omit for a full rerun when launch is enabled.",
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
 ) -> None:
     """Convert a SaaS application into an agent-optimized interface.
 
     Analyzes the target, extracts capabilities, generates an MCP server
     and agent documentation, then proves the conversion is correct.
+    Optionally, it also generates the public launch/discovery artifact layer.
     """
     _setup_logging(verbose)
     output_dir = Path(output)
+    launch_intake_path = Path(launch_intake).expanduser().resolve() if launch_intake else None
+    run_launch = with_launch or launch_intake_path is not None
+    launch_output_dir = Path(launch_output).expanduser().resolve() if launch_output else None
+    parsed_steps = _parse_launch_steps(launch_steps)
+
+    if with_launch and launch_intake_path is None:
+        console.print("[red]Error: --with-launch requires --launch-intake[/red]")
+        sys.exit(1)
 
     console.print(
         Panel(
             f"[bold]Agent-See[/bold] v0.1.0\n"
             f"Converting: [cyan]{target}[/cyan]\n"
-            f"Output: [cyan]{output_dir}[/cyan]",
+            f"Output: [cyan]{output_dir}[/cyan]"
+            + (
+                f"\nLaunch intake: [cyan]{launch_intake_path}[/cyan]"
+                if run_launch and launch_intake_path is not None
+                else ""
+            ),
             title="SaaS → Agent Conversion",
         )
     )
 
-    asyncio.run(_run_conversion(target, output_dir))
+    asyncio.run(
+        _run_conversion(
+            target,
+            output_dir,
+            launch_intake=launch_intake_path,
+            launch_output_dir=launch_output_dir,
+            launch_steps=parsed_steps,
+        )
+    )
 
 
-async def _run_conversion(target: str, output_dir: Path) -> None:
+async def _run_conversion(
+    target: str,
+    output_dir: Path,
+    *,
+    launch_intake: Path | None = None,
+    launch_output_dir: Path | None = None,
+    launch_steps: list[str] | None = None,
+) -> None:
     """Run the full conversion pipeline."""
     from agent_see.core.analyzer import analyze_openapi_file, analyze_url
     from agent_see.core.generator import generate_all
@@ -79,7 +141,6 @@ async def _run_conversion(target: str, output_dir: Path) -> None:
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        # Step 1: Analyze
         task = progress.add_task("Analyzing target...", total=None)
 
         if target.startswith(("http://", "https://")):
@@ -108,47 +169,53 @@ async def _run_conversion(target: str, output_dir: Path) -> None:
             console.print("[red]No capabilities found. Nothing to convert.[/red]")
             sys.exit(1)
 
-        # Step 2: Build capability graph
         progress.update(task, description="Building capability graph...")
         graph = build_capability_graph(capabilities, source_url=source_url)
 
-        # Step 3: Generate output artifacts
         progress.update(task, description="Generating agent interface...")
-        artifacts = generate_all(graph, output_dir)
+        artifacts = generate_all(
+            graph,
+            output_dir,
+            launch_intake=launch_intake,
+            launch_output_dir=launch_output_dir,
+            launch_steps=launch_steps,
+        )
 
-        # Step 4: Verify
         progress.update(task, description="Running verification suite...")
         from agent_see.core.generator import _graph_to_tool_schemas
 
         tool_schemas = _graph_to_tool_schemas(graph)
         proof = run_full_verification(graph, tool_schemas)
 
-        # Step 5: Save proof
         proof_path = save_proof(proof, output_dir)
         artifacts["proof"] = proof_path
 
         progress.update(task, description="Done!")
 
-    # Print summary
     console.print()
-    console.print(
-        Panel(
-            f"[bold green]Conversion Complete[/bold green]\n\n"
-            f"Capabilities: {graph.capability_count}\n"
-            f"Domains: {', '.join(graph.domain_names)}\n"
-            f"Workflows: {len(graph.workflows)}\n\n"
-            f"[bold]Proof:[/bold]\n"
-            f"  Coverage: {proof.coverage.coverage_score:.0%}\n"
-            f"  Fidelity: {proof.fidelity.aggregate_score:.3f}\n"
-            f"  Hallucinations: {proof.hallucination_check.extras_count}\n"
-            f"  Status: [{'green' if proof.overall_status.value == 'PASS' else 'red'}]"
-            f"{proof.overall_status.value}[/]\n\n"
-            f"Output: {output_dir}/",
-            title="Results",
-        )
-    )
+    summary_lines = [
+        "[bold green]Conversion Complete[/bold green]",
+        "",
+        f"Capabilities: {graph.capability_count}",
+        f"Domains: {', '.join(graph.domain_names)}",
+        f"Workflows: {len(graph.workflows)}",
+        "",
+        "[bold]Proof:[/bold]",
+        f"  Coverage: {proof.coverage.coverage_score:.0%}",
+        f"  Fidelity: {proof.fidelity.aggregate_score:.3f}",
+        f"  Hallucinations: {proof.hallucination_check.extras_count}",
+        f"  Status: [{'green' if proof.overall_status.value == 'PASS' else 'red'}]{proof.overall_status.value}[/]",
+        "",
+        f"Output: {output_dir}/",
+    ]
+    if "launch_manifest" in artifacts:
+        summary_lines.extend([
+            "",
+            "[bold]Launch layer:[/bold]",
+            f"  Manifest: {artifacts['launch_manifest']}",
+        ])
+    console.print(Panel("\n".join(summary_lines), title="Results"))
 
-    # List generated artifacts
     for name, path in artifacts.items():
         console.print(f"  {name}: {path}")
 
@@ -233,6 +300,105 @@ def deploy(
         console.print(f"[red]Unknown deployment method: {method}[/red]")
         console.print("Available: local, docker, fly, railway, render")
         sys.exit(1)
+
+
+@launch_app.command("init")
+def launch_init(
+    output: str = typer.Argument(help="Path to write the launch intake JSON."),
+    name: str | None = typer.Option(None, "--name", help="Business name."),
+    domain: str | None = typer.Option(None, "--domain", help="Canonical business domain, e.g. https://example.com"),
+    business_type: str | None = typer.Option(None, "--business-type", help="Business type: saas, ecommerce, services, marketplace, hybrid."),
+    summary: str | None = typer.Option(None, "--summary", help="Short business summary."),
+    contact_email: str | None = typer.Option(None, "--contact-email", help="Primary contact email."),
+    support_url: str | None = typer.Option(None, "--support-url", help="Support URL."),
+    public_page_path: str | None = typer.Option(None, "--public-page-path", help="Public agent access path, defaults to /agents."),
+    agent_see_output_dir: str | None = typer.Option(None, "--agent-see-output-dir", help="Existing Agent-See output directory to record in the intake."),
+    deployment_target: str | None = typer.Option(None, "--deployment-target", help="Deployment target or hosting environment."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
+) -> None:
+    """Initialize a structured launch intake file."""
+    from agent_see.launch.service import initialize_launch_intake
+
+    _setup_logging(verbose)
+    intake = initialize_launch_intake(
+        output,
+        name=name,
+        domain=domain,
+        business_type=business_type,
+        summary=summary,
+        contact_email=contact_email,
+        support_url=support_url,
+        public_page_path=public_page_path,
+        agent_see_output_dir=agent_see_output_dir,
+        deployment_target=deployment_target,
+    )
+    console.print(
+        Panel(
+            f"Created launch intake for [bold]{intake.business.name}[/bold]\n"
+            f"Path: [cyan]{Path(output).expanduser().resolve()}[/cyan]",
+            title="Launch Intake Ready",
+        )
+    )
+
+
+@launch_app.command("sync")
+def launch_sync(
+    intake: str = typer.Argument(help="Path to the launch intake JSON file."),
+    output: str = typer.Option("launch-output", "--output", "-o", help="Directory for generated launch artifacts."),
+    steps: str | None = typer.Option(None, "--steps", help="Comma-separated subset of launch steps to run. Omit to refresh all tracked artifacts."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
+) -> None:
+    """Generate launch artifacts either modularly or as a full rerun."""
+    from agent_see.launch.service import sync_launch_artifacts
+
+    _setup_logging(verbose)
+    manifest, manifest_path = sync_launch_artifacts(
+        intake,
+        output,
+        steps=_parse_launch_steps(steps),
+        intake_path=intake,
+    )
+    console.print(
+        Panel(
+            f"Launch artifacts refreshed.\n"
+            f"Manifest: [cyan]{manifest_path}[/cyan]\n"
+            f"Output: [cyan]{manifest.output_dir}[/cyan]",
+            title="Launch Sync Complete",
+        )
+    )
+
+
+@launch_app.command("check")
+def launch_check(
+    intake: str = typer.Argument(help="Path to the launch intake JSON file."),
+    output: str = typer.Option("launch-output", "--output", "-o", help="Directory for alignment outputs."),
+    agents_page: str | None = typer.Option(None, "--agents-page", help="Optional path to an agents page draft."),
+    llms_txt: str | None = typer.Option(None, "--llms-txt", help="Optional path to an llms.txt draft."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
+) -> None:
+    """Run an alignment check between intake state and public launch documents."""
+    from agent_see.launch.service import run_alignment_check
+
+    _setup_logging(verbose)
+    output_dir = Path(output).expanduser().resolve()
+    markdown_path, json_path, report = run_alignment_check(
+        intake,
+        output_dir / "surface_alignment.md",
+        agents_page_path=agents_page,
+        llms_txt_path=llms_txt,
+        json_output=output_dir / "surface_alignment.json",
+    )
+    summary = report["summary"]
+    console.print(
+        Panel(
+            f"Status: [bold]{summary['status']}[/bold]\n"
+            f"Checks: {summary['passed_checks']}/{summary['total_checks']} passed\n"
+            f"Issues: {summary['issue_count']}\n"
+            f"Markdown: [cyan]{markdown_path}[/cyan]\n"
+            + (f"JSON: [cyan]{json_path}[/cyan]" if json_path else ""),
+            title="Launch Alignment Check",
+        )
+    )
 
 
 if __name__ == "__main__":

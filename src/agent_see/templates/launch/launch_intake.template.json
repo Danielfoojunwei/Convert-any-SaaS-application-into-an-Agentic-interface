@@ -1,0 +1,100 @@
+{
+  "business": {
+    "name": "Example Business",
+    "domain": "https://www.example.com",
+    "business_type": "saas",
+    "summary": "One-sentence description of the business and main commercial offer.",
+    "primary_contact": {
+      "name": "Owner or operator name",
+      "email": "support@example.com",
+      "support_url": "https://www.example.com/support"
+    },
+    "location_scope": "global",
+    "notes": "Optional notes about market, geography, or launch constraints."
+  },
+  "workflows": [
+    {
+      "name": "Book a demo",
+      "category": "booking",
+      "description": "Explain the end-user job this workflow completes.",
+      "canonical_url": "https://www.example.com/book-demo",
+      "login_required": false,
+      "approval_required": false,
+      "inputs_required": [
+        "Name",
+        "Email"
+      ],
+      "constraints": [
+        "Available only in selected regions"
+      ],
+      "commercial_outcome": "Qualified lead capture",
+      "supported_by_agent_see": true,
+      "runtime_notes": "Optional notes about tool behavior or fragility."
+    }
+  ],
+  "public_urls": {
+    "homepage": "https://www.example.com/",
+    "pricing": "https://www.example.com/pricing",
+    "faq": "https://www.example.com/faq",
+    "support": "https://www.example.com/support",
+    "policies": "https://www.example.com/policies",
+    "docs": "https://www.example.com/docs",
+    "canonical_task_pages": [
+      "https://www.example.com/book-demo",
+      "https://www.example.com/product/example"
+    ],
+    "reference_pages": {
+      "coverage": "https://www.example.com/agents/coverage",
+      "limitations": "https://www.example.com/agents/limitations",
+      "pricing_eligibility": "https://www.example.com/agents/pricing-eligibility",
+      "examples": "https://www.example.com/case-studies",
+      "support_escalation": "https://www.example.com/support"
+    }
+  },
+  "agent_access": {
+    "public_page_path": "/agents",
+    "public_page_url": "https://www.example.com/agents",
+    "runtime_endpoint": "https://agents.example.com",
+    "openapi_url": "https://www.example.com/agents/openapi.yaml",
+    "agent_card_url": "https://www.example.com/agents/agent_card.json",
+    "agents_md_url": "https://www.example.com/agents/AGENTS.md",
+    "agent_see_output_dir": "/path/to/agent-see-output",
+    "deployment_target": "railway",
+    "status": "draft"
+  },
+  "discovery": {
+    "robots_txt_url": "https://www.example.com/robots.txt",
+    "sitemap_url": "https://www.example.com/sitemap.xml",
+    "llms_txt_url": "https://www.example.com/llms.txt",
+    "markdown_mirrors": [
+      "https://www.example.com/docs/getting-started.md"
+    ],
+    "indexnow_enabled": false,
+    "search_console_verified": false,
+    "merchant_center_used": false,
+    "merchant_center_status": "not_applicable"
+  },
+  "trust": {
+    "structured_data_types": [
+      "Organization",
+      "FAQPage"
+    ],
+    "support_visible": true,
+    "pricing_visible": true,
+    "policies_visible": true,
+    "examples_visible": true,
+    "case_studies_url": "https://www.example.com/case-studies",
+    "coverage_notes": "Summarize what the business supports and what it does not."
+  },
+  "operations": {
+    "maintenance_owner": "Owner or operator name",
+    "review_cadence": {
+      "weekly": "Check broken links, stale prices, support details, and primary CTA flows.",
+      "monthly": "Review indexing, sitemap freshness, schema validity, and runtime readiness.",
+      "quarterly": "Review top prompts, competitor gaps, and new reference pages."
+    },
+    "rollback_baseline": "Optional path or version tag for the last accepted release.",
+    "next_review_date": "2026-04-30",
+    "change_log_notes": "Optional notes about recent business or workflow changes."
+  }
+}

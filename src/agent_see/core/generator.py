@@ -64,6 +64,10 @@ def generate_all(
     graph: CapabilityGraph,
     output_dir: Path,
     tool_schemas: list[ToolSchema] | None = None,
+    *,
+    launch_intake: object | None = None,
+    launch_output_dir: Path | None = None,
+    launch_steps: list[str] | None = None,
 ) -> dict[str, Path]:
     """Generate all output artifacts from a CapabilityGraph.
 
@@ -71,6 +75,12 @@ def generate_all(
         graph: The capability graph to generate from
         output_dir: Directory to write output files
         tool_schemas: Pre-computed tool schemas (if None, generated from graph)
+        launch_intake: Optional structured launch intake state or path. When provided,
+            Agent-See also generates the launch/discovery artifact layer.
+        launch_output_dir: Optional directory for launch artifacts. Defaults to
+            ``output_dir / "launch"`` when ``launch_intake`` is provided.
+        launch_steps: Optional subset of launch steps to refresh. If omitted,
+            a full launch sync is performed.
 
     Returns:
         Dict mapping artifact name to output file path
@@ -110,6 +120,32 @@ def generate_all(
     readiness_path = output_dir / "OPERATIONAL_READINESS.md"
     readiness_path.write_text(_generate_operational_readiness_md(graph, tool_schemas))
     artifacts["operational_readiness"] = readiness_path
+
+    if launch_intake is not None:
+        from agent_see.launch.service import sync_launch_artifacts
+
+        resolved_launch_dir = (launch_output_dir or (output_dir / "launch")).expanduser().resolve()
+        manifest, manifest_path = sync_launch_artifacts(
+            launch_intake,
+            resolved_launch_dir,
+            steps=launch_steps,
+            intake_path=launch_intake if isinstance(launch_intake, (str, Path)) else None,
+        )
+        artifacts["launch_manifest"] = manifest_path
+        if manifest.llms_txt:
+            artifacts["launch_llms_txt"] = Path(manifest.llms_txt)
+        if manifest.agents_page:
+            artifacts["launch_agents_page"] = Path(manifest.agents_page)
+        if manifest.reference_layer_dir:
+            artifacts["launch_reference_layer"] = Path(manifest.reference_layer_dir)
+        if manifest.launch_report_md:
+            artifacts["launch_report"] = Path(manifest.launch_report_md)
+        if manifest.launch_report_json:
+            artifacts["launch_report_json"] = Path(manifest.launch_report_json)
+        if manifest.update_register:
+            artifacts["launch_update_register"] = Path(manifest.update_register)
+        if manifest.alignment_report_json:
+            artifacts["launch_alignment_report_json"] = Path(manifest.alignment_report_json)
 
     logger.info(
         f"Generated {len(artifacts)} artifacts in {output_dir}: "

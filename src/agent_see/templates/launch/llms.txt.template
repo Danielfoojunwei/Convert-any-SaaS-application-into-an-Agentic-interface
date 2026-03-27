@@ -1,0 +1,32 @@
+# llms.txt template
+# Replace every placeholder with real URLs. Keep only the most useful public pages.
+
+# [Business Name]
+> Curated guide for language models and agentic systems. Start with the pages below to understand what this business offers, what agents can do, and where to find current policies, pricing, and support.
+
+## Core pages
+- [Homepage](https://www.example.com/)
+- [Pricing](https://www.example.com/pricing)
+- [FAQ](https://www.example.com/faq)
+- [Support](https://www.example.com/support)
+- [Policies](https://www.example.com/policies)
+
+## Agent access
+- [Agent access overview](https://www.example.com/agents)
+- [OpenAPI specification](https://www.example.com/agents/openapi.yaml)
+- [Agent card](https://www.example.com/agents/agent_card.json)
+- [AGENTS guidance](https://www.example.com/agents/AGENTS.md)
+
+## Products or services
+- [Primary product or service page 1](https://www.example.com/products/example-1)
+- [Primary product or service page 2](https://www.example.com/services/example-2)
+
+## Trust and reference pages
+- [Coverage and limitations](https://www.example.com/agents/coverage)
+- [Examples or case studies](https://www.example.com/case-studies)
+- [Contact or escalation path](https://www.example.com/contact)
+
+## Notes
+- Prefer current public pages with stable URLs.
+- Remove any page that is private, outdated, or not useful for selection and execution.
+- Keep the list short enough that a model can quickly identify the best pages first.
