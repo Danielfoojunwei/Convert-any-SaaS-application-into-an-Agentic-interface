@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
+from typing import Any, cast
 
 import httpx
 import yaml
@@ -41,34 +42,40 @@ class OpenAPIDiscoveryResult:
 
     found: bool
     spec_url: str | None = None
-    spec_data: dict | None = None
+    spec_data: dict[str, Any] | None = None
     spec_version: str | None = None  # "2.0", "3.0", "3.1"
     error: str | None = None
 
 
-def _parse_spec(content: str, content_type: str) -> dict | None:
+def _parse_spec(content: str, content_type: str) -> dict[str, Any] | None:
     """Try to parse content as JSON or YAML."""
     try:
-        return json.loads(content)
+        parsed_json = json.loads(content)
+        if isinstance(parsed_json, dict):
+            return cast(dict[str, Any], parsed_json)
     except (json.JSONDecodeError, ValueError):
         pass
     try:
-        return yaml.safe_load(content)
+        parsed_yaml = yaml.safe_load(content)
+        if isinstance(parsed_yaml, dict):
+            return cast(dict[str, Any], parsed_yaml)
     except (yaml.YAMLError, ValueError):
         pass
     return None
 
 
-def _detect_version(spec: dict) -> str | None:
+def _detect_version(spec: dict[str, Any]) -> str | None:
     """Detect OpenAPI/Swagger version from spec."""
-    if "openapi" in spec:
-        return spec["openapi"]
-    if "swagger" in spec:
-        return spec["swagger"]
+    openapi_version = spec.get("openapi")
+    if isinstance(openapi_version, str):
+        return openapi_version
+    swagger_version = spec.get("swagger")
+    if isinstance(swagger_version, str):
+        return swagger_version
     return None
 
 
-def _is_valid_openapi(spec: dict) -> bool:
+def _is_valid_openapi(spec: dict[str, Any]) -> bool:
     """Basic validation that this looks like an OpenAPI spec."""
     has_version = "openapi" in spec or "swagger" in spec
     has_paths = "paths" in spec

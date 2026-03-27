@@ -1,0 +1,79 @@
+{
+  "base_url": "http://127.0.0.1:33235",
+  "routes": {
+    "list_products": {
+      "method": "GET",
+      "path": "/products",
+      "path_params": [],
+      "query_params": [
+        "category",
+        "limit",
+        "page",
+        "query",
+        "min_price",
+        "max_price"
+      ],
+      "body_params": [],
+      "content_type": "application/json"
+    },
+    "get_product_details": {
+      "method": "GET",
+      "path": "/products/{productId}",
+      "path_params": [
+        "productId"
+      ],
+      "query_params": [
+        "product_id"
+      ],
+      "body_params": [],
+      "content_type": "application/json"
+    },
+    "get_cart": {
+      "method": "GET",
+      "path": "/cart",
+      "path_params": [],
+      "query_params": [],
+      "body_params": [],
+      "content_type": "application/json"
+    },
+    "add_to_cart": {
+      "method": "POST",
+      "path": "/cart/items",
+      "path_params": [],
+      "query_params": [],
+      "body_params": [
+        "product_id",
+        "quantity",
+        "variant_id"
+      ],
+      "content_type": "application/json"
+    },
+    "submit_checkout": {
+      "method": "POST",
+      "path": "/checkout",
+      "path_params": [],
+      "query_params": [],
+      "body_params": [
+        "shipping_address",
+        "email",
+        "shipping_method",
+        "full_name",
+        "address",
+        "zip_code"
+      ],
+      "content_type": "application/json"
+    },
+    "get_order_status": {
+      "method": "GET",
+      "path": "/orders/{orderId}",
+      "path_params": [
+        "orderId"
+      ],
+      "query_params": [
+        "order_id"
+      ],
+      "body_params": [],
+      "content_type": "application/json"
+    }
+  }
+}

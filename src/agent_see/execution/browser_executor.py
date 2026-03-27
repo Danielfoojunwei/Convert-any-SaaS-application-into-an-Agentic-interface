@@ -7,9 +7,11 @@ clicks buttons, and scrapes results using a headless browser.
 from __future__ import annotations
 
 import logging
-import re
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from agent_see.models.capability import CapabilityGraph
 
 logger = logging.getLogger(__name__)
 
@@ -266,7 +268,7 @@ def build_form_mappings_from_graph(
     - The form fields (from parameters)
     - The form action (from source.raw_snippet)
     """
-    from agent_see.models.capability import CapabilityGraph, SourceType
+    from agent_see.models.capability import SourceType
 
     mappings = []
     for cap in graph.nodes.values():
@@ -309,7 +311,7 @@ def build_scraping_rules_from_graph(
 
     Product listing pages get scraping rules based on common selectors.
     """
-    from agent_see.models.capability import CapabilityGraph, SourceType
+    from agent_see.models.capability import SourceType
 
     rules = []
     for cap in graph.nodes.values():

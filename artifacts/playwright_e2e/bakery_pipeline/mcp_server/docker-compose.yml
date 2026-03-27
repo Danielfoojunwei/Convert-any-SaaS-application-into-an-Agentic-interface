@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  mcp-server:
+    build: .
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - TARGET_URL=${TARGET_URL}
+      - API_KEY=${API_KEY:-}
+      - API_KEY_HEADER=${API_KEY_HEADER:-}
+      - API_KEY_VALUE=${API_KEY_VALUE:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 8000)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

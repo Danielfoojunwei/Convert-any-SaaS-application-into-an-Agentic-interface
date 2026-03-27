@@ -7,7 +7,6 @@ capture all XHR/fetch requests, revealing the real API surface.
 
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import dataclass, field
 

@@ -1,0 +1,152 @@
+{
+  "list_products": {
+    "backend": "api",
+    "readiness": "route_mapped",
+    "verification": "structural",
+    "requires_session": true,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "Execution path is grounded in a discovered API route, but it has not been marked as live-verified by the generator.",
+      "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context."
+    ]
+  },
+  "get_product_details": {
+    "backend": "api",
+    "readiness": "route_mapped",
+    "verification": "structural",
+    "requires_session": true,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "Execution path is grounded in a discovered API route, but it has not been marked as live-verified by the generator.",
+      "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context."
+    ]
+  },
+  "get_cart": {
+    "backend": "api",
+    "readiness": "route_mapped",
+    "verification": "structural",
+    "requires_session": true,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "Execution path is grounded in a discovered API route, but it has not been marked as live-verified by the generator.",
+      "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context."
+    ]
+  },
+  "add_to_cart": {
+    "backend": "api",
+    "readiness": "route_mapped",
+    "verification": "structural",
+    "requires_session": true,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "Execution path is grounded in a discovered API route, but it has not been marked as live-verified by the generator.",
+      "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context."
+    ]
+  },
+  "submit_checkout": {
+    "backend": "api",
+    "readiness": "route_mapped",
+    "verification": "structural",
+    "requires_session": true,
+    "approval_requirement": "confirmation_required",
+    "operational_notes": [
+      "Execution path is grounded in a discovered API route, but it has not been marked as live-verified by the generator.",
+      "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context.",
+      "Human confirmation should be required before executing irreversible, payment-related, or identity-sensitive actions."
+    ]
+  },
+  "get_order_status": {
+    "backend": "api",
+    "readiness": "route_mapped",
+    "verification": "structural",
+    "requires_session": true,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "Execution path is grounded in a discovered API route, but it has not been marked as live-verified by the generator.",
+      "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context."
+    ]
+  },
+  "send_message": {
+    "backend": "browser",
+    "readiness": "generated_browser",
+    "verification": "inferred",
+    "requires_session": false,
+    "approval_requirement": "confirmation_required",
+    "operational_notes": [
+      "Browser execution is generated from discovered DOM or network evidence and may require site-specific selector hardening.",
+      "Human confirmation should be required before executing irreversible, payment-related, or identity-sensitive actions."
+    ]
+  },
+  "search_items": {
+    "backend": "browser",
+    "readiness": "generated_browser",
+    "verification": "inferred",
+    "requires_session": false,
+    "approval_requirement": "confirmation_required",
+    "operational_notes": [
+      "Browser execution is generated from discovered DOM or network evidence and may require site-specific selector hardening.",
+      "Human confirmation should be required before executing irreversible, payment-related, or identity-sensitive actions."
+    ]
+  },
+  "get_business_info": {
+    "backend": "browser",
+    "readiness": "generated_browser",
+    "verification": "inferred",
+    "requires_session": false,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "Browser execution is generated from discovered DOM or network evidence and may require site-specific selector hardening."
+    ]
+  },
+  "check_inventory": {
+    "backend": "hybrid",
+    "readiness": "structural_only",
+    "verification": "structural",
+    "requires_session": false,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "This capability is currently represented structurally and may need a site-specific executor before production use."
+    ]
+  },
+  "remove_from_cart": {
+    "backend": "hybrid",
+    "readiness": "structural_only",
+    "verification": "structural",
+    "requires_session": true,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "This capability is currently represented structurally and may need a site-specific executor before production use.",
+      "This tool participates in stateful execution and may depend on cookies, session continuity, or persisted workflow context."
+    ]
+  },
+  "apply_coupon": {
+    "backend": "hybrid",
+    "readiness": "structural_only",
+    "verification": "structural",
+    "requires_session": false,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "This capability is currently represented structurally and may need a site-specific executor before production use."
+    ]
+  },
+  "calculate_shipping": {
+    "backend": "hybrid",
+    "readiness": "structural_only",
+    "verification": "structural",
+    "requires_session": false,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "This capability is currently represented structurally and may need a site-specific executor before production use."
+    ]
+  },
+  "initiate_return": {
+    "backend": "hybrid",
+    "readiness": "structural_only",
+    "verification": "structural",
+    "requires_session": false,
+    "approval_requirement": "none",
+    "operational_notes": [
+      "This capability is currently represented structurally and may need a site-specific executor before production use."
+    ]
+  }
+}

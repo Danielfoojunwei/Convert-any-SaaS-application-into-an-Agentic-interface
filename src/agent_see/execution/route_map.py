@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 
-from agent_see.models.capability import Capability, CapabilityGraph, SourceType
+from agent_see.models.capability import Capability, CapabilityGraph
 
 
 class RouteMethod(str, Enum):
@@ -45,7 +45,7 @@ class RouteMap:
     def get_route(self, tool_name: str) -> APIRoute | None:
         return self.routes.get(tool_name)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, object]:
         """Serialize for embedding in generated server code."""
         return {
             "base_url": self.base_url,

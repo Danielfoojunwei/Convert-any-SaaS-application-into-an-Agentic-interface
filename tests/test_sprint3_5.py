@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import threading
-from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import Any, Generator
@@ -368,7 +367,6 @@ class TestBrowserExecutor:
     def test_form_mapping_construction(self) -> None:
         """Build FormMappings from browser-extracted capabilities."""
         from agent_see.execution.browser_executor import (
-            FormMapping,
             build_form_mappings_from_graph,
         )
 

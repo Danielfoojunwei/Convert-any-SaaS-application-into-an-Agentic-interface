@@ -1,0 +1,37 @@
+{
+  "states": {
+    "browsing": [
+      "cart_review"
+    ],
+    "cart_review": [
+      "checkout_ready",
+      "browsing"
+    ],
+    "checkout_ready": [
+      "payment_pending",
+      "cart_review"
+    ],
+    "payment_pending": [
+      "order_tracking"
+    ],
+    "order_tracking": []
+  },
+  "workflow_states": {
+    "purchase_flow": [
+      "browsing",
+      "cart_review",
+      "checkout_ready",
+      "payment_pending",
+      "order_tracking"
+    ]
+  },
+  "session_entities": [
+    "cart_session"
+  ],
+  "operational_notes": [
+    "This state model is inferred from discovered capabilities and workflow order.",
+    "It is intended to scaffold runtime continuity and should not be interpreted as a proof of live production behavior.",
+    "E-commerce flows are modeled with an in-memory cart-style session unless the generated server is integrated with durable storage."
+  ],
+  "description": "Starter-grade runtime state model inferred from workflow structure. Useful for generated execution scaffolding, approvals, and session continuity."
+}

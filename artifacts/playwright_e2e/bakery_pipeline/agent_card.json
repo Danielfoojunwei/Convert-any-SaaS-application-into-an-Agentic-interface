@@ -1,0 +1,224 @@
+{
+  "name": "127-0-0-1:33235-agent",
+  "description": "Agent-optimized interface for http://127.0.0.1:33235. 14 capabilities across 7 domains.",
+  "url": "https://127-0-0-1:33235-agent.example.com",
+  "provider": {
+    "organization": "Agent-See",
+    "url": "https://github.com/Agent-See"
+  },
+  "version": "0.1.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "authentication": {
+    "schemes": [
+      "none"
+    ]
+  },
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "list_products",
+      "name": "List Products",
+      "description": "List all products in the bakery catalog",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "products"
+      ]
+    },
+    {
+      "id": "get_product_details",
+      "name": "Get Product Details",
+      "description": "Get full details for a specific product",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "products"
+      ]
+    },
+    {
+      "id": "get_cart",
+      "name": "Get Cart",
+      "description": "Get current shopping cart contents",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "cart"
+      ]
+    },
+    {
+      "id": "add_to_cart",
+      "name": "Add To Cart",
+      "description": "Add a product to the shopping cart",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "cart"
+      ]
+    },
+    {
+      "id": "submit_checkout",
+      "name": "Submit Checkout",
+      "description": "Initiate checkout - returns payment URL for confirmation",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "checkout"
+      ]
+    },
+    {
+      "id": "get_order_status",
+      "name": "Get Order Status",
+      "description": "Get order status and tracking info",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "orders"
+      ]
+    },
+    {
+      "id": "send_message",
+      "name": "Send Message",
+      "description": "Send a message to the business",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "contact"
+      ]
+    },
+    {
+      "id": "search_items",
+      "name": "Search Items",
+      "description": "Search for items on the site",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "search"
+      ]
+    },
+    {
+      "id": "get_business_info",
+      "name": "Get Business Info",
+      "description": "Get business contact information, hours, and location",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "info"
+      ]
+    },
+    {
+      "id": "check_inventory",
+      "name": "Check Inventory",
+      "description": "Check real-time stock status for a product variant",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "products"
+      ]
+    },
+    {
+      "id": "remove_from_cart",
+      "name": "Remove From Cart",
+      "description": "Remove a product from the shopping cart",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "cart"
+      ]
+    },
+    {
+      "id": "apply_coupon",
+      "name": "Apply Coupon",
+      "description": "Apply a coupon or discount code to the cart",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "cart"
+      ]
+    },
+    {
+      "id": "calculate_shipping",
+      "name": "Calculate Shipping",
+      "description": "Calculate shipping options and costs for delivery address",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "checkout"
+      ]
+    },
+    {
+      "id": "initiate_return",
+      "name": "Initiate Return",
+      "description": "Start a return or refund request for an order",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "tags": [
+        "orders"
+      ]
+    }
+  ]
+}

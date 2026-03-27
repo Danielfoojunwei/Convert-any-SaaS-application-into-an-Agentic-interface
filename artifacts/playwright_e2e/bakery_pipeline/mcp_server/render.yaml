@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: 127-0-0-1:33235
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: TARGET_URL
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: PORT
+        value: 8000

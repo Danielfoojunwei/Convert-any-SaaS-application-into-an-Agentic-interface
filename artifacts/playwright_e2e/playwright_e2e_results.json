@@ -1,0 +1,70 @@
+{
+  "booking": {
+    "scenario": "booking_form_submission",
+    "base_url": "http://127.0.0.1:41029",
+    "crawl_pages": 1,
+    "crawl_forms": 1,
+    "result": {
+      "status": "submitted",
+      "confirmation": "Confirmed",
+      "patient_name": "Daniel Foo",
+      "service_id": "cleaning",
+      "datetime": "2026-04-15T10:30",
+      "final_url": "http://127.0.0.1:41029/appointments"
+    },
+    "passed": true
+  },
+  "bakery": {
+    "scenario": "bakery_pipeline_with_scraping_and_checkout",
+    "base_url": "http://127.0.0.1:33235",
+    "capability_count": 14,
+    "domains": [
+      "cart",
+      "checkout",
+      "contact",
+      "info",
+      "orders",
+      "products",
+      "search"
+    ],
+    "artifacts": {
+      "mcp_server": "/home/ubuntu/Convert-any-SaaS-application-into-an-Agentic-interface/artifacts/playwright_e2e/bakery_pipeline/mcp_server",
+      "agent_card": "/home/ubuntu/Convert-any-SaaS-application-into-an-Agentic-interface/artifacts/playwright_e2e/bakery_pipeline/agent_card.json",
+      "openapi_spec": "/home/ubuntu/Convert-any-SaaS-application-into-an-Agentic-interface/artifacts/playwright_e2e/bakery_pipeline/openapi.yaml",
+      "agents_md": "/home/ubuntu/Convert-any-SaaS-application-into-an-Agentic-interface/artifacts/playwright_e2e/bakery_pipeline/AGENTS.md",
+      "skills": "/home/ubuntu/Convert-any-SaaS-application-into-an-Agentic-interface/artifacts/playwright_e2e/bakery_pipeline/skills",
+      "capability_graph": "/home/ubuntu/Convert-any-SaaS-application-into-an-Agentic-interface/artifacts/playwright_e2e/bakery_pipeline/capability_graph.json",
+      "operational_readiness": "/home/ubuntu/Convert-any-SaaS-application-into-an-Agentic-interface/artifacts/playwright_e2e/bakery_pipeline/OPERATIONAL_READINESS.md"
+    },
+    "proof_status": "PASS",
+    "proof_coverage": 1.0,
+    "scraped": {
+      "items": [
+        {
+          "name": "Birthday Cake",
+          "price": "$29.99"
+        },
+        {
+          "name": "Chocolate Croissant",
+          "price": "$4.99"
+        },
+        {
+          "name": "Sourdough Bread",
+          "price": "$8.50"
+        }
+      ],
+      "count": 3
+    },
+    "checkout": {
+      "status": "submitted",
+      "confirmation": "Checkout session created",
+      "customer_name": "Daniel Foo",
+      "customer_email": "daniel@example.com",
+      "shipping_method": "express",
+      "payment_url": "https://payments.example.test/session/checkout-123",
+      "final_url": "http://127.0.0.1:33235/checkout"
+    },
+    "passed": true
+  },
+  "overall_passed": true
+}

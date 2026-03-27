@@ -1,7 +1,7 @@
-"""Tool schema definitions for the generated agent interface.
+"""Tool and operational schema models for generated agent interfaces.
 
 These models define the structure of the MCP tools, error taxonomy,
-and execution backends that the generated wrapper uses.
+and execution metadata that the generated wrapper uses.
 """
 
 from __future__ import annotations
@@ -18,6 +18,29 @@ class ExecutionBackend(str, Enum):
     API = "api"  # Direct HTTP API call (fastest, most reliable)
     BROWSER = "browser"  # Playwright browser automation (for UI-only capabilities)
     HYBRID = "hybrid"  # API where possible, browser for the rest
+
+
+class ExecutionReadiness(str, Enum):
+    """How operational a generated tool currently is."""
+
+    ROUTE_MAPPED = "route_mapped"
+    GENERATED_BROWSER = "generated_browser"
+    STRUCTURAL_ONLY = "structural_only"
+
+
+class VerificationStatus(str, Enum):
+    """What kind of evidence backs the generated operational path."""
+
+    STRUCTURAL = "structural"
+    INFERRED = "inferred"
+    LIVE_VERIFIED = "live_verified"
+
+
+class ApprovalRequirement(str, Enum):
+    """Whether the runtime should require explicit human approval."""
+
+    NONE = "none"
+    CONFIRMATION_REQUIRED = "confirmation_required"
 
 
 class ErrorCode(str, Enum):
@@ -103,6 +126,7 @@ class ToolSchema(BaseModel):
     - strict input/output schemas
     - deterministic error taxonomy
     - execution backend (transparent to calling agent)
+    - operational metadata that distinguishes structural generation from runtime readiness
     """
 
     name: str = Field(description="Tool name in verb_noun format")
@@ -113,10 +137,15 @@ class ToolSchema(BaseModel):
     errors: list[ErrorDefinition] = Field(default_factory=list)
     idempotent: bool = False
     execution_backend: ExecutionBackend = ExecutionBackend.API
+    execution_readiness: ExecutionReadiness = ExecutionReadiness.STRUCTURAL_ONLY
+    verification_status: VerificationStatus = VerificationStatus.STRUCTURAL
+    approval_requirement: ApprovalRequirement = ApprovalRequirement.NONE
+    requires_session: bool = False
     domain: str = "general"
     capability_id: str = Field(
         description="Links back to the original Capability this tool was generated from"
     )
+    operational_notes: list[str] = Field(default_factory=list)
 
     def to_json_schema(self) -> dict[str, Any]:
         """Generate JSON Schema for this tool's input parameters.
@@ -182,9 +211,15 @@ class ToolSchema(BaseModel):
         Target: < 500 tokens per tool.
         """
         # Rough approximation: 1 token ≈ 4 chars
-        text = f"{self.name} {self.description} "
+        text = (
+            f"{self.name} {self.description} {self.execution_backend.value} "
+            f"{self.execution_readiness.value} {self.verification_status.value} "
+            f"{self.approval_requirement.value} "
+        )
         for p in self.parameters:
             text += f"{p.name} {p.type} {p.description} "
+        for note in self.operational_notes:
+            text += f"{note} "
         return len(text) // 4
 
 
@@ -194,7 +229,7 @@ class ErrorTaxonomy(BaseModel):
     errors: dict[ErrorCode, ErrorDefinition] = Field(default_factory=dict)
 
     @classmethod
-    def default(cls) -> ErrorTaxonomy:
+    def default(cls) -> "ErrorTaxonomy":
         """Create the default error taxonomy with all standard errors."""
         errors = {}
         for code in ErrorCode:

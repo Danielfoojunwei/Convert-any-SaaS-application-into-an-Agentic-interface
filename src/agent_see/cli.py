@@ -3,13 +3,11 @@
 Usage:
     agent-see convert https://mybakery.com
     agent-see convert ./openapi.json
-    agent-see convert ./my-saas-codebase/
 """
 
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import sys
 from pathlib import Path
@@ -38,7 +36,7 @@ def _setup_logging(verbose: bool) -> None:
 @app.command()
 def convert(
     target: str = typer.Argument(
-        help="URL, OpenAPI spec file, or codebase path to convert"
+        help="URL or OpenAPI spec file to convert"
     ),
     output: str = typer.Option(
         "agent-output",
@@ -90,6 +88,15 @@ async def _run_conversion(target: str, output_dir: Path) -> None:
         elif Path(target).is_file():
             capabilities = analyze_openapi_file(Path(target))
             source_url = None
+        elif Path(target).is_dir():
+            console.print(
+                f"[red]Error: Directory targets are not yet supported for '{target}'[/red]"
+            )
+            console.print(
+                "Agent-See currently supports live URLs and OpenAPI spec files. "
+                "If you have a local codebase, first point Agent-See at its running URL or export its OpenAPI schema."
+            )
+            sys.exit(1)
         else:
             console.print(f"[red]Error: Cannot determine target type for '{target}'[/red]")
             console.print("Provide a URL (https://...) or a file path (.json, .yaml)")

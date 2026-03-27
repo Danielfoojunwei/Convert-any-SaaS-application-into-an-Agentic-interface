@@ -12,7 +12,7 @@ from typing import Any
 
 import httpx
 
-from agent_see.execution.route_map import RouteMap, RouteMethod
+from agent_see.execution.route_map import RouteMap
 
 logger = logging.getLogger(__name__)
 
@@ -128,10 +128,14 @@ class APIExecutor:
             try:
                 error_body = response.json()
                 if isinstance(error_body, dict):
-                    message = error_body.get(
+                    raw_message = error_body.get(
                         "message",
                         error_body.get("error", message),
                     )
+                    if isinstance(raw_message, str):
+                        message = raw_message
+                    elif raw_message is not None:
+                        message = str(raw_message)
             except Exception:
                 message = response.text[:200] if response.text else message
 
