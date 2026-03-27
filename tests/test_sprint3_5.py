@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import threading
+import tomllib
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import Any, Generator
@@ -762,6 +763,115 @@ class TestFullPipelineWithExecution:
         assert "async def readiness()" in server_py
         assert "async def runtime_snapshot()" in server_py
         assert "SESSION_TTL_SECONDS" in (tmp_output / "mcp_server" / ".env.example").read_text()
+
+    def test_generated_server_uses_runtime_path_param_substitution(self, tmp_output: Path) -> None:
+        """Generated API runtime preserves runtime path placeholder substitution."""
+        from agent_see.core.generator import generate_all
+        from agent_see.core.mapper import build_capability_graph
+        from agent_see.extractors.openapi import extract_from_openapi
+
+        spec = {
+            "openapi": "3.0.0",
+            "info": {"title": "Path API", "version": "1.0.0"},
+            "servers": [{"url": "http://example.com"}],
+            "paths": {
+                "/products/{productId}": {
+                    "get": {
+                        "summary": "Get product details",
+                        "operationId": "get_product_details",
+                        "parameters": [
+                            {
+                                "name": "productId",
+                                "in": "path",
+                                "required": True,
+                                "schema": {"type": "string"},
+                            }
+                        ],
+                        "responses": {"200": {"description": "ok"}},
+                    }
+                }
+            },
+        }
+
+        caps = extract_from_openapi(spec)
+        graph = build_capability_graph(caps, source_url="http://example.com")
+        generate_all(graph, tmp_output)
+
+        server_py = (tmp_output / "mcp_server" / "server.py").read_text()
+        assert 'path.replace(f"{{{param_name}}}", str(value))' in server_py
+        assert 'path.replace("{" + param_name + "}", str(value))' not in server_py
+
+    def test_login_capability_is_sessional_but_not_confirmation_gated(self, tmp_output: Path) -> None:
+        """Login tools should establish session state without being treated as payment-like approvals."""
+        from agent_see.core.generator import generate_all
+        from agent_see.core.mapper import build_capability_graph
+        from agent_see.extractors.openapi import extract_from_openapi
+
+        spec = {
+            "openapi": "3.0.0",
+            "info": {"title": "Auth API", "version": "1.0.0"},
+            "servers": [{"url": "http://example.com"}],
+            "paths": {
+                "/login": {
+                    "post": {
+                        "summary": "Login user",
+                        "operationId": "login_user",
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "username": {"type": "string"},
+                                            "password": {"type": "string"},
+                                        },
+                                        "required": ["username", "password"],
+                                    }
+                                }
+                            },
+                        },
+                        "responses": {"200": {"description": "ok"}},
+                    }
+                },
+                "/checkout": {
+                    "post": {
+                        "summary": "Checkout order",
+                        "operationId": "checkout_order",
+                        "requestBody": {
+                            "required": True,
+                            "content": {"application/json": {"schema": {"type": "object"}}},
+                        },
+                        "responses": {"200": {"description": "ok"}},
+                    }
+                },
+            },
+        }
+
+        caps = extract_from_openapi(spec)
+        graph = build_capability_graph(caps, source_url="http://example.com")
+        generate_all(graph, tmp_output)
+
+        metadata = json.loads((tmp_output / "mcp_server" / "tool_metadata.json").read_text())
+        assert metadata["login_user"]["approval_requirement"] == "none"
+        assert metadata["login_user"]["requires_session"] is True
+        assert metadata["checkout_order"]["approval_requirement"] == "confirmation_required"
+
+    def test_generated_server_pyproject_includes_packaging_hardening(self, tmp_output: Path) -> None:
+        """Generated MCP server package includes explicit wheel config and a console entry point."""
+        from agent_see.core.analyzer import analyze_openapi_file
+        from agent_see.core.generator import generate_all
+        from agent_see.core.mapper import build_capability_graph
+
+        caps = analyze_openapi_file(ECOMMERCE_SPEC)
+        graph = build_capability_graph(caps, source_url="http://bakery.com")
+        generate_all(graph, tmp_output)
+
+        pyproject_data = tomllib.loads((tmp_output / "mcp_server" / "pyproject.toml").read_text())
+        assert pyproject_data["build-system"]["build-backend"] == "hatchling.build"
+        assert pyproject_data["tool"]["hatch"]["build"]["targets"]["wheel"]["only-include"] == ["server.py"]
+        scripts = pyproject_data["project"]["scripts"]
+        assert any(target == "server:main" for target in scripts.values())
 
     def test_proof_still_passes_with_execution(self, tmp_output: Path) -> None:
         """Full verification still passes after adding execution layer."""
