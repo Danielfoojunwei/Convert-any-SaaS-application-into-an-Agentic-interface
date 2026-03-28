@@ -6,6 +6,7 @@ Takes a CapabilityGraph and generates all output artifacts:
 - OpenAPI spec
 - AGENTS.md
 - SKILL.md files
+- Plugin packaging artifacts for Manus, Claude-style, OpenClaw, and custom harnesses
 """
 
 from __future__ import annotations
@@ -146,6 +147,14 @@ def generate_all(
             artifacts["launch_update_register"] = Path(manifest.update_register)
         if manifest.alignment_report_json:
             artifacts["launch_alignment_report_json"] = Path(manifest.alignment_report_json)
+
+    from agent_see.plugins.service import sync_plugin_artifacts
+
+    plugin_artifacts = sync_plugin_artifacts(output_dir, launch_dir=launch_output_dir)
+    artifacts["plugin_manifest"] = plugin_artifacts["plugin_manifest"]
+    artifacts["plugin_guide"] = plugin_artifacts["plugin_guide"]
+    artifacts["plugin_connectors_dir"] = plugin_artifacts["connectors_dir"]
+    artifacts["plugin_starter_kit_dir"] = plugin_artifacts["starter_kit_dir"]
 
     logger.info(
         f"Generated {len(artifacts)} artifacts in {output_dir}: "

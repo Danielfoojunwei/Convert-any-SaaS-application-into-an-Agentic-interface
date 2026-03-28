@@ -1,557 +1,174 @@
 # Agent-See
 
-**Turn your business website, API, or SaaS product into an agent-ready interface.**
+**Agent-See** turns a website, SaaS product, landing page, or API contract into a grounded **agent integration bundle** and then helps package that bundle as a reusable **cross-harness meta-plugin**. The repository is designed for teams that do not want to rebuild their business surface for agents from scratch, but do want a truthful runtime, a documented contract, and a reusable connector layer that can travel across Manus-style agents, Claude-style workspaces, OpenClaw-like orchestrators, and custom internal harnesses.
 
-Agent-See converts a public landing page, an OpenAPI specification, or a live SaaS surface into a **tested agent interface package** that can be used by OpenClaw and other agentic harnesses that consume MCP tools, structured OpenAPI contracts, agent manifests, or runtime documentation.
-
-Instead of rebuilding your product for agents from scratch, Agent-See discovers what already exists, extracts the real capabilities, maps them into workflows, generates the runtime and interface artifacts, and packages the result for deployment. The original site or application stays unchanged. Agent-See creates the agent-facing layer around it.
+The refactored repository is organized around **two core skills**. The first skill converts a business surface into an executable, inspectable agent interface. The second skill turns that interface into a public-facing discovery and maintenance layer. On top of those two skills, Agent-See now emits a **plugin packaging layer** that helps users transform any completed conversion into their own plugins, skills, and connectors.
 
 ```text
-Landing page / API / SaaS URL
-           ↓
-Discover → Extract → Map → Generate → Verify → Deploy
-                                          ↓
-         MCP server + OpenAPI + Agent Card + AGENTS.md + Skills + Runtime Metadata
+Business website / SaaS / OpenAPI
+                ↓
+      Agent-See Conversion
+                ↓
+MCP runtime + OpenAPI + Agent Card + AGENTS.md + Skills + Readiness
+                ↓
+      Agentic Business Launch
+                ↓
+llms.txt + /agents page + reference layer + launch reports + alignment checks
+                ↓
+        Plugin Packaging Layer
+                ↓
+Plugin manifest + harness connectors + starter kit for custom plugins/skills/connectors
 ```
 
-## Outcomes
+## What the Repository Does Now
 
-Agent-See is designed to change the operational state of a business surface after conversion. The goal is not only to emit files. The goal is to turn an existing URL, API, or SaaS surface into something an agentic harness can inspect, call, validate, deploy, and improve with less guesswork. After a successful conversion, the business surface should be easier to operationalize, easier to govern, and easier to reuse across different agent workflows.
+The repository should be understood as a **two-skill operating system for agentizing business surfaces** rather than as a single one-off converter. The conversion layer remains the grounded extraction and runtime synthesis engine. The launch layer remains the discovery, trust, and maintenance system. The new plugin layer packages the generated outputs so a completed conversion can be reused as a connector for multiple agent harnesses or extended into a custom plugin of the user’s own conversion.
 
-| Outcome | What it means in practice |
-| --- | --- |
-| **Callable interface instead of a raw surface** | A business website, SaaS workflow, or API is translated into MCP tools, OpenAPI, manifests, skills, and runtime metadata rather than being left as an unstructured target |
-| **Clearer execution boundaries** | The generated package makes it easier to see which actions are public, authenticated, stateful, approval-gated, browser-backed, or API-backed |
-| **Faster integration into agentic harnesses** | Claude Cowork-style workspaces, Manus-style agents, OpenClaw-like orchestrators, and custom runtimes can consume a cleaner integration bundle instead of guessing directly from the source system |
-| **Better operator visibility** | `AGENTS.md`, `tool_metadata.json`, `runtime_state.json`, `route_map.json`, and the operationalization report make it easier to understand what was grounded and what still needs hardening |
-| **Iterative improvement instead of one-off conversion** | The conversion can be reviewed, edited, re-run, redeployed, and hardened as the source system, access level, or business priorities change |
-| **Lower operator burden over time** | Instead of repeatedly reverse-engineering the same system for every new task, the converted package becomes a reusable execution layer |
-
-These outcomes matter because conversion is only the beginning. In real use, teams need to manage the generated package after the first run, revisit it when workflows change, and know how to modify it without starting from zero.
-
-## What Happens After Conversion
-
-After conversion, the output should be treated as a **working integration bundle**, not as a dead export. The next step is to inspect what Agent-See generated, decide whether the current conversion fidelity is good enough for the intended task, and then either run the package as-is or refine it through another conversion pass. In practice, good usage is iterative: convert, inspect, validate, adjust, and re-run when the source system or requirements change.
-
-| Step | What to do after conversion | Why it matters |
-| --- | --- | --- |
-| **1. Inspect the generated package** | Review `AGENTS.md`, `openapi.yaml`, `agent_card.json`, `skills/`, `tool_metadata.json`, `runtime_state.json`, `route_map.json`, and `operationalization_report.json` | This tells you what was actually discovered, what is runnable, and where the boundaries still are |
-| **2. Check whether the right workflows were captured** | Confirm that the important tasks such as booking, checkout, lead capture, catalog lookup, order status, support intake, or admin actions are present | This prevents you from deploying a technically complete package that still misses the business workflow you care about |
-| **3. Run or deploy the generated runtime** | Start the MCP server locally or deploy it with the generated packaging and infrastructure files | This turns the conversion into a live callable execution layer |
-| **4. Test the critical paths** | Exercise the most important tools and workflows first, especially anything stateful, authenticated, or approval-sensitive | This validates operational usefulness rather than just artifact presence |
-| **5. Decide whether to accept, edit, or re-run** | Determine whether the current output is already fit for purpose, needs light manual hardening, or should be regenerated with better inputs or access | This is the core control point for post-conversion management |
-| **6. Reconnect the harness with the updated package** | If you changed or regenerated the conversion, point your harness to the updated runtime, docs, or manifests | This ensures the agent is using the latest grounded interface instead of stale artifacts |
-| **7. Keep iterating as the source evolves** | Re-run Agent-See when routes change, login behavior changes, new workflows appear, or deployment expectations change | This keeps the integration package aligned with the real system over time |
-
-### How to Manage, Edit, and Modify a Conversion
-
-The most practical way to think about post-conversion management is to separate **inspection**, **manual hardening**, and **re-conversion**. Inspection means reading the generated artifacts and confirming what Agent-See believes to be true. Manual hardening means editing the generated package when you want to improve naming, deployment settings, prompts, runbooks, or harness integration details. Re-conversion means running Agent-See again when the source system, desired outputs, access level, or validation depth has changed enough that the underlying extraction should be refreshed.
-
-| Change scenario | Recommended action | Why this is the right move |
-| --- | --- | --- |
-| **The source website or SaaS UI changed** | Re-run `agent-see convert <target>` and compare the newly generated artifacts to the previous package | The safest way to reflect real source changes is to refresh the extraction and route mapping |
-| **The user gave better requirements after the first run** | Re-run the conversion with the fuller scope, stronger access details, and clearer success criteria | Better inputs usually improve workflow prioritization and generated guidance quality |
-| **A critical workflow is missing** | Re-check the target, provide the missing workflow explicitly, and re-run the conversion | Missing workflows often indicate that the original scope or access level was too shallow |
-| **Authentication or session behavior was incomplete** | Re-run with the correct authenticated context and verify the resulting state and approval metadata | Session-aware behavior is grounded by access and runtime context, not only by public discovery |
-| **The generated runtime works but needs deployment changes** | Keep the conversion, edit the deployment or packaging assets, then revalidate and redeploy | Packaging, environment, and runtime operations often need local hardening without changing the whole extraction |
-| **The harness needs different grounding artifacts** | Keep the conversion but update how you feed `AGENTS.md`, skills, `agent_card.json`, or `openapi.yaml` into the harness | The same conversion can support multiple harness styles with different grounding preferences |
-| **You want cleaner names, runbooks, or documentation** | Manually refine the generated docs and operational notes while keeping the grounded runtime intact | Not every improvement requires a full regeneration |
-| **The source system gained new routes or business logic** | Re-run conversion and then re-test the changed workflows first | New logic should be rediscovered and validated rather than patched by assumption |
-
-### Step-by-Step: When to Use Agent-See Again
-
-When a conversion no longer reflects the source of truth, the recommended path is to use Agent-See again rather than relying on stale assumptions. The step-by-step approach is straightforward: first confirm what changed, then decide whether the change affects discovery, execution, or only packaging, then re-run the conversion if the source-of-truth layer changed, and finally reconnect and revalidate the updated package.
-
-| Reuse step | What to do |
-| --- | --- |
-| **1. Identify the reason for the update** | Decide whether the trigger is a changed UI, changed API, new workflow, stronger access, deployment issue, or harness integration issue |
-| **2. Preserve the previous package** | Keep the last working conversion so you can compare artifacts and roll back if needed |
-| **3. Re-run `agent-see convert` against the target** | Use the current URL, OpenAPI file, or supported target with the improved scope or access context |
-| **4. Compare the generated artifacts** | Review differences in `openapi.yaml`, `tool_metadata.json`, `route_map.json`, `runtime_state.json`, `AGENTS.md`, and skills docs |
-| **5. Re-test the changed workflows first** | Focus validation on the flows that actually changed, especially login, checkout, booking, support, and admin operations |
-| **6. Redeploy or reconnect the runtime** | Start the new runtime locally or deploy it, then update your harness to use the current package |
-| **7. Archive the validated revision** | Keep the accepted output as the new baseline for future updates |
-
-### Edge Cases and How to Handle Them
-
-The most important edge cases are usually not failures of the tool alone. They are mismatches between the original conversion context and the current operational need. That is why the right response is often to improve the inputs, increase the access level, or re-run the conversion with a clearer target rather than trying to force a stale package to represent a changed system.
-
-| Edge case | What usually happened | What to do next |
-| --- | --- | --- |
-| **The first conversion was URL-only and too shallow** | The agent did not have enough detail to prioritize the right workflows | Re-run with fuller task scope, workflow priorities, access details, and success criteria |
-| **The site mixes browser-only flows with hidden APIs** | The first pass captured only part of the operational surface | Re-run with stronger access and inspect both route mapping and browser-backed tool coverage |
-| **The harness can read docs but cannot execute reliably** | The runtime or deployment layer was not connected or validated deeply enough | Re-run the validation path, check packaging and deployment assets, and reconnect the live runtime |
-| **Protected flows were requested without the right authorization** | The conversion context did not support truthful modeling of those actions | Stop treating the package as full fidelity, gather the missing authorization details, then re-run |
-| **A workflow exists but is approval-sensitive** | The action is destructive, transactional, or identity-sensitive | Keep the workflow, but review approval boundaries and operator expectations before automating it |
-| **The package works for one harness but not another** | The execution layer is valid, but the grounding or connection method differs by harness | Reuse the same core conversion and adjust how each harness consumes the runtime, manifests, and docs |
-| **The output is broadly right but operationally incomplete** | Discovery succeeded, but deployment, monitoring, or retry posture still needs hardening | Treat the conversion as a strong baseline, then manually harden the generated runtime and deploy config |
-
-## Agentic Search Playbook for Business Owners
-
-Using Agent-See is the first step toward making a business usable by agents, but it is not the whole operating model. A converted business still needs to become easier for LLMs, web-search agents, and RAG-driven buyer journeys to **retrieve**, **trust**, **compare**, and **execute**. That means the business owner must pair the generated runtime with a public discovery layer: canonical task pages, structured data, sitemap and crawler controls, policy pages, product and service references, and a public explanation of how agents should use the converted business.
-
-To make this practical rather than theoretical, the repository now includes a full step-by-step guide at [`AGENTIC_SEARCH_PLAYBOOK.md`](./AGENTIC_SEARCH_PLAYBOOK.md). That document explains exactly what to do after conversion, including which URLs to make canonical, how to write answer-first task pages, how to use `robots.txt`, `sitemap.xml`, `llms.txt`, JSON-LD, Merchant Center, Search Console, IndexNow, and how to expose the Agent-See runtime as a public integration surface that turns discovery into action.
-
-| If you want to improve… | Go to the playbook sections that cover… |
-| --- | --- |
-| **Retrieval in AI and web search** | Canonical URLs, task-shaped pages, `robots.txt`, sitemap, `llms.txt`, markdown mirrors |
-| **Trust and recommendation quality** | Entity signals, business details, structured data, policies, support, proof, comparison facts |
-| **Execution by agents and harnesses** | Public agent integration page, runtime deployment, manifests, OpenAPI, approval and auth boundaries |
-| **Freshness after business changes** | IndexNow, sitemap `lastmod`, Merchant Center maintenance, re-conversion and redeployment loops |
-
-The core idea is simple: **Agent-See creates the executable surface, while the business owner must still operate the discovery and truth surfaces that help agents find and choose the business.** If the runtime is live but the public pages are vague, the business may remain hard to recommend. If the pages are strong but the runtime is missing, the business may be cited but not acted upon. The playbook is designed to close that gap.
-
-## How to Use Agent-See with Claude Cowork, Manus, OpenClaw, and Similar Harnesses
-
-The simplest way to think about Agent-See is that it creates the **missing interface layer** between a business system and an agent runtime. If you already have a business landing page, an operations dashboard, a booking system, an ecommerce storefront, or an internal API, Agent-See packages that surface so an agent can use it more reliably.
-
-That means the workflow is not, “Teach the agent to guess your website.” The workflow becomes, “Convert the business surface once, then let the harness consume a cleaner operational package.”
-
-| Harness or runtime style | What Agent-See gives it | What the harness gets at the end |
-| --- | --- | --- |
-| **Claude Cowork-style collaborative agent workspace** | MCP runtime, AGENTS manifest, tool metadata, OpenAPI contract | A documented callable tool surface instead of a raw website |
-| **Manus-style tool-using autonomous agent** | Executable MCP server, skills docs, runtime state, operationalization report | A grounded execution layer with clearer readiness and approval boundaries |
-| **OpenClaw and OpenClaw-like orchestrators** | MCP tools, route maps, runtime metadata, deployable server package | A business system that can be invoked as a stable agent backend |
-| **Custom agent stacks and variants** | OpenAPI, agent card, AGENTS docs, skills, deployment config | A reusable integration bundle that can be plugged into internal workflows |
-
-### Universal Step-by-Step Workflow
-
-No matter which harness you use, the overall flow is the same. First, you convert the business surface. Second, you inspect what was generated. Third, you run or deploy the generated runtime. Fourth, you connect your harness to the package. Fifth, you let the harness execute real business tasks through the generated interface.
-
-```bash
-# 1. Install Agent-See
-pip install agent-see
-
-# 2. Convert a real business surface
-agent-see convert https://example-store.com
-
-# or convert from an OpenAPI spec
-agent-see convert ./openapi.json
-
-# 3. Start the generated runtime locally
-agent-see deploy --method docker
-
-# 4. Or generate a cloud deployment package
-agent-see deploy --method fly
-```
-
-After conversion, the generated folder becomes your **agent integration bundle**. The runtime gives the harness callable tools. The OpenAPI file gives it a structured contract. The AGENTS and skills documents explain the interface. The tool metadata and runtime state files tell you what is actually operational, what requires approval, and where workflows are stateful.
-
-### Turn Agent-See Itself into a Skill
-
-One of the most useful patterns is to make **Agent-See itself** a reusable skill inside your agent environment. In that setup, you do not manually think through every conversion step each time. Instead, you give your agent a higher-level instruction such as, “Convert this business surface into an agent-ready interface, deploy the generated runtime, inspect readiness, and then use the resulting tools to complete the task.”
-
-This changes Agent-See from a one-off developer utility into a **meta-capability** for your agent stack. The same agent can first use Agent-See to produce the interface bundle and then immediately switch roles and use what it created to interact with the target service. That is especially compelling when the business surface is changing often, when you are onboarding many customer sites, or when operators do not want to hand-wire every integration themselves.
-
-| Step | What the agent does when Agent-See is wrapped as a skill | Final effect |
-| --- | --- | --- |
-| **1. Receive a business task** | The agent is told something like “make this booking site agent-usable and then schedule an appointment” or “convert this ecommerce site and then collect product data” | The agent starts from business intent, not low-level integration work |
-| **2. Invoke the Agent-See skill** | The agent runs the conversion flow against the URL or OpenAPI spec | The target surface is transformed into an integration bundle |
-| **3. Review generated readiness artifacts** | The agent reads `AGENTS.md`, `tool_metadata.json`, `runtime_state.json`, and `operationalization_report.json` | It knows which tools are ready, which are approval-gated, and which are stateful |
-| **4. Run or deploy the generated runtime** | The agent starts the MCP server locally or via the deployment package | The converted business now exposes a callable operational surface |
-| **5. Switch from builder to user** | The same agent begins using the generated tools, contract, and skills docs | The system moves directly from generation into execution |
-| **6. Complete the original task** | The agent performs the business workflow through the generated interface | The target website or SaaS becomes actionably usable without manual rewiring |
-| **7. Reuse the skill on the next surface** | The same pattern is applied to another customer site, API, or SaaS workflow | Agent-See becomes a repeatable integration capability, not a one-time script |
-
-The final outcome is powerful: you can ask your agent to **make a system agent-ready and then use the generated interface on your behalf**. That removes much of the operator burden. Instead of separately building integrations and then separately teaching the agent how to use them, the same workflow creates the interface layer and operationalizes it for follow-on tasks.
-
-### Canonical Intake Guarantee Across Agentic Harnesses
-
-A core design principle of Agent-See is that the generated agent guidance should **strictly collect the required information before attempting a highest-fidelity conversion**. In practical terms, this means the generated `AGENTS.md` and `SKILL.md` outputs are intended to make the agent ask first and convert second. The user should not have to worry that they forgot to mention an important detail when the task is meant to be done at the highest quality level.
-
-This guarantee is designed to hold across different agentic harnesses, including Claude Cowork-style workspaces, Manus-style autonomous agents, OpenClaw-like orchestrators, and custom internal runtimes that consume the generated guidance documents. The goal is not to let the harness guess from a URL alone. The goal is to make the harness explicitly request the missing truth from the user before it proceeds.
-
-| Canonical intake behavior | What the generated agent should do |
-| --- | --- |
-| **Vague prompt or URL-only input** | Stop and ask clarifying questions instead of claiming a full-fidelity conversion |
-| **Missing access or auth information** | Ask for permissions, login method, or access boundaries before modeling protected flows |
-| **Unclear workflow priorities** | Ask which business flows matter most before optimizing the conversion |
-| **Unspecified output package** | Ask whether the user wants MCP runtime, OpenAPI, AGENTS.md, SKILL.md, deployment assets, or the full bundle |
-| **Unclear validation depth** | Ask whether the user wants structural conversion, authenticated walkthroughs, packaging validation, or deployment-grade hardening |
-| **Missing success criteria or constraints** | Ask for completion criteria, environment boundaries, policy limits, and sensitive actions before continuing |
-
-For canonical use, the harness should treat this intake as a **required gate**, not as optional politeness. If critical inputs are missing, the generated agent should pause, request the missing information, restate the gathered scope back to the user, and only then proceed with a highest-fidelity conversion. If the user cannot provide the required information, the agent should continue only with a clearly labeled reduced-scope conversion and should state exactly what cannot yet be guaranteed.
-
-This is especially important across different harness styles because the same conversion may be used by a collaborative copilot, an autonomous operator, or a workflow orchestrator. The harness may change, but the rule should remain canonical: **do not guess when the user can specify the truth**.
-
-### Step-by-Step for Claude Cowork
-
-In a Claude Cowork-style setup, the main job is to give the agent a surface it can call and reason about instead of asking it to infer everything from a landing page or scattered API docs.
-
-| Step | What you do | Why it matters |
-| --- | --- | --- |
-| **1. Pick the target** | Choose the business landing page, product site, SaaS URL, or OpenAPI spec you want Claude Cowork to work with | This determines whether the conversion is API-first, browser-first, or hybrid |
-| **2. Convert it** | Run `agent-see convert <target>` | Agent-See extracts capabilities, workflows, and route mappings |
-| **3. Review the artifacts** | Open `AGENTS.md`, `openapi.yaml`, and `mcp_server/tool_metadata.json` | This tells you what Claude Cowork can call and what readiness level each tool has |
-| **4. Run the generated runtime** | Start the generated MCP server locally or deploy it | Claude Cowork now has a stable operational endpoint instead of a fragile webpage-only workflow |
-| **5. Connect the harness** | Point Claude Cowork to the generated tool surface, contract, or docs depending on how your workspace is configured | This makes the agent consume the converted interface instead of guessing the business system |
-| **6. Give a real task** | Ask for a task like “list products,” “book an appointment,” “submit a contact form,” or “check order status” | Claude Cowork can operate over named tools and structured outputs |
-| **7. Inspect outcomes** | Use `tool_metadata.json`, `operationalization_report.json`, and logs to review success and limitations | You keep human visibility into what was grounded and what still needs hardening |
-
-The final outcome for Claude Cowork is that the workspace no longer has to treat the business as an unstructured web surface. It gets a cleaner callable layer with typed inputs, route-aware execution, browser fallback where needed, and explicit operational boundaries.
-
-### Step-by-Step for Manus
-
-In a Manus-style autonomous workflow, Agent-See is most useful as the **execution package** that Manus can work against when it needs grounded access to an external business surface.
-
-| Step | What you do | Final effect inside the workflow |
-| --- | --- | --- |
-| **1. Convert the target business surface** | Run Agent-See on the public URL or OpenAPI spec | The raw external system becomes a structured operational package |
-| **2. Inspect readiness before use** | Read `AGENTS.md`, `tool_metadata.json`, and `runtime_state.json` | Manus can distinguish between structurally generated tools and more operationally ready tools |
-| **3. Run or deploy the MCP runtime** | Start the generated `mcp_server/server.py` locally or in Docker or cloud | The external service becomes callable through a controlled interface |
-| **4. Bring the package into the workflow** | Use the MCP runtime as the tool surface and the generated docs as grounding material | Manus can plan around the service using explicit tool names and state models |
-| **5. Execute multi-step workflows** | Run tasks such as catalog lookup, lead capture, booking, cart initiation, checkout preparation, or support intake | The workflow is mediated by generated tools rather than brittle ad hoc browsing |
-| **6. Review approvals and state** | Check which tools require approval and which workflows create or depend on session state | Sensitive or stateful tasks remain visible to the operator |
-| **7. Iterate operational hardening** | Use the metadata and runbook to improve deployment, credentials, and monitoring | The converted service becomes more reliable over time |
-
-The final outcome for Manus is a more grounded and inspectable integration path. Instead of relying only on browsing or one-off API scripting, the agent can work through a package that exposes tools, workflows, health surfaces, readiness signals, and deployment artifacts.
-
-### Step-by-Step for OpenClaw
-
-OpenClaw is one of the clearest fits for Agent-See because Agent-See is already framed around producing a business interface that an agentic runtime can call as a tool layer.
-
-| Step | What you do | What OpenClaw gets |
-| --- | --- | --- |
-| **1. Convert the source** | Run Agent-See against the business URL or API spec | A business capability graph plus generated runtime |
-| **2. Start the generated MCP server** | Run locally or deploy with the generated infrastructure files | A callable backend that can sit behind OpenClaw |
-| **3. Load the interface artifacts** | Use `openapi.yaml`, `agent_card.json`, `AGENTS.md`, and skills docs as the integration and grounding layer | Better tool discovery, planning, and operator review |
-| **4. Use route and readiness metadata** | Inspect `route_map.json`, `tool_metadata.json`, and `operationalization_report.json` | OpenClaw can reason about what is API-backed, browser-backed, approval-gated, or structurally generated |
-| **5. Run agent tasks against the converted business** | Trigger workflows like listing products, submitting checkout, booking appointments, or collecting leads | The harness now works through a deployable agent-facing service layer |
-| **6. Scale operationally** | Use Docker or cloud config to move the runtime from local evaluation to production hosting | The converted service becomes shareable across multiple agents or orchestrations |
-
-The final outcome for OpenClaw is that your business stops looking like an arbitrary website and starts looking like an **agent backend** with tools, schemas, runtime state, deploy config, and verification artifacts.
-
-### Step-by-Step for OpenClaw Variants and Other Agentic Harnesses
-
-Not every team uses the same runtime. Some are browser-first. Some are API-first. Some are orchestration layers with internal conventions. Agent-See is designed to be useful even when the harness is not identical to OpenClaw.
-
-| Variant type | How to use Agent-See |
-| --- | --- |
-| **MCP-oriented runtime** | Run the generated server and connect the harness directly to the callable tool surface |
-| **OpenAPI-aware runtime** | Use `openapi.yaml` as the contract and pair it with the generated docs for grounding |
-| **Manifest-driven runtime** | Use `agent_card.json` and `AGENTS.md` to expose discovery and tool semantics |
-| **Prompt-grounded internal agents** | Feed `AGENTS.md`, skills docs, and tool metadata into the system prompt or runtime memory while keeping the MCP or API surface as the actual execution layer |
-| **Human-in-the-loop orchestration** | Use readiness metadata, approval requirements, and runtime snapshot tools to decide which actions can be automated and which require review |
-
-The final outcome in these variants is the same. Agent-See gives you a reusable interface package that helps the harness move from unstructured interpretation to grounded execution.
-
-## Built for OpenClaw and Other Agentic Harnesses
-
-Agent-See is positioned as the **translation layer** between a business system and an agent runtime. If your harness can work with MCP tools, structured API contracts, agent manifests, or generated skills, Agent-See gives you a stronger starting point.
-
-For OpenClaw specifically, the value is straightforward. Instead of asking the harness to infer actions from arbitrary web pages or ad hoc API docs, Agent-See gives it an explicit operational surface with named tools, typed parameters, deterministic error codes, and generated documentation. The same framing applies to internal copilots, orchestration layers, browser-first agent systems, and other multi-agent runtimes.
-
-| Harness need | What Agent-See generates |
-| --- | --- |
-| **Callable tool surface** | `mcp_server/server.py` with executable tools |
-| **Structured contract** | `openapi.yaml` |
-| **Agent manifest and discovery** | `agent_card.json`, `AGENTS.md` |
-| **Per-tool guidance** | `skills/*.md` |
-| **Execution truthfulness** | `tool_metadata.json`, `route_map.json`, `runtime_state.json` |
-| **Operational review** | `operationalization_report.json` |
-
-## What “Agent-Ready” Means in Practice
-
-Agent-readiness is broader than exposing an endpoint. A system becomes genuinely useful to an agent when the agent can discover what is possible, call the right action, understand errors, preserve workflow state, and operate inside explicit safety boundaries.
-
-Agent-See aims to cover that full operational path.
-
-| Aspect of agent-readiness | What Agent-See does |
-| --- | --- |
-| **Discovery** | Probes APIs, crawls pages, and inspects browser-visible actions |
-| **Grounding** | Requires evidence-backed capability extraction rather than fabricated tools |
-| **Schema generation** | Produces typed parameters, return structures, and deterministic error semantics |
-| **Execution** | Routes to HTTP APIs where possible and falls back to browser execution where needed |
-| **Workflow modeling** | Captures domains, edges, workflows, and stateful session entities |
-| **Safety posture** | Surfaces approval requirements and operational readiness metadata |
-| **Deployment** | Generates Docker and cloud deployment assets plus environment templates |
-| **Verification** | Produces coverage, fidelity, and hallucination checks on the generated interface |
-
-## What You Can Convert
-
-Agent-See is strongest today when the source is either a **URL-backed business surface** or an **OpenAPI specification**. That covers many of the real-world cases that matter for agent adoption, including ecommerce storefronts, booking flows, lead-gen pages, support surfaces, and API-driven SaaS products.
-
-| Input type | Best use case | Current posture |
-| --- | --- | --- |
-| **Business landing page or website URL** | Contact forms, booking flows, product listings, lead capture, informational pages | Supported through crawling, DOM extraction, and browser-backed tools |
-| **OpenAPI spec** | SaaS APIs, partner APIs, internal operational systems | Strongest and most deterministic path |
-| **Live SaaS URL with mixed API + browser surface** | Hybrid applications where some actions are in APIs and some remain browser-only | Supported through route mapping plus browser fallback |
-| **Local codebase or directory** | Direct code-first conversion | Not the primary supported path in the current product framing; unsupported cases should fail truthfully |
-
-## What Has Been Tested and Validated So Far
-
-Agent-See has been validated across **multiple conversion modes**, not just a single happy-path demo. The current repository test suite exercises deterministic OpenAPI conversion, live URL discovery, browser-DOM form extraction, template-assisted cross-validation, end-to-end CLI conversion, generated artifact validation, route mapping, execution behavior, and deployment/package generation. In the latest full repository validation run covering `test_sprint2.py`, `test_sprint3_5.py`, `test_e2e.py`, and `test_full_pipeline.py`, the suite completed with **122 passing tests**.
-
-That does **not** mean every arbitrary website, every anti-bot environment, or every private SaaS product has been proven automatically production-ready. It does mean the core conversion pipeline has been exercised across a wide set of realistic patterns and that the generated outputs have been checked at the levels that matter most for agent-facing functionality.
-
-| Validated conversion path | What has been exercised |
-| --- | --- |
-| **OpenAPI spec to full agent package** | Deterministic extraction, graph building, workflow inference, MCP runtime generation, OpenAPI regeneration, agent card generation, AGENTS documentation, skills generation, and proof output |
-| **Live HTTP site discovery** | Discovery of OpenAPI from a live served site, page crawling, domain classification, page and form counting, and URL-based analysis flows |
-| **Browser DOM to capability extraction** | Form extraction, parameter inference, contact/checkout/booking capability detection, product listing detection, and business-information detection from HTML surfaces |
-| **Template-assisted conversion** | Cross-validation and merge behavior between discovered capabilities and domain templates for ecommerce and booking flows |
-| **CLI conversion path** | `agent-see convert` execution against multiple fixture types and verification that expected artifacts are emitted end to end |
-| **Execution-layer validation** | Route-map generation, API execution against a local test server, parameter handling, path-parameter substitution, checkout execution, and error-path handling |
-| **Generated runtime validation** | Syntax validation of generated `server.py`, tool registration checks, health/readiness/runtime snapshot surface generation, session metadata generation, and approval-policy behavior |
-| **Packaging and deployment validation** | Presence and correctness of `pyproject.toml`, Docker and cloud deployment scaffolds, generated wheel configuration, stable runtime entry points, and successful wheel/sdist build validation |
-
-The validation coverage also spans **different business shapes**, which matters because a tool that only works on one domain is not enough for the product positioning here. The suite currently includes ecommerce storefront flows, booking and appointment flows, a Petstore-style API baseline, live-site HTML discovery flows, and mixed browser-plus-API conversion scenarios.
-
-| Business or conversion type | What has been validated in practice |
-| --- | --- |
-| **Ecommerce** | Product listing, product detail retrieval, cart state, add-to-cart relationships, checkout semantics, order-status flows, transaction-aware workflow inference, and generated MCP runtime behavior |
-| **Booking and services** | Service discovery, availability, appointment booking, booking status, cancellation, business-info extraction, contact-message handling, and booking workflow detection |
-| **General API baseline** | Petstore-style endpoint extraction, parameter and return-schema generation, graph/domain inference, proof validation, and artifact generation from a clean OpenAPI reference spec |
-| **Public website and HTML surface** | Contact forms, checkout forms, booking forms, product-listing patterns, about/business-information surfaces, and browser-derived field mapping |
-| **Hybrid API plus browser surfaces** | Cases where route-mapped API actions coexist with browser-derived workflows and both need to be represented in the generated interface bundle |
-
-From a systems perspective, the project has been tested at several layers rather than only at the final output. Extraction has been validated for evidence grounding, confidence, parameters, and return schemas. Mapping has been validated for domains, edges, workflows, and state relationships. Generation has been validated for artifact presence and content shape. Verification has been validated for coverage, hallucination control, and proof output. Execution has been validated for route correctness, API invocation behavior, and generated runtime logic.
-
-| Validation layer | What is checked |
-| --- | --- |
-| **Extraction** | Capability count, evidence presence, confidence expectations, parameter extraction, return-schema extraction, and naming conventions |
-| **Mapping** | Domain grouping, edge inference, workflow detection, route-map construction, and state/session relationships |
-| **Generation** | Existence and structure of MCP runtime files, OpenAPI output, agent card, AGENTS manifest, workflow skills, and capability graph artifacts |
-| **Proof and grounding** | Coverage completeness, hallucination checks, fidelity thresholds, and proof artifact generation |
-| **Execution** | Route dispatch, GET/POST handling, body and query behavior, path-parameter substitution, checkout execution, and multi-step workflow execution against a local API server |
-| **Operational runtime** | Health endpoints, readiness endpoints, runtime snapshot generation, approval metadata, session requirements, and deployment environment templates |
-| **Packaging** | Generated runtime packaging metadata, deterministic wheel inclusion, console entry points, generated package build success, and root package wheel build success |
-
-Recent validation also included the repaired operational-readiness work added in this branch. That specifically rechecked that login-style capabilities are treated as **session-establishing** rather than payment-like confirmation flows, that generated runtimes correctly substitute path parameters at execution time, and that generated MCP runtimes build cleanly as installable packages.
-
-The honest boundary is that Agent-See has been validated **broadly and functionally across representative conversion types**, but not universally against every production SaaS edge case. The strongest current evidence is for OpenAPI-driven systems, structured ecommerce and booking flows, live discovery against controlled HTTP fixtures, browser-form extraction, generated runtime packaging, and local end-to-end execution against known test servers. Systems with heavy bot mitigation, exotic client-side rendering, undocumented private backends, CAPTCHA-heavy authentication, or unusual business logic may still require site-specific hardening even when the base conversion succeeds.
-
-## Access Levels: How Much Control You Need to Get Full Value
-
-You do **not** need to own the URL or own the business to start using Agent-See. What matters more is the level of **authorized access** you have to the target surface. A public site can still be converted into a useful agent-facing package, but the package becomes materially more powerful as you gain access to authenticated flows, operational controls, and deployment context.
-
-The practical rule is simple: **ownership is optional, authorization is decisive**. The more of the system you are allowed to inspect, authenticate against, configure, and validate, the more complete the generated runtime can become.
-
-| Access level | What you typically have | What Agent-See can reliably do | What remains constrained |
+| Layer | Primary purpose | Main outputs | Why it matters |
 | --- | --- | --- | --- |
-| **Level 1: Public-only observer** | A public URL, public pages, maybe public docs or a public OpenAPI spec | Crawl visible pages, extract public forms and actions, infer workflows, generate MCP/OpenAPI/docs artifacts, build browser-backed read paths, package public interaction surfaces | No private dashboards, no authenticated state, no user-specific data, no stable validation of protected workflows |
-| **Level 2: Authenticated end user** | A normal user account, session cookies, access to post-login pages and standard user flows | Model logged-in workflows, preserve session-dependent actions, convert account-level pages, test user-visible operations, ground tools against real authenticated navigation | Limited visibility into admin routes, internal APIs, feature flags, operational settings, and backend error handling |
-| **Level 3: Admin or operator** | Administrative dashboard access, broader workflow permissions, operational pages, sometimes internal documentation | Convert higher-value workflows such as inventory, support, booking management, order operations, and operator dashboards; surface more complete state models and approval boundaries | Still limited if deployment internals, source code, staging, secrets, or API contracts are not available |
-| **Level 4: Owner, developer, or authorized integration team** | Full business authorization, API credentials, staging or development environment, deployment control, logs, and architecture context | Use Agent-See to the maximum: deterministic API routing, stronger environment config, deeper verification, safer deployment, approval tuning, packaging validation, and production hardening | Mostly limited by the quality of the original system rather than access level |
+| **Agent-See Conversion** | Turn a URL or OpenAPI contract into a grounded agent interface bundle | MCP server, OpenAPI, agent card, AGENTS.md, per-tool skills, capability graph, readiness docs, proof artifacts | Gives agents a callable and inspectable operational surface instead of an unstructured website or scattered API docs |
+| **Agentic Business Launch** | Turn the converted bundle into a public, discoverable, and maintainable agent access surface | `llms.txt`, `/agents` page, reference layer, launch report, update register, alignment outputs | Makes the converted system easier to find, trust, maintain, and refresh over time |
+| **Plugin Packaging Layer** | Repackage a completed conversion for specific harnesses and user-defined integrations | `plugins/plugin_manifest.json`, `plugins/PLUGIN_GUIDE.md`, harness connector docs, starter kit templates | Helps users create their own plugin, skill, and connector packages from the generated conversion |
 
-### Level 1: Public-Only Observer
+## The Two Core Skills
 
-At the public-only level, Agent-See can still generate meaningful value. It can crawl marketing pages, help centers, public catalogs, pricing pages, documentation pages, lead forms, booking entry points, and any other unauthenticated surfaces that a normal visitor can reach. This is enough to build a first-pass **capability graph**, infer public workflows, and generate an agent package that documents what appears to be callable from the outside.
+### 1. Agent-See Conversion
 
-Technically, this level is strongest for **discovery and packaging**, not for deep operational execution. Agent-See can extract visible actions, infer parameter shapes from forms and URLs, generate browser-backed tools, emit `AGENTS.md`, `openapi.yaml`, and `tool_metadata.json`, and create a deployable runtime package for evaluation. However, the runtime will only be able to validate what the public surface actually exposes. If the most important action happens only after login, inside a customer portal, or behind anti-bot and permission controls, the package will necessarily remain partial.
+**Agent-See Conversion** is the repository’s interface-synthesis skill. It analyzes a live business surface or structured API description, extracts capabilities and workflows, models execution boundaries, and emits a grounded agent bundle that can be deployed, inspected, or passed into downstream runtimes. The original software is not rewritten. Instead, Agent-See builds the agent-facing layer around it.
 
-| Technical dimension | What Level 1 usually enables |
+This skill is the right entry point when the main problem is operational: a business surface exists, but agents still need a truthful interface, execution contract, runtime metadata, and operator-readable guidance before they can use it reliably.
+
+| What this skill can do | Practical effect |
 | --- | --- |
-| **Discovery surface** | Public HTML, public navigation, public forms, public catalogs, public docs, public OpenAPI specs |
-| **Generated execution mode** | Browser-backed public actions, inferred workflow steps, API-backed routes only when openly documented or discoverable |
-| **Validation quality** | Structural and evidence-grounded, but limited for protected workflows |
-| **Best fit** | Prospecting, capability audits, prototyping, competitive analysis on permitted public surfaces, first-pass integration planning |
-| **Main limitation** | No authenticated state, no privileged actions, no reliable access to business-critical back-office operations |
+| Discover capabilities from a live URL or OpenAPI input | Captures real business actions instead of forcing the operator to hand-model everything |
+| Build a capability graph and workflow map | Makes the service understandable as a set of connected agent tasks rather than isolated endpoints |
+| Generate an MCP runtime | Produces a callable tool surface for harnesses that prefer executable tools |
+| Generate OpenAPI, agent manifests, and AGENTS guidance | Produces structured and human-readable contracts for harnesses that prefer documents or schema ingestion |
+| Generate per-tool and per-workflow skills | Turns extracted capabilities into reusable skill-facing assets |
+| Emit readiness and verification artifacts | Distinguishes grounded structure from operational maturity and gives operators clearer boundaries |
 
-### Level 2: Authenticated End User
+### 2. Agentic Business Launch
 
-With an authenticated user account, Agent-See moves from public discovery into **real session-aware workflow modeling**. It can observe post-login navigation, capture workflows that require cookies or session continuity, and distinguish between tools that are stateless and tools that depend on account context. This is often the first level where the generated runtime becomes genuinely useful for day-to-day task execution rather than only documentation and prototyping.
+**Agentic Business Launch** is the repository’s discovery-and-maintenance skill. It assumes the conversion layer already exists or is being generated in the same run, then creates the public support layer that helps external agents and operators discover, validate, and maintain the resulting business interface over time.
 
-At this level, the technical gain is that the generated package can represent **stateful user journeys**. Account pages, saved carts, appointment history, support tickets, order views, profile settings, usage dashboards, and similar logged-in surfaces become part of the capability graph. Session-dependent tools can be marked as requiring state, and the resulting metadata becomes more truthful about what the agent can execute directly versus what still needs approval or stronger access.
+This skill is the right entry point when the runtime already exists, but the business still lacks the public discovery surface, trust signals, or update mechanics that make an agent integration operationally useful in the real world.
 
-| Technical dimension | What Level 2 usually enables |
+| What this skill can do | Practical effect |
 | --- | --- |
-| **Discovery surface** | Everything from Level 1 plus standard logged-in pages and user workflows |
-| **Runtime behavior** | Session-aware execution, authenticated browser flows, account-scoped read/write tools |
-| **Useful artifacts** | More accurate `runtime_state.json`, stronger `tool_metadata.json`, better workflow modeling for session continuity |
-| **Best fit** | Customer-account automation, authenticated research, support operations from a normal user perspective, internal dogfooding |
-| **Main limitation** | No operator-only controls, incomplete visibility into internal APIs, weak coverage of failure and approval behavior for administrative tasks |
+| Initialize structured launch intake state | Creates a durable source of truth for public-facing agent surfaces |
+| Generate `llms.txt` and `/agents` content | Improves discoverability and makes the agent surface easier to consume |
+| Generate a reference layer | Publishes support, limitations, coverage, and trust-facing materials around the runtime |
+| Create launch reports and update registers | Gives operators a repeatable maintenance and review workflow |
+| Run alignment checks | Compares public launch artifacts to the actual conversion state |
+| Support modular refreshes and full reruns | Lets users update one launch component or refresh the full launch layer in one pass |
 
-### Level 3: Admin or Operator
+## Why the New Plugin Layer Matters
 
-Admin or operator access materially changes the ceiling. At this level, Agent-See can inspect not just the customer-facing journey but also the **business-operational control plane**. That includes dashboards, moderation or review queues, booking management interfaces, order administration, lead triage, support tooling, and settings pages that shape how the business actually runs.
+Many teams do not stop at “generate the runtime.” They want the generated conversion to become a **reusable plugin of the converted business**, a harness-native connector, or a starter kit for future integrations. That is now an explicit part of the repository design.
 
-From a technical standpoint, this level improves both **coverage** and **operational truthfulness**. The generated tools can represent higher-value actions, the workflow graph can capture more realistic state transitions, and approval boundaries become easier to define because the system now reveals which actions are genuinely sensitive. This is also where health, readiness, and runbook-style artifacts become more useful, because the operator can compare generated behavior against the actual business workflow.
+The plugin layer does not invent new capabilities. Instead, it packages the grounded outputs of a completed conversion so they can be consumed more easily by different harnesses and extended into user-specific integrations without re-extracting the business logic every time.
 
-| Technical dimension | What Level 3 usually enables |
+| Plugin artifact | What it does |
 | --- | --- |
-| **Discovery surface** | Customer-facing flows plus admin dashboards, management pages, operator tools, broader settings surfaces |
-| **Generated execution mode** | Richer browser automation and hybrid API-plus-browser execution for operational workflows |
-| **Validation quality** | Stronger because operator-visible success states, queue transitions, and workflow side effects can be checked directly |
-| **Best fit** | Operations enablement, support tooling, order and booking management, internal process automation |
-| **Main limitation** | Full production hardening is still constrained without source-level knowledge, staging access, credentials policy, and deploy control |
+| `plugins/plugin_manifest.json` | Creates a machine-readable inventory of the conversion bundle and recommends how to map it into different harness types |
+| `plugins/PLUGIN_GUIDE.md` | Explains how to treat the conversion as a reusable meta-plugin instead of a one-off export |
+| `plugins/connectors/` | Generates harness-facing connection guides for Manus-style agents, Claude-style workspaces, OpenClaw-like orchestrators, and generic runtimes |
+| `plugins/starter_kit/plugin_template.md` | Helps users package the current conversion as a custom plugin |
+| `plugins/starter_kit/skill_template.md` | Helps users wrap a grounded capability or workflow as a custom harness-native skill |
+| `plugins/starter_kit/connector_template.md` | Helps users define their own connector mapping for any other agent runtime |
 
-### Level 4: Owner, Developer, or Authorized Integration Team
+## Cross-Harness Positioning
 
-This is the level that unlocks the maximum value. Full business authorization, API credentials, staging access, deployment control, logs, and architecture knowledge allow Agent-See to operate as a **true integration and operationalization layer** rather than only a discovery and browser automation layer. Ownership itself is not the key variable; what matters is that the team has legitimate authority to configure and validate the system end to end.
+Agent-See is no longer documented as if it belongs to one runtime family. The generated bundle is designed to be reusable across several harness styles, with different artifacts emphasized depending on how the target environment prefers to consume tools, contracts, and operator guidance.
 
-Technically, this level enables the cleanest path to **deterministic routing, packaging integrity, and production hardening**. API-backed capabilities can be mapped more precisely. Environment variables and authentication headers can be configured intentionally. Generated runtimes can be tested against staging, packaged into wheels and containers, deployed with clearer runbooks, and validated with more confidence. This is also the level where approval rules, monitoring, secrets handling, retry posture, and deployment choices can be reviewed by the people who actually control the system.
+| Harness style | Recommended artifact mix | Typical outcome |
+| --- | --- | --- |
+| **Manus-style autonomous agents** | MCP runtime, AGENTS guidance, per-tool skills, operational readiness, launch outputs | A grounded tool surface plus the planning and boundary context needed for autonomous execution |
+| **Claude-style workspaces** | MCP runtime or OpenAPI, AGENTS guidance, plugin guide, skill files | A documented and inspectable workspace integration instead of a raw website or SaaS target |
+| **OpenClaw-like orchestrators** | MCP runtime, route map, tool metadata, agent card, connector guide | A machine-readable backend with clearer operational routing and readiness metadata |
+| **Generic agent harnesses** | OpenAPI, agent card, AGENTS guidance, plugin manifest, starter kit | A portable adapter bundle that can be repackaged for internal runtimes or custom frameworks |
 
-| Technical dimension | What Level 4 usually enables |
+## What a Conversion Generates
+
+A normal conversion now produces a **core bundle** and, after the refactor, a **plugin bundle**. If launch intake is supplied, the run can also generate the launch bundle in the same pass.
+
+| Bundle | Representative files |
 | --- | --- |
-| **Discovery surface** | Public, authenticated, administrative, and documented backend surfaces across environments |
-| **Execution quality** | Highest fidelity through direct API routing, verified browser flows, stronger session control, and environment-aware deployment |
-| **Packaging and deployment** | Reliable installability, containerization, cloud deployment, staging validation, and runtime configuration management |
-| **Best fit** | Production integrations, enterprise onboarding, internal platform tooling, customer-specific deployment packages |
-| **Main limitation** | Usually the underlying product architecture, not Agent-See access |
+| **Core conversion bundle** | `mcp_server/`, `openapi.yaml`, `agent_card.json`, `AGENTS.md`, `skills/`, `capability_graph.json`, `OPERATIONAL_READINESS.md`, `proof/` |
+| **Plugin bundle** | `plugins/plugin_manifest.json`, `plugins/PLUGIN_GUIDE.md`, `plugins/connectors/*.md`, `plugins/starter_kit/*.md` |
+| **Launch bundle** | `launch/llms.txt`, `launch/agents.md`, `launch/reference_layer/`, `launch/launch_report.md`, `launch/update_register.md`, `launch/surface_alignment.json` |
+
+## Usage Modes
+
+The repository is now meant to support four primary working modes. Users can run the skills separately when needed, but a rerun should still refresh the relevant layer in a coherent way.
+
+| Mode | When to use it | Main command pattern |
+| --- | --- | --- |
+| **Convert only** | You need the grounded runtime and interface artifacts first | `agent-see convert <target>` |
+| **Convert and launch together** | You want the runtime and public discovery layer generated in one flow | `agent-see convert <target> --launch-intake <intake.json> --with-launch` |
+| **Launch only** | The conversion bundle already exists and only the launch layer needs to be refreshed | `agent-see launch sync <intake.json>` |
+| **Plugin sync only** | The conversion bundle already exists and you want to regenerate the cross-harness plugin assets | `agent-see plugin sync <agent-output>` |
 
 ## Quick Start
 
-The fastest way to understand the product is to convert a real business surface and inspect the generated package.
+The quickest way to adopt the repository is to run a conversion first, inspect the generated bundle, and then decide whether to add the launch layer or regenerate the plugin layer for a specific harness.
 
 ```bash
-# Install
-pip install agent-see
+# Convert a live business surface or SaaS URL
+agent-see convert https://example.com --output ./agent-output
 
-# Convert a business site or SaaS URL
-agent-see convert https://example-store.com
+# Convert from an OpenAPI contract
+agent-see convert ./openapi.json --output ./agent-output
 
-# Convert from an OpenAPI specification
-agent-see convert ./openapi.json
+# Convert and generate the launch layer in one flow
+agent-see convert ./openapi.json \
+  --output ./agent-output \
+  --launch-intake ./launch-intake.json \
+  --with-launch
 
-# Deploy the generated runtime locally
-agent-see deploy --method docker
+# Regenerate plugin artifacts for an existing conversion
+agent-see plugin sync ./agent-output
 
-# Or generate cloud deployment config
-agent-see deploy --method fly
+# If launch files live outside ./agent-output/launch, pass them explicitly
+agent-see plugin sync ./agent-output --launch-output ./launch-output
 ```
 
-If you are integrating with OpenClaw or another harness, the most useful habit is to treat the generated package as the **agent integration bundle**. The MCP runtime is the callable surface, the OpenAPI file is the structured contract, the AGENTS and skills documents are the runtime-facing documentation, and the metadata files tell you what is actually operational.
+## How to Turn a Conversion into Your Own Plugin, Skill, or Connector
 
-## The End-to-End Output Package
+The new meta-plugin workflow is meant for operators who want the generated conversion to become a reusable integration asset rather than a one-time artifact dump. The recommended pattern is to treat the conversion outputs as the grounded source of truth, then wrap them with the smallest possible layer of harness-specific glue.
 
-Each conversion generates a package that is meant to be usable by engineers, operators, and agent runtimes rather than only by humans reading docs.
+| Step | What to do | Why this is the recommended path |
+| --- | --- | --- |
+| **1. Run the conversion** | Generate the core bundle first | The conversion bundle is the grounded source of truth |
+| **2. Inspect the plugin manifest** | Open `plugins/plugin_manifest.json` and `plugins/PLUGIN_GUIDE.md` | This shows which artifacts exist and how they map to harnesses |
+| **3. Choose the target harness** | Decide whether the new adapter is for Manus, Claude-style, OpenClaw, or another runtime | Different harnesses prefer different artifact mixes |
+| **4. Start from the starter kit** | Use `plugins/starter_kit/` to define the custom plugin, skill, or connector | This avoids rebuilding the same packaging logic from scratch |
+| **5. Reuse grounded artifacts, not guesses** | Map the target harness to MCP, OpenAPI, AGENTS, skills, and readiness docs | The safest adapters preserve the generated contracts and execution boundaries |
+| **6. Add only thin glue code or prompt wrappers** | Create the minimum registration, wrapper, or adapter logic required by the harness | This keeps the integration maintainable and easier to refresh when the source changes |
+| **7. Re-sync when the conversion changes** | Re-run conversion, launch, or plugin sync as needed | The plugin should stay aligned with the latest grounded business surface |
 
-| Artifact | Purpose |
+## Repository Refactor Principles
+
+The repository-wide refactor follows three principles. First, **grounded outputs remain the source of truth**. Second, **conversion and launch remain separable skills**, because users often need modular execution and full reruns at different times. Third, **plugin packaging is treated as a packaging layer rather than as a new extraction layer**, so users can create connectors and derivative skills without fragmenting the verified conversion pipeline.
+
+| Principle | What it means in practice |
 | --- | --- |
-| `mcp_server/server.py` | Executable MCP runtime for agents |
-| `mcp_server/route_map.json` | Tool-to-endpoint routing and execution mapping |
-| `mcp_server/tool_metadata.json` | Per-tool readiness, approval, verification, and error metadata |
-| `mcp_server/runtime_state.json` | Session entities, workflow state, and operational state model |
-| `mcp_server/operationalization_report.json` | Summary of what is executable and how it is grounded |
-| `mcp_server/.env.example` | Required runtime configuration |
-| `mcp_server/Dockerfile` | Container deployment |
-| `mcp_server/docker-compose.yml` | Local or cloud orchestration |
-| `mcp_server/fly.toml` | Fly.io deployment scaffold |
-| `mcp_server/railway.json` | Railway deployment scaffold |
-| `mcp_server/render.yaml` | Render deployment scaffold |
-| `mcp_server/deploy.sh` | Operator deploy helper |
-| `openapi.yaml` | Standardized contract for API-aware systems |
-| `agent_card.json` | Agent discovery manifest |
-| `AGENTS.md` | LLM- and developer-readable capability manifest |
-| `skills/*.md` | Per-tool operational documentation |
-| `capability_graph.json` | Structured graph of extracted capabilities and workflows |
-| `proof/proof.json` | Verification artifact for coverage and fidelity review |
-| `proof/proof_summary.txt` | Human-readable verification summary |
+| **Truth over convenience** | The plugin layer packages existing grounded outputs instead of inventing new capabilities |
+| **Modularity with coherent reruns** | Users can refresh conversion, launch, and plugin layers separately, but each layer still has a clear full-refresh path |
+| **Cross-harness by packaging, not duplication** | The same conversion can serve Manus, Claude-style, OpenClaw, and generic runtimes without maintaining multiple incompatible extraction stacks |
 
-## How Agent-See Turns a Business Surface into an Agent Interface
+## Recommended Reading in This Repository
 
-The product is best understood as a pipeline that moves from observation to execution. It does not just summarize a website. It turns that website or SaaS surface into a callable operational layer.
+The repository now has a clearer set of user-facing entry points. New users should begin with the README and then follow the documents that match the layer they need to operate.
 
-### 1. Discover
-
-Agent-See inspects the input surface to find where real capabilities live. For API-first systems, that often means explicit OpenAPI definitions or discoverable endpoints. For landing pages and browser-first SaaS surfaces, it means crawling pages, reading DOM structure, and identifying forms, product listings, and action surfaces.
-
-### 2. Extract
-
-The extractor turns what it found into explicit capabilities with evidence. A contact form becomes a tool-like capability. A checkout or appointment flow becomes an action with parameters. A products page becomes a read path with structured output possibilities.
-
-### 3. Map
-
-The mapper turns isolated capabilities into a graph with domains, relationships, workflows, and state. This is where a simple list of buttons or endpoints becomes something an agent can actually plan over.
-
-### 4. Generate
-
-The generator turns that graph into the artifacts an agentic harness needs. This includes the MCP runtime, the OpenAPI output, agent manifests, tool documentation, route maps, and runtime metadata.
-
-### 5. Verify
-
-The verifier checks whether the generated interface stays grounded in the original source. The goal is not to market fantasy capabilities, but to keep the resulting agent surface tied to evidence and explicit coverage boundaries.
-
-### 6. Deploy
-
-The deployment layer packages the runtime with environment templates and cloud configuration so the generated interface can actually be run instead of just inspected.
-
-## Three High-Value Use Cases
-
-The most compelling uses of Agent-See are not abstract. They are the common places where businesses already have value trapped inside interfaces that agents cannot use directly.
-
-| Use case | What Agent-See can expose |
+| File | Why to read it |
 | --- | --- |
-| **Lead generation and contact surfaces** | Contact forms, demo requests, qualification flows, support routing |
-| **Commerce and ordering** | Product discovery, cart actions, checkout initiation, order lookup |
-| **Scheduling and operations** | Appointment booking, service selection, intake forms, status retrieval |
+| `SKILL.md` | Top-level skill framing for convert, launch, rerun, and plugin-packaging usage |
+| `docs/meta_plugin_refactor_plan.md` | Architecture note explaining the refactor and its acceptance criteria |
+| `plugins/PLUGIN_GUIDE.md` | Generated guide for using a specific conversion as a meta-plugin |
+| `plugins/connectors/` | Harness-specific guidance for connecting a conversion bundle to a target runtime |
+| `plugins/starter_kit/` | Templates for building custom plugins, skills, and connectors from the generated conversion |
 
-A landing page becomes more than marketing copy when an agent can read the offerings, compare options, submit the form, and return structured confirmation. An API becomes more than documentation when an agent can call it through a stable tool interface. A SaaS app becomes more than a browser surface when its workflows are turned into agent-usable actions with state, approvals, and deployment boundaries.
+## Summary
 
-## Runtime and Production Readiness
-
-The current runtime is no longer positioned as a thin scaffold. It includes a stronger operational baseline so the generated interface can be reviewed and used as a serious integration surface.
-
-| Production surface | Current runtime behavior |
-| --- | --- |
-| **Timeout control** | Request and browser timeout settings are configurable |
-| **Retry behavior** | API and browser execution use bounded retries with backoff |
-| **State control** | Session TTL, stale session pruning, and session caps are included |
-| **Safety posture** | Approval requirements and operational notes are surfaced per tool |
-| **Inspection** | Health, readiness, and runtime snapshot tools are generated |
-| **Deployment posture** | Environment templates and deployment configs are included |
-
-For fuller deployment guidance, see [`PRODUCTION_RUNBOOK.md`](./PRODUCTION_RUNBOOK.md).
-
-## Why This Is More Valuable Than a Simple Scaffold
-
-A scaffold usually gives you files and implied direction. Agent-See is meant to give you a **usable integration starting point**. The difference is that it does not stop at naming tools. It also generates the runtime surface, maps tools to execution paths, preserves evidence, surfaces operational readiness, and validates the system with tests and end-to-end scenarios.
-
-That means a team can use Agent-See not only to describe how agents might interact with a business, but to actually wire that business into an agentic harness with clearer expectations around execution, failure, safety, and deployment.
-
-## Validation Status
-
-The repository currently validates the system through static checks, regression tests, and real end-to-end browser scenarios.
-
-| Validation layer | Current result |
-| --- | --- |
-| **Lint** | Passing |
-| **Typing** | Passing |
-| **Repository tests** | `119/119` passing |
-| **Booking end-to-end scenario** | Passing |
-| **Bakery scraping end-to-end scenario** | Passing |
-| **Bakery checkout end-to-end scenario** | Passing |
-
-These validations matter because Agent-See is not only generating documents. It is generating an interface that is expected to execute under real agent workflows.
-
-## Trust and Truthfulness Boundaries
-
-Agent-See should be compelling, but it should also be honest. The product is strongest today for URL-based business surfaces and OpenAPI-based systems. It is not framed as a universal codebase-to-agent converter in the current implementation. Unsupported paths should fail clearly rather than pretend a successful conversion happened.
-
-That truthfulness is part of the product value. Teams adopting agent infrastructure need to know what is grounded, what is operational, and what still requires human review.
-
-## Repository Structure
-
-The codebase is organized around a conversion pipeline, execution layer, generators, and evaluation stack.
-
-```text
-src/agent_see/
-├── cli.py
-├── core/
-├── discovery/
-├── extractors/
-├── execution/
-├── generators/
-├── grounding/
-├── models/
-├── templates/
-└── eval/
-
-tests/
-├── test_full_pipeline.py
-├── test_sprint2.py
-├── test_e2e.py
-├── test_sprint3_5.py
-└── fixtures/
-
-AGENTIC_SEARCH_PLAYBOOK.md
-```
-
-## The Product Framing in One Sentence
-
-> **Agent-See makes a business legible and callable to agents by converting a landing page, API, or SaaS surface into a deployable agent interface package.**
-
-## License
-
-MIT
+Agent-See should now be understood as a **cross-platform agentic meta-plugin builder with two core skills**. It converts business surfaces into grounded agent interfaces, turns those interfaces into public launch surfaces, and packages the result so users can create plugins, connectors, and skills from their own conversions. That makes the repository more useful not only as a converter, but also as a reusable integration foundation for broader agent ecosystems.
