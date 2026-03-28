@@ -44,6 +44,9 @@ class TestLaunchIntegration:
         )
         assert init_result.exit_code == 0, init_result.output
 
+        intake_model = LaunchIntake.load(intake_path)
+        assert intake_model.business.business_type.value == "saas"
+
         convert_result = runner.invoke(
             app,
             [

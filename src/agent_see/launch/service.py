@@ -36,6 +36,7 @@ from agent_see.launch_generators.update_register import (
     build_markdown as build_update_register_markdown,
 )
 from agent_see.models.launch import (
+    BusinessType,
     LaunchArtifactManifest,
     LaunchGap,
     LaunchIntake,
@@ -173,7 +174,7 @@ def initialize_launch_intake(
     if domain:
         intake.business.domain = domain
     if business_type:
-        intake.business.business_type = business_type  # pydantic coerces enum values
+        intake.business.business_type = BusinessType(business_type.strip().lower())
     if summary:
         intake.business.summary = summary
     if contact_email:

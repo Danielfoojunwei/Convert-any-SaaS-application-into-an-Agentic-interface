@@ -113,6 +113,8 @@ def api_server() -> Generator[str, None, None]:
     thread.start()
     yield f"http://127.0.0.1:{port}"
     server.shutdown()
+    server.server_close()
+    thread.join(timeout=2)
 
 
 @pytest.fixture
@@ -265,6 +267,8 @@ def transient_api_server() -> Generator[str, None, None]:
     thread.start()
     yield f"http://127.0.0.1:{port}"
     server.shutdown()
+    server.server_close()
+    thread.join(timeout=2)
 
 
 class TestAPIExecutor:
