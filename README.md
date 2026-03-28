@@ -86,6 +86,21 @@ The most important edge cases are usually not failures of the tool alone. They a
 | **The package works for one harness but not another** | The execution layer is valid, but the grounding or connection method differs by harness | Reuse the same core conversion and adjust how each harness consumes the runtime, manifests, and docs |
 | **The output is broadly right but operationally incomplete** | Discovery succeeded, but deployment, monitoring, or retry posture still needs hardening | Treat the conversion as a strong baseline, then manually harden the generated runtime and deploy config |
 
+## Agentic Search Playbook for Business Owners
+
+Using Agent-See is the first step toward making a business usable by agents, but it is not the whole operating model. A converted business still needs to become easier for LLMs, web-search agents, and RAG-driven buyer journeys to **retrieve**, **trust**, **compare**, and **execute**. That means the business owner must pair the generated runtime with a public discovery layer: canonical task pages, structured data, sitemap and crawler controls, policy pages, product and service references, and a public explanation of how agents should use the converted business.
+
+To make this practical rather than theoretical, the repository now includes a full step-by-step guide at [`AGENTIC_SEARCH_PLAYBOOK.md`](./AGENTIC_SEARCH_PLAYBOOK.md). That document explains exactly what to do after conversion, including which URLs to make canonical, how to write answer-first task pages, how to use `robots.txt`, `sitemap.xml`, `llms.txt`, JSON-LD, Merchant Center, Search Console, IndexNow, and how to expose the Agent-See runtime as a public integration surface that turns discovery into action.
+
+| If you want to improve… | Go to the playbook sections that cover… |
+| --- | --- |
+| **Retrieval in AI and web search** | Canonical URLs, task-shaped pages, `robots.txt`, sitemap, `llms.txt`, markdown mirrors |
+| **Trust and recommendation quality** | Entity signals, business details, structured data, policies, support, proof, comparison facts |
+| **Execution by agents and harnesses** | Public agent integration page, runtime deployment, manifests, OpenAPI, approval and auth boundaries |
+| **Freshness after business changes** | IndexNow, sitemap `lastmod`, Merchant Center maintenance, re-conversion and redeployment loops |
+
+The core idea is simple: **Agent-See creates the executable surface, while the business owner must still operate the discovery and truth surfaces that help agents find and choose the business.** If the runtime is live but the public pages are vague, the business may remain hard to recommend. If the pages are strong but the runtime is missing, the business may be cited but not acted upon. The playbook is designed to close that gap.
+
 ## How to Use Agent-See with Claude Cowork, Manus, OpenClaw, and Similar Harnesses
 
 The simplest way to think about Agent-See is that it creates the **missing interface layer** between a business system and an agent runtime. If you already have a business landing page, an operations dashboard, a booking system, an ecommerce storefront, or an internal API, Agent-See packages that surface so an agent can use it more reliably.
@@ -529,6 +544,8 @@ tests/
 ├── test_e2e.py
 ├── test_sprint3_5.py
 └── fixtures/
+
+AGENTIC_SEARCH_PLAYBOOK.md
 ```
 
 ## The Product Framing in One Sentence
