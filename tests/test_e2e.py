@@ -63,6 +63,8 @@ def bakery_server() -> Generator[str, None, None]:
     thread.start()
     yield f"http://127.0.0.1:{port}"
     server.shutdown()
+    server.server_close()
+    thread.join(timeout=2)
 
 
 @pytest.fixture(scope="module")
@@ -95,6 +97,8 @@ def bakery_with_api_server() -> Generator[str, None, None]:
     thread.start()
     yield f"http://127.0.0.1:{port}"
     server.shutdown()
+    server.server_close()
+    thread.join(timeout=2)
 
 
 @pytest.fixture

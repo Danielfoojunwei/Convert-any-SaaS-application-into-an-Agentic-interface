@@ -37,7 +37,7 @@ class PrimaryContact(BaseModel):
 
 
 class BusinessProfile(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", validate_assignment=True)
 
     name: str = "Example Business"
     domain: str | None = None

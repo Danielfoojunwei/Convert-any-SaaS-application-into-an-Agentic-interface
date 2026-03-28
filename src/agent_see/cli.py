@@ -27,7 +27,13 @@ launch_app = typer.Typer(
     help="Generate, refresh, and validate public launch artifacts for Agent-See outputs.",
     no_args_is_help=True,
 )
+plugin_app = typer.Typer(
+    name="plugin",
+    help="Generate and refresh cross-harness plugin artifacts from an Agent-See conversion bundle.",
+    no_args_is_help=True,
+)
 app.add_typer(launch_app, name="launch")
+app.add_typer(plugin_app, name="plugin")
 console = Console()
 
 
@@ -208,6 +214,12 @@ async def _run_conversion(
         "",
         f"Output: {output_dir}/",
     ]
+    if "plugin_manifest" in artifacts:
+        summary_lines.extend([
+            "",
+            "[bold]Plugin layer:[/bold]",
+            f"  Manifest: {artifacts['plugin_manifest']}",
+        ])
     if "launch_manifest" in artifacts:
         summary_lines.extend([
             "",
@@ -397,6 +409,35 @@ def launch_check(
             f"Markdown: [cyan]{markdown_path}[/cyan]\n"
             + (f"JSON: [cyan]{json_path}[/cyan]" if json_path else ""),
             title="Launch Alignment Check",
+        )
+    )
+
+
+@plugin_app.command("sync")
+def plugin_sync(
+    output: str = typer.Argument(help="Path to an existing Agent-See output directory."),
+    launch_output: str | None = typer.Option(
+        None,
+        "--launch-output",
+        help="Optional path to a launch artifact directory when launch files live outside <output>/launch.",
+    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
+) -> None:
+    """Generate or refresh cross-harness plugin artifacts for an existing conversion bundle."""
+    from agent_see.plugins.service import sync_plugin_artifacts
+
+    _setup_logging(verbose)
+    results = sync_plugin_artifacts(
+        Path(output).expanduser().resolve(),
+        launch_dir=Path(launch_output).expanduser().resolve() if launch_output else None,
+    )
+    console.print(
+        Panel(
+            f"Plugin manifest: [cyan]{results['plugin_manifest']}[/cyan]\n"
+            f"Plugin guide: [cyan]{results['plugin_guide']}[/cyan]\n"
+            f"Connectors: [cyan]{results['connectors_dir']}[/cyan]\n"
+            f"Starter kit: [cyan]{results['starter_kit_dir']}[/cyan]",
+            title="Plugin Sync Complete",
         )
     )
 
