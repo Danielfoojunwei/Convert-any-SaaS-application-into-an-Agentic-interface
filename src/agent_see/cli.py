@@ -19,21 +19,48 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 app = typer.Typer(
     name="agent-see",
-    help="Convert any SaaS application into an agent-optimized interface.",
+    help=(
+        "Turn a website, SaaS product, or API into a plugin-ready agent bundle, "
+        "then guide the next steps for publish, launch, deploy, and harness packaging."
+    ),
     no_args_is_help=True,
 )
 launch_app = typer.Typer(
     name="launch",
-    help="Generate, refresh, and validate public launch artifacts for Agent-See outputs.",
+    help=(
+        "Generate and refresh the public launch layer, including the files and pages "
+        "you need to publish for agent discovery and trust."
+    ),
     no_args_is_help=True,
 )
 plugin_app = typer.Typer(
     name="plugin",
-    help="Generate and refresh cross-harness plugin artifacts from an Agent-See conversion bundle.",
+    help=(
+        "Generate and refresh harness-facing plugin artifacts from an Agent-See bundle "
+        "for Manus-style, Claude-style, OpenClaw-like, and similar runtimes."
+    ),
     no_args_is_help=True,
 )
 app.add_typer(launch_app, name="launch")
 app.add_typer(plugin_app, name="plugin")
+
+
+WORKFLOW_GUIDE = """[bold]Step-by-step workflow[/bold]
+1. Convert the source business surface into a grounded bundle.
+2. Review the generated actions and boundaries for truthfulness.
+3. Generate the public launch layer.
+4. Publish the public files and pages on your site or docs surface.
+5. Deploy the runtime service.
+6. Package the bundle as a plugin for your target harness.
+"""
+
+
+NEXT_STEP_GUIDE = """[bold]What to do next[/bold]
+• Publish [cyan]llms.txt[/cyan], your [cyan]/agents[/cyan] page, and any public reference pages.
+• Deploy the runtime in [cyan]mcp_server/[/cyan] so agents can actually call it.
+• Run [cyan]agent-see plugin sync <output>[/cyan] to refresh the harness-facing plugin layer.
+• Re-run conversion first when the source business changes, then refresh launch and plugin outputs.
+"""
 console = Console()
 
 
@@ -85,11 +112,11 @@ def convert(
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
 ) -> None:
-    """Convert a SaaS application into an agent-optimized interface.
+    """Convert a website, SaaS product, or API into a plugin-ready agent bundle.
 
-    Analyzes the target, extracts capabilities, generates an MCP server
-    and agent documentation, then proves the conversion is correct.
-    Optionally, it also generates the public launch/discovery artifact layer.
+    This is the first step in the Agent-See workflow. It analyzes the source,
+    generates the grounded runtime and documentation bundle, verifies the result,
+    and can optionally generate the public launch layer in the same run.
     """
     _setup_logging(verbose)
     output_dir = Path(output)
@@ -112,7 +139,7 @@ def convert(
                 if run_launch and launch_intake_path is not None
                 else ""
             ),
-            title="SaaS → Agent Conversion",
+            title="Step 1: Convert to a Plugin-Ready Agent Bundle",
         )
     )
 
@@ -200,19 +227,19 @@ async def _run_conversion(
 
     console.print()
     summary_lines = [
-        "[bold green]Conversion Complete[/bold green]",
+        "[bold green]Step 1 Complete: Grounded bundle generated[/bold green]",
         "",
         f"Capabilities: {graph.capability_count}",
         f"Domains: {', '.join(graph.domain_names)}",
         f"Workflows: {len(graph.workflows)}",
         "",
-        "[bold]Proof:[/bold]",
+        "[bold]Verification:[/bold]",
         f"  Coverage: {proof.coverage.coverage_score:.0%}",
         f"  Fidelity: {proof.fidelity.aggregate_score:.3f}",
         f"  Hallucinations: {proof.hallucination_check.extras_count}",
         f"  Status: [{'green' if proof.overall_status.value == 'PASS' else 'red'}]{proof.overall_status.value}[/]",
         "",
-        f"Output: {output_dir}/",
+        f"Bundle output: {output_dir}/",
     ]
     if "plugin_manifest" in artifacts:
         summary_lines.extend([
@@ -227,6 +254,8 @@ async def _run_conversion(
             f"  Manifest: {artifacts['launch_manifest']}",
         ])
     console.print(Panel("\n".join(summary_lines), title="Results"))
+    console.print(Panel(WORKFLOW_GUIDE, title="Workflow"))
+    console.print(Panel(NEXT_STEP_GUIDE, title="Next Actions"))
 
     for name, path in artifacts.items():
         console.print(f"  {name}: {path}")
@@ -261,7 +290,7 @@ def verify(
 def deploy(
     server_dir: str = typer.Argument(
         "agent-output/mcp_server",
-        help="Path to generated MCP server directory",
+        help="Path to the generated runtime service directory",
     ),
     method: str = typer.Option(
         "docker",
@@ -270,9 +299,10 @@ def deploy(
         help="Deployment method: docker, fly, railway, render, local",
     ),
 ) -> None:
-    """Deploy a generated MCP server.
+    """Deploy the runtime service that agents will actually call.
 
-    Runs the server locally or deploys to a cloud platform.
+    Publishing public launch pages and deploying the runtime are separate steps.
+    Use this command for the runtime service after conversion.
     """
     import subprocess
 
@@ -360,7 +390,11 @@ def launch_sync(
     steps: str | None = typer.Option(None, "--steps", help="Comma-separated subset of launch steps to run. Omit to refresh all tracked artifacts."),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
 ) -> None:
-    """Generate launch artifacts either modularly or as a full rerun."""
+    """Generate or refresh the public launch layer for an existing conversion bundle.
+
+    Use this after conversion when you need the files and pages that should be
+    published publicly for agent discovery, trust, and usage guidance.
+    """
     from agent_see.launch.service import sync_launch_artifacts
 
     _setup_logging(verbose)
@@ -374,8 +408,10 @@ def launch_sync(
         Panel(
             f"Launch artifacts refreshed.\n"
             f"Manifest: [cyan]{manifest_path}[/cyan]\n"
-            f"Output: [cyan]{manifest.output_dir}[/cyan]",
-            title="Launch Sync Complete",
+            f"Output: [cyan]{manifest.output_dir}[/cyan]\n\n"
+            "Next, publish the generated public files and pages on your website or docs surface. "
+            "Then deploy the runtime service if it is not already live.",
+            title="Step 2 Complete: Public Launch Layer Ready",
         )
     )
 
@@ -388,7 +424,7 @@ def launch_check(
     llms_txt: str | None = typer.Option(None, "--llms-txt", help="Optional path to an llms.txt draft."),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
 ) -> None:
-    """Run an alignment check between intake state and public launch documents."""
+    """Check whether the public launch documents match the current runtime and intake truthfully."""
     from agent_see.launch.service import run_alignment_check
 
     _setup_logging(verbose)
@@ -408,7 +444,7 @@ def launch_check(
             f"Issues: {summary['issue_count']}\n"
             f"Markdown: [cyan]{markdown_path}[/cyan]\n"
             + (f"JSON: [cyan]{json_path}[/cyan]" if json_path else ""),
-            title="Launch Alignment Check",
+            title="Launch Truthfulness Check",
         )
     )
 
@@ -423,7 +459,11 @@ def plugin_sync(
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
 ) -> None:
-    """Generate or refresh cross-harness plugin artifacts for an existing conversion bundle."""
+    """Generate or refresh the harness-facing plugin layer for an existing conversion bundle.
+
+    Use this after conversion, and ideally after launch, when you want a simpler
+    package for Manus-style, Claude-style, OpenClaw-like, or similar agent runtimes.
+    """
     from agent_see.plugins.service import sync_plugin_artifacts
 
     _setup_logging(verbose)
@@ -436,8 +476,10 @@ def plugin_sync(
             f"Plugin manifest: [cyan]{results['plugin_manifest']}[/cyan]\n"
             f"Plugin guide: [cyan]{results['plugin_guide']}[/cyan]\n"
             f"Connectors: [cyan]{results['connectors_dir']}[/cyan]\n"
-            f"Starter kit: [cyan]{results['starter_kit_dir']}[/cyan]",
-            title="Plugin Sync Complete",
+            f"Starter kit: [cyan]{results['starter_kit_dir']}[/cyan]\n\n"
+            "Use the plugin guide and connector directory to attach this grounded bundle to your target harness. "
+            "If the source business changes later, re-run conversion first and then refresh launch and plugin outputs.",
+            title="Step 3 Complete: Harness Plugin Layer Ready",
         )
     )
 
