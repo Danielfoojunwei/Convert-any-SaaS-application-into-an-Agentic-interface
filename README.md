@@ -1,174 +1,233 @@
 # Agent-See
 
-**Agent-See** turns a website, SaaS product, landing page, or API contract into a grounded **agent integration bundle** and then helps package that bundle as a reusable **cross-harness meta-plugin**. The repository is designed for teams that do not want to rebuild their business surface for agents from scratch, but do want a truthful runtime, a documented contract, and a reusable connector layer that can travel across Manus-style agents, Claude-style workspaces, OpenClaw-like orchestrators, and custom internal harnesses.
+**Agent-See** is a **plugin builder for agentic harnesses**. It helps you take a real business surface, such as a website, SaaS product, or API, and turn it into something that can be used inside **Manus-style agents**, **Claude-style workspaces**, **OpenClaw-like orchestrators**, or other agent systems.
 
-The refactored repository is organized around **two core skills**. The first skill converts a business surface into an executable, inspectable agent interface. The second skill turns that interface into a public-facing discovery and maintenance layer. On top of those two skills, Agent-See now emits a **plugin packaging layer** that helps users transform any completed conversion into their own plugins, skills, and connectors.
+The most important design rule is simple: **users should not have to think about internal system complexity first**. They should be able to follow one guided path.
+
+| What you want | What Agent-See helps you do |
+| --- | --- |
+| Turn a business into something agents can use | Convert it into a grounded agent bundle |
+| Make it discoverable and trustworthy | Generate the public launch layer |
+| Make it usable in a harness | Package it as a plugin, skill, or connector |
+| Keep it current over time | Re-sync the bundle when the source business changes |
+
+## The Simple Mental Model
+
+Think of Agent-See as a **four-step plugin workflow**.
 
 ```text
-Business website / SaaS / OpenAPI
-                ↓
-      Agent-See Conversion
-                ↓
-MCP runtime + OpenAPI + Agent Card + AGENTS.md + Skills + Readiness
-                ↓
-      Agentic Business Launch
-                ↓
-llms.txt + /agents page + reference layer + launch reports + alignment checks
-                ↓
-        Plugin Packaging Layer
-                ↓
-Plugin manifest + harness connectors + starter kit for custom plugins/skills/connectors
+1. Choose the source
+   Website / SaaS / API
+
+2. Convert it
+   Generate the grounded agent bundle
+
+3. Publish and launch it
+   Create the public files and pages, then deploy the runtime
+
+4. Package it for the harness
+   Generate the plugin manifest, connector guides, and starter kit
 ```
 
-## What the Repository Does Now
+Internally, Agent-See still has separate layers for **conversion**, **launch**, and **plugin packaging**, but users should experience them as one step-by-step path.
 
-The repository should be understood as a **two-skill operating system for agentizing business surfaces** rather than as a single one-off converter. The conversion layer remains the grounded extraction and runtime synthesis engine. The launch layer remains the discovery, trust, and maintenance system. The new plugin layer packages the generated outputs so a completed conversion can be reused as a connector for multiple agent harnesses or extended into a custom plugin of the user’s own conversion.
+## What Agent-See Does
 
-| Layer | Primary purpose | Main outputs | Why it matters |
-| --- | --- | --- | --- |
-| **Agent-See Conversion** | Turn a URL or OpenAPI contract into a grounded agent interface bundle | MCP server, OpenAPI, agent card, AGENTS.md, per-tool skills, capability graph, readiness docs, proof artifacts | Gives agents a callable and inspectable operational surface instead of an unstructured website or scattered API docs |
-| **Agentic Business Launch** | Turn the converted bundle into a public, discoverable, and maintainable agent access surface | `llms.txt`, `/agents` page, reference layer, launch report, update register, alignment outputs | Makes the converted system easier to find, trust, maintain, and refresh over time |
-| **Plugin Packaging Layer** | Repackage a completed conversion for specific harnesses and user-defined integrations | `plugins/plugin_manifest.json`, `plugins/PLUGIN_GUIDE.md`, harness connector docs, starter kit templates | Helps users create their own plugin, skill, and connector packages from the generated conversion |
+Agent-See does not rewrite the original business. Instead, it builds an **agent-facing layer around it**.
 
-## The Two Core Skills
-
-### 1. Agent-See Conversion
-
-**Agent-See Conversion** is the repository’s interface-synthesis skill. It analyzes a live business surface or structured API description, extracts capabilities and workflows, models execution boundaries, and emits a grounded agent bundle that can be deployed, inspected, or passed into downstream runtimes. The original software is not rewritten. Instead, Agent-See builds the agent-facing layer around it.
-
-This skill is the right entry point when the main problem is operational: a business surface exists, but agents still need a truthful interface, execution contract, runtime metadata, and operator-readable guidance before they can use it reliably.
-
-| What this skill can do | Practical effect |
-| --- | --- |
-| Discover capabilities from a live URL or OpenAPI input | Captures real business actions instead of forcing the operator to hand-model everything |
-| Build a capability graph and workflow map | Makes the service understandable as a set of connected agent tasks rather than isolated endpoints |
-| Generate an MCP runtime | Produces a callable tool surface for harnesses that prefer executable tools |
-| Generate OpenAPI, agent manifests, and AGENTS guidance | Produces structured and human-readable contracts for harnesses that prefer documents or schema ingestion |
-| Generate per-tool and per-workflow skills | Turns extracted capabilities into reusable skill-facing assets |
-| Emit readiness and verification artifacts | Distinguishes grounded structure from operational maturity and gives operators clearer boundaries |
-
-### 2. Agentic Business Launch
-
-**Agentic Business Launch** is the repository’s discovery-and-maintenance skill. It assumes the conversion layer already exists or is being generated in the same run, then creates the public support layer that helps external agents and operators discover, validate, and maintain the resulting business interface over time.
-
-This skill is the right entry point when the runtime already exists, but the business still lacks the public discovery surface, trust signals, or update mechanics that make an agent integration operationally useful in the real world.
-
-| What this skill can do | Practical effect |
-| --- | --- |
-| Initialize structured launch intake state | Creates a durable source of truth for public-facing agent surfaces |
-| Generate `llms.txt` and `/agents` content | Improves discoverability and makes the agent surface easier to consume |
-| Generate a reference layer | Publishes support, limitations, coverage, and trust-facing materials around the runtime |
-| Create launch reports and update registers | Gives operators a repeatable maintenance and review workflow |
-| Run alignment checks | Compares public launch artifacts to the actual conversion state |
-| Support modular refreshes and full reruns | Lets users update one launch component or refresh the full launch layer in one pass |
-
-## Why the New Plugin Layer Matters
-
-Many teams do not stop at “generate the runtime.” They want the generated conversion to become a **reusable plugin of the converted business**, a harness-native connector, or a starter kit for future integrations. That is now an explicit part of the repository design.
-
-The plugin layer does not invent new capabilities. Instead, it packages the grounded outputs of a completed conversion so they can be consumed more easily by different harnesses and extended into user-specific integrations without re-extracting the business logic every time.
-
-| Plugin artifact | What it does |
-| --- | --- |
-| `plugins/plugin_manifest.json` | Creates a machine-readable inventory of the conversion bundle and recommends how to map it into different harness types |
-| `plugins/PLUGIN_GUIDE.md` | Explains how to treat the conversion as a reusable meta-plugin instead of a one-off export |
-| `plugins/connectors/` | Generates harness-facing connection guides for Manus-style agents, Claude-style workspaces, OpenClaw-like orchestrators, and generic runtimes |
-| `plugins/starter_kit/plugin_template.md` | Helps users package the current conversion as a custom plugin |
-| `plugins/starter_kit/skill_template.md` | Helps users wrap a grounded capability or workflow as a custom harness-native skill |
-| `plugins/starter_kit/connector_template.md` | Helps users define their own connector mapping for any other agent runtime |
-
-## Cross-Harness Positioning
-
-Agent-See is no longer documented as if it belongs to one runtime family. The generated bundle is designed to be reusable across several harness styles, with different artifacts emphasized depending on how the target environment prefers to consume tools, contracts, and operator guidance.
-
-| Harness style | Recommended artifact mix | Typical outcome |
+| Layer | What it does | Why it exists |
 | --- | --- | --- |
-| **Manus-style autonomous agents** | MCP runtime, AGENTS guidance, per-tool skills, operational readiness, launch outputs | A grounded tool surface plus the planning and boundary context needed for autonomous execution |
-| **Claude-style workspaces** | MCP runtime or OpenAPI, AGENTS guidance, plugin guide, skill files | A documented and inspectable workspace integration instead of a raw website or SaaS target |
-| **OpenClaw-like orchestrators** | MCP runtime, route map, tool metadata, agent card, connector guide | A machine-readable backend with clearer operational routing and readiness metadata |
-| **Generic agent harnesses** | OpenAPI, agent card, AGENTS guidance, plugin manifest, starter kit | A portable adapter bundle that can be repackaged for internal runtimes or custom frameworks |
+| **Conversion** | Reads the source business surface and generates the grounded agent bundle | Gives agents a truthful operational interface |
+| **Launch** | Generates public discovery, trust, and maintenance artifacts | Makes the integration easier to find and trust |
+| **Plugin packaging** | Wraps the grounded bundle for specific harnesses | Makes the result reusable as a plugin, skill, or connector |
 
-## What a Conversion Generates
+## The Step-by-Step Workflow
 
-A normal conversion now produces a **core bundle** and, after the refactor, a **plugin bundle**. If launch intake is supplied, the run can also generate the launch bundle in the same pass.
+### Step 1: Choose what you are turning into a plugin
 
-| Bundle | Representative files |
+Start with the exact business surface you want to use as the source of truth.
+
+| Supported source | Example |
 | --- | --- |
-| **Core conversion bundle** | `mcp_server/`, `openapi.yaml`, `agent_card.json`, `AGENTS.md`, `skills/`, `capability_graph.json`, `OPERATIONAL_READINESS.md`, `proof/` |
-| **Plugin bundle** | `plugins/plugin_manifest.json`, `plugins/PLUGIN_GUIDE.md`, `plugins/connectors/*.md`, `plugins/starter_kit/*.md` |
-| **Launch bundle** | `launch/llms.txt`, `launch/agents.md`, `launch/reference_layer/`, `launch/launch_report.md`, `launch/update_register.md`, `launch/surface_alignment.json` |
+| **Website URL** | `https://example.com` |
+| **SaaS product URL** | `https://app.example.com` |
+| **OpenAPI file** | `./openapi.json` |
 
-## Usage Modes
+Before running the system, define the workflows that matter most. Good examples are booking, pricing lookup, search, ordering, support intake, onboarding, checkout preparation, dashboard actions, and account tasks.
 
-The repository is now meant to support four primary working modes. Users can run the skills separately when needed, but a rerun should still refresh the relevant layer in a coherent way.
+### Step 2: Convert the source into a grounded bundle
 
-| Mode | When to use it | Main command pattern |
-| --- | --- | --- |
-| **Convert only** | You need the grounded runtime and interface artifacts first | `agent-see convert <target>` |
-| **Convert and launch together** | You want the runtime and public discovery layer generated in one flow | `agent-see convert <target> --launch-intake <intake.json> --with-launch` |
-| **Launch only** | The conversion bundle already exists and only the launch layer needs to be refreshed | `agent-see launch sync <intake.json>` |
-| **Plugin sync only** | The conversion bundle already exists and you want to regenerate the cross-harness plugin assets | `agent-see plugin sync <agent-output>` |
-
-## Quick Start
-
-The quickest way to adopt the repository is to run a conversion first, inspect the generated bundle, and then decide whether to add the launch layer or regenerate the plugin layer for a specific harness.
+Conversion means reading the source business surface and turning it into a structured agent bundle.
 
 ```bash
-# Convert a live business surface or SaaS URL
 agent-see convert https://example.com --output ./agent-output
+```
 
-# Convert from an OpenAPI contract
+Or, if you already have an API contract:
+
+```bash
 agent-see convert ./openapi.json --output ./agent-output
+```
 
-# Convert and generate the launch layer in one flow
+After conversion, the main output folder contains the grounded source bundle.
+
+| Artifact | What it means in plain language |
+| --- | --- |
+| `mcp_server/` | The live tool surface agents can call |
+| `openapi.yaml` | The machine-readable contract |
+| `agent_card.json` | Discovery and identity metadata |
+| `AGENTS.md` | Instructions for agents and operators |
+| `skills/` | Reusable task wrappers built from grounded business actions |
+| `proof/` | Evidence that the extraction stayed grounded |
+| `OPERATIONAL_READINESS.md` | A summary of practical execution boundaries |
+
+### Step 3: Review the bundle before publishing anything
+
+Do not assume the job is complete just because files were generated. Review whether the important workflows were actually captured and whether login, approval, and state-changing boundaries are described truthfully.
+
+| If this is true | Do this next |
+| --- | --- |
+| Key workflows are missing | Re-run conversion with better scope or access |
+| Login or approval boundaries are unclear | Clarify them before launch |
+| The bundle is truthful and complete | Move to publication and packaging |
+
+### Step 4: Generate the public launch layer
+
+Launch means generating the public-facing files and pages that help agents discover, trust, and understand the integration.
+
+If you already have a launch intake file, you can generate launch assets during conversion:
+
+```bash
 agent-see convert ./openapi.json \
   --output ./agent-output \
   --launch-intake ./launch-intake.json \
   --with-launch
+```
 
-# Regenerate plugin artifacts for an existing conversion
+If you already have a completed conversion and only need to refresh the public layer:
+
+```bash
+agent-see launch sync ./launch-intake.json
+```
+
+The launch layer typically includes these outputs.
+
+| Launch artifact | What it is |
+| --- | --- |
+| `launch/llms.txt` | A model-facing guide to the most important public pages |
+| `launch/agents.md` or equivalent `/agents` content | The public instructions page for agent access |
+| `launch/reference_layer/` | Supporting usage, limitation, trust, and policy pages |
+| `launch/launch_report.md` | A readiness report for operators |
+| `launch/update_register.md` | A maintenance plan for future refreshes |
+| `launch/surface_alignment.json` | A check that public claims match the actual runtime |
+
+### Step 5: Understand the difference between publish and deploy
+
+A lot of confusion comes from mixing these two ideas. Keep them separate.
+
+| Term | Meaning |
+| --- | --- |
+| **Publish** | Put generated public files and pages onto the real website or docs surface |
+| **Deploy** | Run the generated runtime as a live service |
+
+That means the generated public assets do not help agents in the real world until they are actually placed on a public web surface you control.
+
+| Asset | Where it goes |
+| --- | --- |
+| `llms.txt` | Public website root or another public web path |
+| `/agents` page | Public website or docs surface |
+| Reference pages | Public docs or linked public pages |
+| Runtime service | Deployed server or managed service |
+| Reports and update registers | Usually internal operator documents |
+
+## How to Package the Result as a Plugin
+
+Once the grounded bundle exists, Agent-See can package it for target harnesses.
+
+```bash
 agent-see plugin sync ./agent-output
+```
 
-# If launch files live outside ./agent-output/launch, pass them explicitly
+If your launch outputs live outside the default launch directory, pass them explicitly:
+
+```bash
 agent-see plugin sync ./agent-output --launch-output ./launch-output
 ```
 
-## How to Turn a Conversion into Your Own Plugin, Skill, or Connector
+The plugin layer exists so the conversion becomes a reusable integration asset instead of a one-off export.
 
-The new meta-plugin workflow is meant for operators who want the generated conversion to become a reusable integration asset rather than a one-time artifact dump. The recommended pattern is to treat the conversion outputs as the grounded source of truth, then wrap them with the smallest possible layer of harness-specific glue.
+| Plugin artifact | Purpose |
+| --- | --- |
+| `plugins/plugin_manifest.json` | Machine-readable inventory of the grounded bundle |
+| `plugins/PLUGIN_GUIDE.md` | Step-by-step explanation of how to use the bundle as a plugin |
+| `plugins/connectors/` | Harness-specific connection guides |
+| `plugins/starter_kit/plugin_template.md` | Template for packaging the conversion as a custom plugin |
+| `plugins/starter_kit/skill_template.md` | Template for turning grounded actions into a reusable skill |
+| `plugins/starter_kit/connector_template.md` | Template for creating a thin connector for another runtime |
 
-| Step | What to do | Why this is the recommended path |
+## What to Use for Each Harness Style
+
+Different harnesses tend to prefer different parts of the output bundle.
+
+| Harness style | Recommended artifact mix |
+| --- | --- |
+| **Manus-style agents** | MCP runtime, AGENTS guidance, skills, readiness outputs |
+| **Claude-style workspaces** | MCP runtime or OpenAPI, AGENTS guidance, plugin guide |
+| **OpenClaw-like orchestrators** | Runtime metadata, agent card, route map, connector guide |
+| **Generic harnesses** | OpenAPI, AGENTS guidance, plugin manifest, starter kit |
+
+## What the Skills Do
+
+The repository is designed to work through two main skills plus the packaging layer.
+
+| Skill or layer | User-facing role |
+| --- | --- |
+| **Agent-See** | Main entry point for turning a business surface into a plugin-ready agent bundle |
+| **Agentic Business Launch** | Step-by-step guide for generating public files, publishing them, and preparing deployment |
+| **Plugin packaging layer** | Wraps the grounded bundle for target harnesses and custom integrations |
+
+## Recommended User Journey
+
+If you want the simplest operating pattern, follow this sequence every time.
+
+| Step | What to do | Why it matters |
 | --- | --- | --- |
-| **1. Run the conversion** | Generate the core bundle first | The conversion bundle is the grounded source of truth |
-| **2. Inspect the plugin manifest** | Open `plugins/plugin_manifest.json` and `plugins/PLUGIN_GUIDE.md` | This shows which artifacts exist and how they map to harnesses |
-| **3. Choose the target harness** | Decide whether the new adapter is for Manus, Claude-style, OpenClaw, or another runtime | Different harnesses prefer different artifact mixes |
-| **4. Start from the starter kit** | Use `plugins/starter_kit/` to define the custom plugin, skill, or connector | This avoids rebuilding the same packaging logic from scratch |
-| **5. Reuse grounded artifacts, not guesses** | Map the target harness to MCP, OpenAPI, AGENTS, skills, and readiness docs | The safest adapters preserve the generated contracts and execution boundaries |
-| **6. Add only thin glue code or prompt wrappers** | Create the minimum registration, wrapper, or adapter logic required by the harness | This keeps the integration maintainable and easier to refresh when the source changes |
-| **7. Re-sync when the conversion changes** | Re-run conversion, launch, or plugin sync as needed | The plugin should stay aligned with the latest grounded business surface |
+| **1** | Choose the source website, SaaS, or API | Defines the plugin foundation |
+| **2** | Confirm the important workflows | Keeps the extraction focused on real business actions |
+| **3** | Run conversion | Creates the grounded source bundle |
+| **4** | Review the outputs honestly | Prevents false launch claims |
+| **5** | Generate the public launch layer | Creates the discovery and trust surfaces |
+| **6** | Publish the public files and pages | Makes the integration visible on the real web surface |
+| **7** | Deploy the runtime | Makes the executable tool surface live |
+| **8** | Package the bundle for the target harness | Makes it reusable as a plugin, skill, or connector |
+| **9** | Re-sync when the source business changes | Keeps everything aligned with reality |
 
-## Repository Refactor Principles
+## What Stays Public and What Stays Internal
 
-The repository-wide refactor follows three principles. First, **grounded outputs remain the source of truth**. Second, **conversion and launch remain separable skills**, because users often need modular execution and full reruns at different times. Third, **plugin packaging is treated as a packaging layer rather than as a new extraction layer**, so users can create connectors and derivative skills without fragmenting the verified conversion pipeline.
+Users often need this distinction stated clearly.
 
-| Principle | What it means in practice |
+| Asset type | Usually public or internal |
 | --- | --- |
-| **Truth over convenience** | The plugin layer packages existing grounded outputs instead of inventing new capabilities |
-| **Modularity with coherent reruns** | Users can refresh conversion, launch, and plugin layers separately, but each layer still has a clear full-refresh path |
-| **Cross-harness by packaging, not duplication** | The same conversion can serve Manus, Claude-style, OpenClaw, and generic runtimes without maintaining multiple incompatible extraction stacks |
+| `llms.txt` | **Public** |
+| `/agents` page | **Public** |
+| Reference layer pages | **Public** |
+| Runtime endpoint or connection method | **Public or controlled-access**, depending on the system |
+| Launch report | **Internal** |
+| Update register | **Internal** |
+| Proof and readiness details | Usually **internal**, unless you intentionally share them |
 
-## Recommended Reading in This Repository
+## Maintenance Rule
 
-The repository now has a clearer set of user-facing entry points. New users should begin with the README and then follow the documents that match the layer they need to operate.
+Treat the grounded conversion bundle as the source of truth.
 
-| File | Why to read it |
-| --- | --- |
-| `SKILL.md` | Top-level skill framing for convert, launch, rerun, and plugin-packaging usage |
-| `docs/meta_plugin_refactor_plan.md` | Architecture note explaining the refactor and its acceptance criteria |
-| `plugins/PLUGIN_GUIDE.md` | Generated guide for using a specific conversion as a meta-plugin |
-| `plugins/connectors/` | Harness-specific guidance for connecting a conversion bundle to a target runtime |
-| `plugins/starter_kit/` | Templates for building custom plugins, skills, and connectors from the generated conversion |
+If the business logic changes, re-run **conversion** first. If public pages, trust signals, or policy facts change, refresh the **launch** layer. If the grounded bundle changes, refresh the **plugin** layer so the harness-facing package stays aligned.
 
-## Summary
+## Repository Principle
 
-Agent-See should now be understood as a **cross-platform agentic meta-plugin builder with two core skills**. It converts business surfaces into grounded agent interfaces, turns those interfaces into public launch surfaces, and packages the result so users can create plugins, connectors, and skills from their own conversions. That makes the repository more useful not only as a converter, but also as a reusable integration foundation for broader agent ecosystems.
+**Do not invent capabilities in the launch or plugin layer.** The safest pattern is always to extract the real business surface first, then wrap it with thin public guidance and thin harness-specific packaging.
+
+## Next Step
+
+If you are starting fresh, the best first question is:
+
+> **What do you want to turn into a plugin: a website, a SaaS product, or an API?**
