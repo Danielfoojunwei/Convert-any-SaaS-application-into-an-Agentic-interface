@@ -1,6 +1,4 @@
 # Agent-See
-<img width="2752" height="1536" alt="image" src="https://github.com/user-attachments/assets/cd520aed-9510-4221-bd00-20c2ed850afd" />
-
 <p align="center">
   <img src="./agent_see_how_we_help_diagram_v2.png" alt="Agent-See explainer diagram" width="100%" />
 </p>
@@ -16,6 +14,8 @@
 <p align="center">
   <strong>🌐 Source → 🧠 Grounded bundle → 🚀 Public launch layer → 🔌 Plugin package</strong>
 </p>
+
+
 
 ---
 
