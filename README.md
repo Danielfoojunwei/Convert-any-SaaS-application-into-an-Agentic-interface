@@ -1,4 +1,5 @@
 # Agent-See
+<img width="2752" height="1536" alt="image" src="https://github.com/user-attachments/assets/cd520aed-9510-4221-bd00-20c2ed850afd" />
 
 **Agent-See** is a **plugin builder for agentic harnesses**. It helps you take a real business surface, such as a website, SaaS product, or API, and turn it into something that can be used inside **Manus-style agents**, **Claude-style workspaces**, **OpenClaw-like orchestrators**, or other agent systems.
 
