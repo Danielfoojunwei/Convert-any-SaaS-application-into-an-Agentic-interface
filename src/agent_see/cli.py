@@ -477,7 +477,7 @@ def plugin_sync(
             f"Plugin guide: [cyan]{results['plugin_guide']}[/cyan]\n"
             f"Connectors: [cyan]{results['connectors_dir']}[/cyan]\n"
             f"Starter kit: [cyan]{results['starter_kit_dir']}[/cyan]\n\n"
-            "Use the plugin guide and connector directory to attach this grounded bundle to your target harness. "
+            "Plugin Sync Complete. Use the plugin guide and connector directory to attach this grounded bundle to your target harness. "
             "If the source business changes later, re-run conversion first and then refresh launch and plugin outputs.",
             title="Step 3 Complete: Harness Plugin Layer Ready",
         )

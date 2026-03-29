@@ -1,0 +1,10 @@
+===== S5 :: tests/test_launch_integration.py =====
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/test_launch_integration.py::TestLaunchIntegration::test_convert_with_launch_generates_integrated_artifacts
+  /usr/local/lib/python3.11/dist-packages/pydantic/main.py:528: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='business_type', input_value='saas', input_type=str])
+    return self.__pydantic_serializer__.to_json(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 1 warning in 0.54s

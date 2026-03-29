@@ -1,0 +1,13 @@
+===== S3 :: tests/test_sprint3_5.py =====
+.........................................                                [100%]
+=============================== warnings summary ===============================
+tests/test_sprint3_5.py: 28 warnings
+  /usr/local/lib/python3.11/dist-packages/anyio/_backends/_asyncio.py:587: DeprecationWarning: Passing 'msg' argument to Task.cancel() is deprecated since Python 3.11, and scheduled for removal in Python 3.14.
+    should_retry = scope._deliver_cancellation(origin) or should_retry
+
+tests/test_sprint3_5.py: 28 warnings
+  /usr/local/lib/python3.11/dist-packages/anyio/_backends/_asyncio.py:587: DeprecationWarning: Passing 'msg' argument to Future.cancel() is deprecated since Python 3.11, and scheduled for removal in Python 3.14.
+    should_retry = scope._deliver_cancellation(origin) or should_retry
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+41 passed, 56 warnings in 2.69s

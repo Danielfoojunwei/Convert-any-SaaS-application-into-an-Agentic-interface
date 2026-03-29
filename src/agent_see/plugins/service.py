@@ -10,6 +10,8 @@ custom harnesses.
 from __future__ import annotations
 
 import json
+import textwrap
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -24,9 +26,9 @@ _PLUGIN_CONNECTORS: tuple[dict[str, str], ...] = (
     },
     {
         "id": "claude_workspace",
-        "name": "Claude-style workspace",
-        "primary_artifacts": "MCP runtime or OpenAPI, AGENTS guidance, plugin guide, skills",
-        "why": "Best when the workspace benefits from explicit runtime docs, task framing, and operator-readable boundaries.",
+        "name": "Claude plugin workspace",
+        "primary_artifacts": "Generated Claude plugin package, MCP runtime or OpenAPI, AGENTS guidance, plugin guide, skills",
+        "why": "Best when Claude needs a ready-to-import plugin package plus clear runtime docs and operator-readable boundaries.",
     },
     {
         "id": "openclaw",
@@ -42,6 +44,81 @@ _PLUGIN_CONNECTORS: tuple[dict[str, str], ...] = (
     },
 )
 
+_CLAUDE_PLUGIN_SKILLS: tuple[dict[str, str], ...] = (
+    {
+        "slug": "convert-source",
+        "title": "Convert Source",
+        "goal": "Turn a website URL, SaaS workflow, or OpenAPI file into a grounded Agent-See bundle.",
+        "operator_steps": "Ask for the source URL or API file, run conversion first, inspect the generated capability graph, and confirm the bundle directory before moving on.",
+        "artifacts": "capability_graph.json, openapi.yaml, agent_card.json, AGENTS.md, skills/",
+        "next_step": "After conversion, offer verification or launch preparation immediately.",
+    },
+    {
+        "slug": "verify-bundle",
+        "title": "Verify Bundle",
+        "goal": "Check whether the generated bundle is grounded, complete enough, and safe to carry forward.",
+        "operator_steps": "Review missing actions, sensitive flows, approval gates, and edge cases before the bundle is published or deployed.",
+        "artifacts": "OPERATIONAL_READINESS.md, proof/proof.json, capability_graph.json",
+        "next_step": "If the bundle looks good, continue to launch artifacts or deployment. If not, loop back to conversion fixes.",
+    },
+    {
+        "slug": "launch-artifacts",
+        "title": "Launch Artifacts",
+        "goal": "Generate the public trust, discovery, and maintenance layer around the grounded conversion.",
+        "operator_steps": "Collect the business name, domain, public support URLs, and reference pages. Then generate the launch layer and confirm where those pages will live.",
+        "artifacts": "launch/launch_manifest.json, /agents page content, llms.txt, trust pages, reference pages",
+        "next_step": "After the launch layer exists, ask whether the user wants to deploy the runtime or publish the discovery files next.",
+    },
+    {
+        "slug": "deploy-runtime",
+        "title": "Deploy Runtime",
+        "goal": "Get the MCP runtime running somewhere Claude can actually reach.",
+        "operator_steps": "Choose the hosting target, collect environment values, deploy the runtime, and verify the health endpoint before calling the integration live.",
+        "artifacts": "mcp_server/server.py, route_map.json, tool_metadata.json",
+        "next_step": "Once the runtime is healthy, proceed to discovery publishing or backend connection.",
+    },
+    {
+        "slug": "publish-discovery",
+        "title": "Publish Discovery",
+        "goal": "Place the launch and trust materials on the business's real public surface.",
+        "operator_steps": "Publish llms.txt, the /agents page, reference pages, and any structured-data outputs to the site's controlled web properties.",
+        "artifacts": "launch_manifest.json, AGENTS.md, launch pages and discovery assets",
+        "next_step": "After the public layer is live, continue to backend connection or final packaging.",
+    },
+    {
+        "slug": "connect-backend",
+        "title": "Connect Backend",
+        "goal": "Wire the generated interface to the real source of truth behind the business.",
+        "operator_steps": "Map each generated tool to the real backend system, confirm auth and approval boundaries, and test safe read paths before state-changing actions.",
+        "artifacts": "mcp_server/, openapi.yaml, tool metadata, runtime config",
+        "next_step": "Once the backend is connected, run verification again or go directly to plugin packaging.",
+    },
+    {
+        "slug": "package-plugin",
+        "title": "Package Plugin",
+        "goal": "Wrap the grounded bundle into a Claude-friendly plugin package without re-extracting the business.",
+        "operator_steps": "Reuse the generated runtime, docs, and manifest. Only add the thin harness wrapper that Claude needs.",
+        "artifacts": "plugins/plugin_manifest.json, plugins/connectors/, plugins/claude_plugin/",
+        "next_step": "If the Claude package looks correct, share the archive or continue to maintenance setup.",
+    },
+    {
+        "slug": "maintain",
+        "title": "Maintain",
+        "goal": "Keep the converted bundle and launched surface fresh as the business changes.",
+        "operator_steps": "Track what changed, refresh conversion outputs, regenerate launch files, rebuild the plugin package, and republish only the affected pieces.",
+        "artifacts": "launch manifest, plugin manifest, readiness notes, maintenance checklist",
+        "next_step": "Repeat this whenever the business surface, backend, pricing, or supported workflows change.",
+    },
+    {
+        "slug": "go-live",
+        "title": "Go Live",
+        "goal": "Act as the orchestration layer that always tells the operator what to do next.",
+        "operator_steps": "Check what exists, identify what is missing across conversion, verification, launch, deployment, publishing, connection, and packaging, then route the user to the next unfinished step.",
+        "artifacts": "The full Agent-See bundle and its launch and plugin layers",
+        "next_step": "This is the default continuation skill whenever the user asks what to do next.",
+    },
+)
+
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -50,10 +127,6 @@ def _read_json(path: Path) -> dict[str, Any]:
 def _read_yaml(path: Path) -> dict[str, Any]:
     loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
     return loaded if isinstance(loaded, dict) else {}
-
-
-def _line_count(path: Path) -> int:
-    return len(path.read_text(encoding="utf-8").splitlines())
 
 
 def _existing(path: Path) -> str | None:
@@ -111,6 +184,8 @@ def _openapi_summary(output_dir: Path) -> dict[str, Any]:
 
 def _artifact_inventory(output_dir: Path, launch_dir: Path | None = None) -> dict[str, str | None]:
     mcp_dir = output_dir / "mcp_server"
+    plugin_dir = output_dir / "plugins"
+    claude_dir = plugin_dir / "claude_plugin"
     resolved_launch_dir = (launch_dir or (output_dir / "launch")).expanduser().resolve()
     return {
         "mcp_server_dir": _existing(mcp_dir),
@@ -128,6 +203,9 @@ def _artifact_inventory(output_dir: Path, launch_dir: Path | None = None) -> dic
         "proof": _existing(output_dir / "proof" / "proof.json"),
         "launch_manifest": _existing(resolved_launch_dir / "launch_manifest.json"),
         "launch_dir": _existing(resolved_launch_dir),
+        "claude_plugin_dir": _existing(claude_dir),
+        "claude_plugin_manifest": _existing(claude_dir / ".claude-plugin" / "plugin.json"),
+        "claude_plugin_archive": _existing(plugin_dir / "agent-see-claude.plugin"),
     }
 
 
@@ -148,6 +226,8 @@ def _connector_recommendations(manifest: dict[str, Any]) -> list[dict[str, Any]]
                     recommended_paths.append(str(inventory[key]))
         elif connector["id"] == "claude_workspace":
             for key in (
+                "claude_plugin_archive",
+                "claude_plugin_manifest",
                 "mcp_server_entrypoint",
                 "openapi_spec",
                 "agents_md",
@@ -174,12 +254,7 @@ def _connector_recommendations(manifest: dict[str, Any]) -> list[dict[str, Any]]
                     recommended_paths.append(str(inventory[key]))
             recommended_paths.append(str((Path(manifest["plugin_output_dir"]) / "plugin_manifest.json").resolve()))
 
-        recommendations.append(
-            {
-                **connector,
-                "recommended_paths": recommended_paths,
-            }
-        )
+        recommendations.append({**connector, "recommended_paths": recommended_paths})
     return recommendations
 
 
@@ -241,12 +316,18 @@ def build_plugin_guide(manifest: dict[str, Any]) -> str:
         "| Directory or file | Purpose |",
         "| --- | --- |",
         "| `plugin_manifest.json` | Machine-readable inventory of the conversion bundle and recommended harness mapping |",
-        "| `connectors/` | Harness-specific connection guidance for Manus, Claude-style workspaces, OpenClaw, and generic runtimes |",
+        "| `connectors/` | Harness-specific connection guidance for Manus, Claude, OpenClaw, and generic runtimes |",
+        "| `claude_plugin/` | Importable Claude plugin folder with step-by-step skills and a Claude plugin manifest |",
+        "| `agent-see-claude.plugin` | Zipped Claude plugin package that can be shared or imported directly |",
         "| `starter_kit/` | Templates for turning this conversion into your own plugin, skill, or connector package |",
         "",
         "## Meta-plugin rule",
         "",
         "Use the existing grounded outputs first. If a harness can consume MCP directly, prefer the generated runtime. If it prefers contracts, manifests, or prompt-grounded docs, reuse `openapi.yaml`, `agent_card.json`, `AGENTS.md`, the skill files, and the readiness documents instead of re-extracting the business from scratch.",
+        "",
+        "## Claude-specific note",
+        "",
+        "Agent-See now emits a dedicated Claude plugin package. Use that package when you want the harness to guide the user step by step through convert, verify, launch, deploy, publish, connect, maintain, and repackage flows.",
         "",
         "## Create your own adapters from this bundle",
         "",
@@ -257,11 +338,17 @@ def build_plugin_guide(manifest: dict[str, Any]) -> str:
 
 def _connector_doc(manifest: dict[str, Any], connector: dict[str, Any]) -> str:
     recommended_paths = connector.get("recommended_paths", [])
-    path_rows = "\n".join(
-        f"| `{Path(path).name}` | `{path}` |" for path in recommended_paths
-    )
+    path_rows = "\n".join(f"| `{Path(path).name}` | `{path}` |" for path in recommended_paths)
     if not path_rows:
         path_rows = "| _none_ | _No recommended artifacts were detected yet._ |"
+
+    implementation_notes = (
+        "Keep the grounded Agent-See outputs as the source of truth. If this harness needs custom prompt wrappers, runtime registration files, or adapter code, generate those around the existing outputs instead of rebuilding the capability extraction layer."
+    )
+    if connector["id"] == "claude_workspace":
+        implementation_notes = (
+            "Start with the generated Claude plugin package. Import or copy the `claude_plugin/` directory when the workspace expects a folder-based plugin, or use `agent-see-claude.plugin` when it accepts a packaged archive. Keep the MCP runtime, OpenAPI file, AGENTS guidance, and generated skills aligned with that wrapper instead of rebuilding them separately."
+        )
 
     return (
         f"# {connector['name']} Connector\n\n"
@@ -275,7 +362,7 @@ def _connector_doc(manifest: dict[str, Any], connector: dict[str, Any]) -> str:
         f"| --- | --- |\n"
         f"{path_rows}\n\n"
         f"## Implementation notes\n\n"
-        f"Keep the grounded Agent-See outputs as the source of truth. If this harness needs custom prompt wrappers, runtime registration files, or adapter code, generate those around the existing outputs instead of rebuilding the capability extraction layer.\n"
+        f"{implementation_notes}\n"
     )
 
 
@@ -345,6 +432,178 @@ def _write_json(path: Path, payload: dict[str, Any]) -> Path:
     return path
 
 
+def _claude_plugin_manifest() -> dict[str, Any]:
+    return {
+        "name": "agent-see",
+        "version": "0.3.0",
+        "description": "Use Agent-See as a Claude plugin to convert, verify, launch, publish, deploy, connect, maintain, and package a business surface into an agent-ready integration.",
+        "author": {"name": "Manus AI"},
+        "repository": "https://github.com/Danielfoojunwei/Convert-any-SaaS-application-into-an-Agentic-interface",
+        "license": "MIT",
+        "keywords": [
+            "agent-see",
+            "claude",
+            "plugin",
+            "agentic",
+            "mcp",
+            "openapi",
+            "business-conversion",
+            "launch",
+            "deployment",
+        ],
+    }
+
+
+def _claude_plugin_readme(manifest: dict[str, Any]) -> str:
+    return textwrap.dedent(
+        f"""
+        # Agent-See Claude Plugin
+
+        Agent-See helps Claude turn a real website, SaaS surface, or API into a grounded, agent-ready plugin workflow.
+
+        ## What this package is for
+
+        This package is the Claude-specific wrapper around the generated Agent-See bundle. It does **not** invent new capabilities. Instead, it helps Claude use the existing grounded outputs step by step.
+
+        ## What Claude should do
+
+        Claude should move through the workflow in this order whenever possible:
+
+        1. Convert the source into a grounded bundle.
+        2. Verify what was captured and what still needs review.
+        3. Generate launch and discovery artifacts.
+        4. Deploy the runtime if the user wants a live integration.
+        5. Publish the public discovery layer on the real website.
+        6. Connect the runtime to the real backend.
+        7. Package the finished result for Claude or another harness.
+        8. Maintain and refresh the bundle as the business changes.
+
+        ## Grounded bundle location
+
+        The source bundle for this Claude package is:
+
+        `{manifest['conversion_output_dir']}`
+
+        ## Key files Claude should reuse
+
+        | File or directory | Why it matters |
+        | --- | --- |
+        | `openapi.yaml` | Contract-level view of the surfaced actions |
+        | `mcp_server/server.py` | Runtime entrypoint when Claude uses MCP-style execution |
+        | `AGENTS.md` | Operating guidance and boundaries |
+        | `skills/` | Generated skill-level documentation |
+        | `plugins/PLUGIN_GUIDE.md` | Cross-harness packaging guidance |
+        | `launch/launch_manifest.json` | Public launch and discovery inventory when present |
+
+        ## Rule
+
+        Always prefer the grounded Agent-See outputs over freeform reconstruction. If Claude needs custom glue, add a thin wrapper around the generated artifacts instead of rebuilding the business understanding from scratch.
+        """
+    ).strip() + "\n"
+
+
+def _claude_skill_text(skill: dict[str, str]) -> str:
+    return textwrap.dedent(
+        f"""
+        # {skill['title']}
+
+        {skill['goal']}
+
+        ## What to do
+
+        {skill['operator_steps']}
+
+        ## Grounded artifacts to look for
+
+        {skill['artifacts']}
+
+        ## What happens next
+
+        {skill['next_step']}
+        """
+    ).strip() + "\n"
+
+
+def _claude_hooks_config() -> dict[str, Any]:
+    return {
+        "SessionStart": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/check-dependencies.sh",
+                        "timeout": 15,
+                    }
+                ],
+            }
+        ]
+    }
+
+
+def _claude_dependency_script() -> str:
+    return textwrap.dedent(
+        """
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        if command -v agent-see >/dev/null 2>&1; then
+          echo "agent-see CLI detected."
+          exit 0
+        fi
+
+        echo "agent-see CLI not found. Install it with:"
+        echo "pip install git+https://github.com/Danielfoojunwei/Convert-any-SaaS-application-into-an-Agentic-interface.git"
+        """
+    ).strip() + "\n"
+
+
+def _zip_plugin_dir(source_dir: Path, archive_path: Path) -> Path:
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for path in sorted(source_dir.rglob("*")):
+            if path.is_dir():
+                continue
+            zf.write(path, arcname=path.relative_to(source_dir))
+    return archive_path
+
+
+def _sync_claude_plugin_package(manifest: dict[str, Any], plugin_dir: Path) -> dict[str, Path]:
+    claude_root = plugin_dir / "claude_plugin"
+    results: dict[str, Path] = {}
+
+    results["claude_plugin_manifest"] = _write_json(
+        claude_root / ".claude-plugin" / "plugin.json",
+        _claude_plugin_manifest(),
+    )
+    results["claude_plugin_readme"] = _write_text(
+        claude_root / "README.md",
+        _claude_plugin_readme(manifest),
+    )
+    results["claude_plugin_hooks"] = _write_json(
+        claude_root / "hooks" / "hooks.json",
+        _claude_hooks_config(),
+    )
+    dependency_script = _write_text(
+        claude_root / "hooks" / "scripts" / "check-dependencies.sh",
+        _claude_dependency_script(),
+    )
+    dependency_script.chmod(0o755)
+    results["claude_dependency_script"] = dependency_script
+
+    skills_dir = claude_root / "skills"
+    for skill in _CLAUDE_PLUGIN_SKILLS:
+        results[f"claude_skill_{skill['slug'].replace('-', '_')}"] = _write_text(
+            skills_dir / skill["slug"] / "SKILL.md",
+            _claude_skill_text(skill),
+        )
+
+    archive_path = _zip_plugin_dir(claude_root, plugin_dir / "agent-see-claude.plugin")
+    results["claude_plugin_dir"] = claude_root
+    results["claude_plugin_archive"] = archive_path
+    return results
+
+
 def sync_plugin_artifacts(output_dir: Path | str, *, launch_dir: Path | str | None = None) -> dict[str, Path]:
     """Generate or refresh the cross-harness plugin bundle for an Agent-See output directory."""
     output_dir = Path(output_dir).expanduser().resolve()
@@ -355,7 +614,17 @@ def sync_plugin_artifacts(output_dir: Path | str, *, launch_dir: Path | str | No
 
     manifest = build_plugin_manifest(output_dir, launch_dir=resolved_launch_dir)
     results: dict[str, Path] = {}
-    results["plugin_manifest"] = _write_json(plugin_dir / "plugin_manifest.json", manifest)
+
+    results.update(_sync_claude_plugin_package(manifest, plugin_dir))
+    manifest["artifacts"].update(
+        {
+            "claude_plugin_dir": str(results["claude_plugin_dir"].resolve()),
+            "claude_plugin_manifest": str(results["claude_plugin_manifest"].resolve()),
+            "claude_plugin_archive": str(results["claude_plugin_archive"].resolve()),
+        }
+    )
+    manifest["connectors"] = _connector_recommendations(manifest)
+
     results["plugin_guide"] = _write_text(plugin_dir / "PLUGIN_GUIDE.md", build_plugin_guide(manifest))
 
     connector_paths: list[str] = []
