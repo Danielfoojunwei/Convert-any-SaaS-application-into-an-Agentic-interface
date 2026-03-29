@@ -1,51 +1,83 @@
 # Agent-See
 
-**Agent-See** is a **plugin builder for agentic harnesses**. It helps you take a real business surface, such as a website, SaaS product, or API, and turn it into something that can be used inside **Manus-style agents**, **Claude-style workspaces**, **OpenClaw-like orchestrators**, or other agent systems.
+<p align="center">
+  <img src="./agent_see_how_we_help_diagram_v2.png" alt="Agent-See explainer diagram" width="100%" />
+</p>
 
-The most important design rule is simple: **users should not have to think about internal system complexity first**. They should be able to follow one guided path.
+<p align="center">
+  <strong>Turn a website, SaaS product, or API into an agent-ready plugin.</strong>
+</p>
 
-| What you want | What Agent-See helps you do |
+<p align="center">
+  Agent-See helps you convert real business surfaces into something AI agents can <strong>understand</strong>, <strong>trust</strong>, <strong>use</strong>, and <strong>plug into</strong> agentic harnesses like <strong>Manus-style systems</strong>, <strong>Claude-style workspaces</strong>, <strong>OpenClaw-like runtimes</strong>, and similar orchestrators.
+</p>
+
+<p align="center">
+  <strong>🌐 Source → 🧠 Grounded bundle → 🚀 Public launch layer → 🔌 Plugin package</strong>
+</p>
+
+---
+
+## ✨ Why Agent-See exists
+
+Most businesses are still built for humans first. Their websites, dashboards, and APIs may work well for people, but they are often hard for AI agents to reliably discover, interpret, and operate.
+
+That gap is exactly where **Agent-See** comes in. It helps you take a real business surface and turn it into a **plugin-ready agent layer** without making the user think through every internal subsystem first.
+
+Instead of forcing people to juggle crawling logic, runtime surfaces, public trust files, deployment steps, and harness packaging all at once, Agent-See guides them through a much clearer path.
+
+| What you have today | What Agent-See helps create |
 | --- | --- |
-| Turn a business into something agents can use | Convert it into a grounded agent bundle |
-| Make it discoverable and trustworthy | Generate the public launch layer |
-| Make it usable in a harness | Package it as a plugin, skill, or connector |
-| Keep it current over time | Re-sync the bundle when the source business changes |
+| A website with important workflows | A grounded agent bundle agents can call |
+| A SaaS product with useful actions | A runtime plus instructions agents can understand |
+| An API contract or OpenAPI file | A reusable plugin layer for agent harnesses |
+| A business that changes over time | A re-syncable system that can stay aligned |
 
-## The Simple Mental Model
+---
 
-Think of Agent-See as a **four-step plugin workflow**.
+## 🎯 The simple mental model
 
-```text
-1. Choose the source
-   Website / SaaS / API
+Think of Agent-See as a **four-part agent enablement machine**.
 
-2. Convert it
-   Generate the grounded agent bundle
-
-3. Publish and launch it
-   Create the public files and pages, then deploy the runtime
-
-4. Package it for the harness
-   Generate the plugin manifest, connector guides, and starter kit
-```
-
-Internally, Agent-See still has separate layers for **conversion**, **launch**, and **plugin packaging**, but users should experience them as one step-by-step path.
-
-## What Agent-See Does
-
-Agent-See does not rewrite the original business. Instead, it builds an **agent-facing layer around it**.
-
-| Layer | What it does | Why it exists |
+| Step | What happens | Why it matters |
 | --- | --- | --- |
-| **Conversion** | Reads the source business surface and generates the grounded agent bundle | Gives agents a truthful operational interface |
-| **Launch** | Generates public discovery, trust, and maintenance artifacts | Makes the integration easier to find and trust |
-| **Plugin packaging** | Wraps the grounded bundle for specific harnesses | Makes the result reusable as a plugin, skill, or connector |
+| **1. Convert** | Read the website, SaaS, or API and extract real workflows | Gives agents something grounded in reality |
+| **2. Review** | Check what was captured, what is missing, and what is sensitive | Prevents fake confidence and messy launches |
+| **3. Publish + Deploy** | Generate public trust pages and run the runtime service | Makes the integration discoverable and usable |
+| **4. Package** | Wrap the result for Manus-style, Claude-style, OpenClaw-like, or similar systems | Makes it reusable as a plugin, skill, or connector |
 
-## The Step-by-Step Workflow
+> **Short version:** Agent-See helps transform a business surface into an agent-ready plugin workflow.
 
-### Step 1: Choose what you are turning into a plugin
+---
 
-Start with the exact business surface you want to use as the source of truth.
+## 🧩 What Agent-See actually produces
+
+Agent-See does not pretend your business is something it is not. It builds an **agent-facing layer around the real thing**.
+
+| Layer | What it produces | Why it exists |
+| --- | --- | --- |
+| **Conversion layer** | Grounded tools, schemas, skills, proof, and runtime artifacts | So agents can act on real business workflows |
+| **Launch layer** | `llms.txt`, `/agents` content, reference pages, and alignment reports | So agents and operators can trust what is exposed |
+| **Plugin layer** | Plugin manifests, connector guides, starter kits, and harness packaging | So the output can be reused across agent systems |
+
+---
+
+## 🪄 What makes this useful
+
+The point is not just to generate files. The point is to make a business **agent-usable**.
+
+| If you want to… | Agent-See helps by… |
+| --- | --- |
+| Turn a business into something agents can use | Creating a grounded agent bundle |
+| Make the integration easier to discover | Generating a public launch layer |
+| Make the result easier to plug into a harness | Packaging it as a plugin, skill, or connector |
+| Keep everything aligned over time | Letting you refresh the right layer when the source changes |
+
+---
+
+## 🚦 Start here
+
+Agent-See works best when you begin with a clear source of truth.
 
 | Supported source | Example |
 | --- | --- |
@@ -53,49 +85,55 @@ Start with the exact business surface you want to use as the source of truth.
 | **SaaS product URL** | `https://app.example.com` |
 | **OpenAPI file** | `./openapi.json` |
 
-Before running the system, define the workflows that matter most. Good examples are booking, pricing lookup, search, ordering, support intake, onboarding, checkout preparation, dashboard actions, and account tasks.
+Before you run anything, define the workflows that actually matter. Good examples include booking, search, pricing lookup, checkout preparation, ordering, onboarding, dashboard actions, support intake, and account tasks.
 
-### Step 2: Convert the source into a grounded bundle
+---
 
-Conversion means reading the source business surface and turning it into a structured agent bundle.
+## 🔄 The workflow, step by step
+
+### 1) Convert the source
+
+This is where Agent-See reads the business surface and creates the grounded bundle.
 
 ```bash
 agent-see convert https://example.com --output ./agent-output
 ```
 
-Or, if you already have an API contract:
+Or from an API contract:
 
 ```bash
 agent-see convert ./openapi.json --output ./agent-output
 ```
 
-After conversion, the main output folder contains the grounded source bundle.
+After conversion, the output usually contains the core building blocks below.
 
-| Artifact | What it means in plain language |
+| Artifact | Plain-English meaning |
 | --- | --- |
 | `mcp_server/` | The live tool surface agents can call |
 | `openapi.yaml` | The machine-readable contract |
-| `agent_card.json` | Discovery and identity metadata |
+| `agent_card.json` | Identity and discovery metadata |
 | `AGENTS.md` | Instructions for agents and operators |
-| `skills/` | Reusable task wrappers built from grounded business actions |
-| `proof/` | Evidence that the extraction stayed grounded |
-| `OPERATIONAL_READINESS.md` | A summary of practical execution boundaries |
+| `skills/` | Reusable workflow wrappers |
+| `proof/` | Evidence that extraction stayed grounded |
+| `OPERATIONAL_READINESS.md` | Practical execution boundaries |
 
-### Step 3: Review the bundle before publishing anything
+### 2) Review what came out
 
-Do not assume the job is complete just because files were generated. Review whether the important workflows were actually captured and whether login, approval, and state-changing boundaries are described truthfully.
+Do not skip this step. A bundle is only useful if it is truthful.
 
-| If this is true | Do this next |
+| Check | What you should ask |
 | --- | --- |
-| Key workflows are missing | Re-run conversion with better scope or access |
-| Login or approval boundaries are unclear | Clarify them before launch |
-| The bundle is truthful and complete | Move to publication and packaging |
+| **Truthful** | Did it capture what the business really does? |
+| **Safe** | Are login, approvals, and restricted actions clearly described? |
+| **Complete** | Did it include the workflows users actually care about? |
 
-### Step 4: Generate the public launch layer
+If the answer is no, re-run conversion with better scope, better access, or sharper workflow targets.
 
-Launch means generating the public-facing files and pages that help agents discover, trust, and understand the integration.
+### 3) Generate the public launch layer
 
-If you already have a launch intake file, you can generate launch assets during conversion:
+This step creates the files and pages that help agents discover and trust the integration.
+
+If you already have launch intake data and want launch artifacts during conversion:
 
 ```bash
 agent-see convert ./openapi.json \
@@ -104,130 +142,154 @@ agent-see convert ./openapi.json \
   --with-launch
 ```
 
-If you already have a completed conversion and only need to refresh the public layer:
+If you already converted and only need to refresh the public layer:
 
 ```bash
 agent-see launch sync ./launch-intake.json
 ```
 
-The launch layer typically includes these outputs.
+Typical launch outputs include the following.
 
-| Launch artifact | What it is |
+| Launch artifact | What it does |
 | --- | --- |
-| `launch/llms.txt` | A model-facing guide to the most important public pages |
-| `launch/agents.md` or equivalent `/agents` content | The public instructions page for agent access |
-| `launch/reference_layer/` | Supporting usage, limitation, trust, and policy pages |
-| `launch/launch_report.md` | A readiness report for operators |
-| `launch/update_register.md` | A maintenance plan for future refreshes |
-| `launch/surface_alignment.json` | A check that public claims match the actual runtime |
+| `launch/llms.txt` | Helps models find the most important public surfaces |
+| `launch/agents.md` | Provides public guidance for agent access |
+| `launch/reference_layer/` | Holds supporting trust, usage, and policy pages |
+| `launch/launch_report.md` | Summarizes launch readiness for operators |
+| `launch/update_register.md` | Tracks how the launch layer should be maintained |
+| `launch/surface_alignment.json` | Checks that public claims match the real runtime |
 
-### Step 5: Understand the difference between publish and deploy
+### 4) Publish and deploy
 
-A lot of confusion comes from mixing these two ideas. Keep them separate.
+These two ideas are related, but they are not the same.
 
 | Term | Meaning |
 | --- | --- |
-| **Publish** | Put generated public files and pages onto the real website or docs surface |
-| **Deploy** | Run the generated runtime as a live service |
+| **Publish** | Put the generated public files and pages on the actual website or docs surface |
+| **Deploy** | Run the generated runtime as a live service that agents can call |
 
-That means the generated public assets do not help agents in the real world until they are actually placed on a public web surface you control.
+That means launch assets only become real-world trust surfaces when you place them somewhere public that you control.
 
-| Asset | Where it goes |
+| Asset | Typical destination |
 | --- | --- |
-| `llms.txt` | Public website root or another public web path |
+| `llms.txt` | Site root or another public path |
 | `/agents` page | Public website or docs surface |
-| Reference pages | Public docs or linked public pages |
-| Runtime service | Deployed server or managed service |
-| Reports and update registers | Usually internal operator documents |
+| Reference pages | Public documentation |
+| Runtime service | Live server or managed runtime |
+| Reports and update registers | Usually internal |
 
-## How to Package the Result as a Plugin
+### 5) Package for the target harness
 
-Once the grounded bundle exists, Agent-See can package it for target harnesses.
+Once the grounded bundle exists, Agent-See can wrap it into harness-facing plugin assets.
 
 ```bash
 agent-see plugin sync ./agent-output
 ```
 
-If your launch outputs live outside the default launch directory, pass them explicitly:
+If launch outputs live outside the default launch directory:
 
 ```bash
 agent-see plugin sync ./agent-output --launch-output ./launch-output
 ```
 
-The plugin layer exists so the conversion becomes a reusable integration asset instead of a one-off export.
+Typical plugin outputs include the following.
 
-| Plugin artifact | Purpose |
+| Plugin artifact | Why it matters |
 | --- | --- |
-| `plugins/plugin_manifest.json` | Machine-readable inventory of the grounded bundle |
-| `plugins/PLUGIN_GUIDE.md` | Step-by-step explanation of how to use the bundle as a plugin |
-| `plugins/connectors/` | Harness-specific connection guides |
-| `plugins/starter_kit/plugin_template.md` | Template for packaging the conversion as a custom plugin |
-| `plugins/starter_kit/skill_template.md` | Template for turning grounded actions into a reusable skill |
-| `plugins/starter_kit/connector_template.md` | Template for creating a thin connector for another runtime |
+| `plugins/plugin_manifest.json` | Inventories the bundle in a machine-readable format |
+| `plugins/PLUGIN_GUIDE.md` | Explains how to use the output as a plugin |
+| `plugins/connectors/` | Provides harness-specific connection guidance |
+| `plugins/starter_kit/plugin_template.md` | Helps package the bundle as a custom plugin |
+| `plugins/starter_kit/skill_template.md` | Helps turn grounded actions into reusable skills |
+| `plugins/starter_kit/connector_template.md` | Helps build thin connectors for other runtimes |
 
-## What to Use for Each Harness Style
+---
 
-Different harnesses tend to prefer different parts of the output bundle.
+## 🧠 Which outputs matter for each harness style
 
-| Harness style | Recommended artifact mix |
+Different agent systems tend to prefer different artifact mixes.
+
+| Harness style | Best-fit output mix |
 | --- | --- |
-| **Manus-style agents** | MCP runtime, AGENTS guidance, skills, readiness outputs |
+| **Manus-style systems** | MCP runtime, AGENTS guidance, skills, readiness outputs |
 | **Claude-style workspaces** | MCP runtime or OpenAPI, AGENTS guidance, plugin guide |
 | **OpenClaw-like orchestrators** | Runtime metadata, agent card, route map, connector guide |
 | **Generic harnesses** | OpenAPI, AGENTS guidance, plugin manifest, starter kit |
 
-## What the Skills Do
+---
 
-The repository is designed to work through two main skills plus the packaging layer.
+## 🛠️ The product philosophy
 
-| Skill or layer | User-facing role |
-| --- | --- |
-| **Agent-See** | Main entry point for turning a business surface into a plugin-ready agent bundle |
-| **Agentic Business Launch** | Step-by-step guide for generating public files, publishing them, and preparing deployment |
-| **Plugin packaging layer** | Wraps the grounded bundle for target harnesses and custom integrations |
+Agent-See is built around one important principle:
 
-## Recommended User Journey
+> **Do not invent capabilities in the launch layer or the plugin layer.**
 
-If you want the simplest operating pattern, follow this sequence every time.
+The safe pattern is always the same. First extract the real business surface. Then wrap it with clear trust signals. Then package it for the target harness.
 
-| Step | What to do | Why it matters |
+That is how you keep the system useful instead of turning it into a pile of beautiful but misleading files.
+
+---
+
+## 🧭 Recommended operating pattern
+
+If you want the cleanest user journey, follow this sequence every time.
+
+| Step | Action | Why it matters |
 | --- | --- | --- |
-| **1** | Choose the source website, SaaS, or API | Defines the plugin foundation |
-| **2** | Confirm the important workflows | Keeps the extraction focused on real business actions |
-| **3** | Run conversion | Creates the grounded source bundle |
-| **4** | Review the outputs honestly | Prevents false launch claims |
-| **5** | Generate the public launch layer | Creates the discovery and trust surfaces |
-| **6** | Publish the public files and pages | Makes the integration visible on the real web surface |
-| **7** | Deploy the runtime | Makes the executable tool surface live |
-| **8** | Package the bundle for the target harness | Makes it reusable as a plugin, skill, or connector |
-| **9** | Re-sync when the source business changes | Keeps everything aligned with reality |
+| **1** | Choose the source website, SaaS, or API | Defines the real scope |
+| **2** | Name the important workflows | Keeps extraction focused |
+| **3** | Run conversion | Creates the grounded bundle |
+| **4** | Review the outputs honestly | Avoids false launch claims |
+| **5** | Generate the launch layer | Creates trust and discovery assets |
+| **6** | Publish the public pages | Makes the integration visible |
+| **7** | Deploy the runtime | Makes the tool surface callable |
+| **8** | Package for the harness | Makes it reusable as a plugin |
+| **9** | Re-sync when the business changes | Keeps everything aligned with reality |
 
-## What Stays Public and What Stays Internal
+---
 
-Users often need this distinction stated clearly.
+## 📦 What stays public and what stays internal
 
-| Asset type | Usually public or internal |
+This distinction matters more than people think.
+
+| Asset type | Typical visibility |
 | --- | --- |
 | `llms.txt` | **Public** |
 | `/agents` page | **Public** |
-| Reference layer pages | **Public** |
-| Runtime endpoint or connection method | **Public or controlled-access**, depending on the system |
+| Reference pages | **Public** |
+| Runtime endpoint | **Public or controlled-access** |
 | Launch report | **Internal** |
 | Update register | **Internal** |
-| Proof and readiness details | Usually **internal**, unless you intentionally share them |
+| Proof and readiness details | Usually **internal** |
 
-## Maintenance Rule
+---
+
+## 🔁 Maintenance rule
 
 Treat the grounded conversion bundle as the source of truth.
 
-If the business logic changes, re-run **conversion** first. If public pages, trust signals, or policy facts change, refresh the **launch** layer. If the grounded bundle changes, refresh the **plugin** layer so the harness-facing package stays aligned.
+If the business logic changes, re-run **conversion** first. If public trust surfaces or policy facts change, refresh the **launch** layer. If the grounded bundle changes, refresh the **plugin** layer so the harness-facing package stays aligned.
 
-## Repository Principle
+---
 
-**Do not invent capabilities in the launch or plugin layer.** The safest pattern is always to extract the real business surface first, then wrap it with thin public guidance and thin harness-specific packaging.
+## 💬 In one sentence
 
-## Next Step
+**Agent-See helps you turn a website, SaaS product, or API into something AI agents can understand, trust, publish, deploy, and use as a plugin.**
 
-If you are starting fresh, the best first question is:
+---
+
+## 🚀 Best next question
+
+If you are starting fresh, begin here:
 
 > **What do you want to turn into a plugin: a website, a SaaS product, or an API?**
+
+---
+
+## 🌟 Repo vibe
+
+If you are building for the next wave of software, this repo is about one thing:
+
+**not just human-ready software, but agent-ready software.**
+
+That is the shift. Agent-See is here to help make it practical.
