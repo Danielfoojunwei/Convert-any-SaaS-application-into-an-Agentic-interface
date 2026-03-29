@@ -1,258 +1,161 @@
-# Agent-See Playbook: How to Make a Converted Business Discoverable, Trustworthy, and Executable in Agentic Search
+# Agent-See Playbook: What We Can Do for You, Step by Step
 
 ## What This Playbook Is For
 
-This playbook is for business owners who have already used **Agent-See** to convert a website, API, SaaS workflow, booking flow, ecommerce catalog, or hybrid browser-plus-API surface into an agent-usable runtime. The conversion is the starting point, not the finish line. A converted business still needs to become easy for agents and LLMs to **retrieve**, **understand**, **trust**, and **act on** during web search, RAG workflows, and harness-driven execution.
+This playbook explains, in simple language, how **Agent-See** helps turn a website, SaaS product, API, booking flow, ecommerce catalog, or business workflow into something that agents can understand, trust, and use.
 
-In practical terms, the business owner’s job after conversion is to operate two layers at once. The first is the **human-facing layer**, which includes the normal website, product pages, service pages, pricing, support, and policies. The second is the **machine-facing layer**, which includes the executable Agent-See output, machine-readable discovery files, structured data, stable documentation, and freshness signals that help AI systems decide whether to cite or use the business. Google explicitly frames AI visibility as an extension of good indexing, crawlability, and snippet eligibility rather than a separate hidden program [1]. Bing similarly emphasizes that AI-powered search depends on clean sitemap coverage and freshness signals [2].
+The goal is not to overwhelm you with technical details. The goal is to show you, step by step, what **Agent-See** can do for you, what outcome each step creates, and what you must do next to move forward.
 
-## The Operating Model
+## What Agent-See Helps You Do
 
-A business becomes strong in the prompt economy when it can win four decisions inside a model pipeline: whether the business is retrieved, whether it is selected, whether it is trusted, and whether it can be executed immediately.
+Agent-See helps you move from a normal business surface to an **agent-ready plugin path**.
 
-| Layer | Goal | What the business owner must do | What Agent-See provides |
-| --- | --- | --- | --- |
-| **Discovery** | Get retrieved in AI and search workflows | Publish crawlable, text-rich, task-shaped pages and discovery files | Runtime artifacts and machine-usable operational surface |
-| **Selection** | Get recommended over alternatives | Make use cases, fit, constraints, pricing, policies, and proofs explicit | Structured description of actions and workflows |
-| **Trust** | Get cited and considered safe to use | Maintain entity data, support information, policy pages, and visible consistency | Clear workflow boundaries, auth notes, and approval-sensitive actions |
-| **Execution** | Let agents act instead of only summarizing | Deploy the generated runtime and expose clear connection guidance | MCP/OpenAPI/runtime outputs and harness-facing artifacts |
-| **Maintenance** | Stay fresh as the business changes | Update pages, feeds, schema, sitemaps, and re-run conversion when flows change | Regeneration path for the executable surface |
-
-The rest of this guide is written as an operational sequence. It tells you what to create, where to place it, which links to expose, which consoles to check, and when to re-run Agent-See.
-
-## Step 1: Choose the Canonical URLs Agents Should Retrieve
-
-Most businesses make a mistake here by assuming the homepage is enough. LLM retrieval systems often use query fan-out and will search across supporting intents, not only branded queries [1]. That means you need explicit URLs for the tasks that matter commercially.
-
-Start by creating a small internal table of your canonical task pages. Do this before you touch schema, sitemaps, or manifests.
-
-| URL | User intent it should answer | Commercial outcome | Should Agent-See output be linked here? |
-| --- | --- | --- | --- |
-| `/pricing` | “How much does this cost?” | Comparison and qualification | Usually yes |
-| `/book-demo` or `/book` | “Can I schedule this now?” | Direct booking | Yes |
-| `/products/{slug}` | “Is this the right product?” | Product selection | Yes for agent-executable catalogs |
-| `/services/{slug}` | “What service do you offer and where?” | Lead capture or booking | Yes |
-| `/faq` | “Will this work for my situation?” | Objection handling | Often yes |
-| `/docs` or `/integrations` | “How can an agent or harness use this?” | Technical trust and connection | Always |
-| `/returns`, `/shipping`, `/support`, `/policies` | “Can I trust this business?” | Risk reduction | Usually yes |
-
-When you make this table, write each page as if it exists to answer a specific prompt. A page that tries to do everything usually becomes weak for agentic retrieval. A page that cleanly answers one high-intent question is easier for a model to quote and easier for a user to act on.
-
-## Step 2: Rewrite Key Pages into Answer-First, Task-Shaped Pages
-
-BCG’s guidance on LLM discovery argues that machine consumers reward explicit structure, high signal-to-noise, and stable semantics rather than visual flair [3]. GitBook’s documentation guidance makes the same point from a docs perspective: clear headings, chunkable sections, and answer-first writing improve AI ingestion quality [4].
-
-For every high-value page from Step 1, rewrite the content so the top of the page answers five things immediately: who the offer is for, what action can be completed, what inputs are required, what constraints exist, and what the next step is.
-
-| Required page element | What to write |
-| --- | --- |
-| **Title** | Use explicit task language, such as “Book a Cleaning Appointment in Singapore” or “Buy Industrial Sensors with Fast Shipping” |
-| **Opening paragraph** | State the audience, the action, and the immediate next step in plain text |
-| **Inputs and constraints** | State required customer information, eligibility, service area, supported products, turnaround time, or prerequisites |
-| **Commercial facts** | Include visible pricing, availability, policies, shipping, returns, or booking rules where relevant |
-| **Trust signal** | Add proof such as case studies, ratings, screenshots, certifications, support details, or guarantees |
-| **Action path** | Provide one primary CTA, not five competing CTAs |
-
-If a page depends on JavaScript to reveal all critical information, create a server-rendered or otherwise crawlable version of the core facts. AI systems can work with JavaScript-rendered sites, but explicit HTML and text still reduce ambiguity and improve retrieval reliability [1] [3].
-
-## Step 3: Publish the Discovery Files That Machines Actually Use
-
-This is the part most businesses skip. Agent-See gives you an executable layer, but you still need to publish the discovery layer cleanly.
-
-### 3.1 `robots.txt`
-
-Put a `robots.txt` file at the root of the main domain and every relevant subdomain. Use it to control crawler access intentionally, not accidentally. OpenAI states that **OAI-SearchBot** should be allowed if you want visibility in ChatGPT search results, and that this control is separate from **GPTBot**, which is used for training-related crawling [5]. Anthropic similarly recommends using `robots.txt` to manage its crawlers and notes that these preferences may need to be applied per subdomain [6].
-
-A business owner should therefore make an explicit policy decision instead of leaving this to hosting defaults.
-
-| Decision | What to do |
-| --- | --- |
-| You want ChatGPT search visibility | Allow `OAI-SearchBot` in `robots.txt` and avoid blocking the published IP ranges indirectly through infrastructure rules [5] |
-| You want discovery but not training access | Allow `OAI-SearchBot`, review `Claude`-related search/user access, and separately decide whether to disallow `GPTBot` [5] [6] |
-| You want limited controlled access | Keep search and user-directed access rules documented internally and apply them per subdomain if needed [6] |
-| You want engines to find your sitemap | Add a `Sitemap:` line pointing to the canonical sitemap URL [2] |
-
-### 3.2 `sitemap.xml`
-
-Publish a complete XML sitemap and keep `lastmod` accurate. Bing states that sitemaps remain foundational for AI-powered search and that `lastmod` is a key freshness signal, especially when accurately expressed in ISO 8601 format [2]. Do not set `lastmod` to the time the sitemap file was generated unless the page content actually changed [2].
-
-Include your important business URLs, docs URLs, policy pages, pricing pages, and any public integration pages that help agents decide whether to recommend you.
-
-### 3.3 `llms.txt`
-
-Publish a root-level `/llms.txt` file as a concise, curated guide for models. The `llms.txt` proposal is designed to help LLMs find the highest-value parts of a site without parsing every page or noisy navigation layer [7]. It does not guarantee citations, but it can make your site more legible at inference time.
-
-Your `llms.txt` should point to the exact pages that matter for selection and execution. A good first version should include the homepage, pricing, support, FAQ, policies, product/service pages, and the public page that explains the Agent-See-converted runtime.
-
-### 3.4 Clean Markdown Mirrors
-
-Where practical, publish markdown versions of important docs or integration pages. This is especially helpful for technical businesses, multi-step workflows, policy-heavy products, or B2B services with long pages. The goal is not to duplicate the entire site blindly, but to reduce parsing friction on the pages most likely to be used in retrieval and grounding.
-
-## Step 4: Add Structured Data That Mirrors Visible Claims
-
-Google is clear that structured data should describe visible content and should help the system understand the page and the real-world entity behind it [8]. Google recommends JSON-LD in most cases and advises completeness and accuracy over stuffing many incomplete properties [8].
-
-For most businesses using Agent-See, the following markup types matter first.
-
-| Page type | Structured data to add | Why it matters |
+| What you want | What Agent-See does for you | What you get |
 | --- | --- | --- |
-| Homepage / company page | `Organization` | Clarifies official identity, logo, site, and related profiles [9] |
-| Local business page | `LocalBusiness` where applicable | Helps with official local entity recognition and support details [9] |
-| Product detail page | `Product` | Supports price, availability, ratings, shipping, and commercial comparison [10] |
-| FAQ page | `FAQPage` where eligible and truthful | Helps machines extract direct answers from recurring objections [8] |
-| Navigation-heavy pages | `BreadcrumbList` | Helps machines understand page hierarchy and topical relationships [9] |
+| Turn a website, SaaS product, or API into something agents can use | Reads the source and maps the important workflows | A grounded agent bundle |
+| Make the business easier for agents to understand | Creates structured outputs and guidance files | Clear machine-readable artifacts |
+| Make the business easier to trust | Documents boundaries, actions, and required approvals | A more truthful and usable agent surface |
+| Make the business usable inside an agentic harness | Packages the bundle for harness connection | Plugin-ready outputs for systems like Claude, Manus, OpenClaw, and similar harnesses |
+| Keep the system current as the business changes | Supports refresh and regeneration | A maintainable workflow instead of a one-time setup |
 
-After publishing markup, use the [Rich Results Test](https://search.google.com/test/rich-results) and review Search Console coverage where applicable [8] [9]. Do not let schema drift away from the visible content. If your page says one price and the markup says another, you are teaching the machine not to trust you.
+## The Simple Step-by-Step Path
 
-## Step 5: Establish Official Business Identity and Trust Signals
+The easiest way to think about Agent-See is this: first we identify what should become the plugin, then we convert it, then we review it, then we publish and deploy it, and then we connect it to the harness you want to use.
 
-Google recommends establishing business details through Search Console, Google Business Profile where relevant, and visible organization details on-site [9]. This matters for classic search, local search, and AI-assisted search because entity resolution often depends on consistency across sources.
+### Step 1: Choose What You Want to Turn Into a Plugin
 
-After conversion, complete the following operational sequence.
+The first step is to decide what the source should be. This could be your website, your SaaS workflow, your API, or a combination of these.
 
-| Action | What to do | Why it matters |
+| What Agent-See does | Outcome | What you must do next |
 | --- | --- | --- |
-| **Verify Search Console** | Verify ownership of the official website | Confirms you control the site and gives you visibility into indexing and performance [9] |
-| **Claim Business Profile** | Claim and maintain Google Business Profile if the business has a local or official presence | Strengthens entity recognition and local trust [9] |
-| **Standardize contact details** | Keep the same official name, address, phone, support email, logo, and domain across the site and public profiles | Reduces entity ambiguity |
-| **Make support visible** | Publish customer support and escalation paths on-site | Improves trust and reduces hallucinated contact assumptions [9] |
-| **Expose policies clearly** | Make returns, shipping, refunds, privacy, and service limitations visible and linkable | Helps both buyers and agents compare safely |
+| Helps define the source that should become the plugin foundation | We know exactly what system or surface we are working from | Provide the exact URL, product area, or API file that should be used |
 
-If the business is B2B or SaaS, replace local signals with strong organization signals, support pages, security or compliance notes, onboarding steps, and clear ownership indicators.
+This step matters because a vague starting point creates a vague plugin. A clear starting point creates a much better result.
 
-## Step 6: Make Your Offer Easy to Compare During RAG Search
+### Step 2: Identify the Workflows That Matter Most
 
-A model recommending a product or service during RAG search is effectively doing lightweight comparison work. If your site hides the commercial facts, you become hard to recommend.
+Once the source is clear, the next step is to define the actions that matter most to the business. These are the jobs the agent should eventually help with, such as searching inventory, booking appointments, answering support questions, checking pricing, submitting requests, or guiding users through a workflow.
 
-The high-value comparison facts should be visible on-page, not only inside a PDF or behind a form. For service businesses, that means scope, geography, turnaround time, scheduling, required inputs, and pricing model. For product businesses, that means price, variants, availability, shipping, returns, warranty, compatibility, and what differentiates the product.
-
-Google’s product guidance recommends combining visible on-page product data with structured data and Merchant Center feeds where relevant [10]. Merchant Center also exposes product visibility, approval state, and staleness, and Google warns that neglected product data can lose visibility over time [11].
-
-If you run an ecommerce or catalog business, use this exact maintenance table.
-
-| What to check | Where to check it | What to do if it is wrong |
+| What Agent-See does | Outcome | What you must do next |
 | --- | --- | --- |
-| Product approval status | Merchant Center product table | Fix policy or data issues until products move from limited/not approved to approved [11] |
-| Product visibility | Merchant Center visibility column | Ensure products are intentionally visible and not hidden/archived [11] |
-| Staleness | “Needs Update” indicator in Merchant Center | Refresh product data before visibility degrades [11] |
-| On-page price and stock | Product page itself | Make sure visible content matches feeds and schema [10] [11] |
-| Shipping / returns policy | Product page and policy page | Make the rules explicit and consistent with merchant data [10] |
+| Maps the important user and business actions that should be captured | We know which workflows are high priority and which ones can wait | Tell us which actions matter most commercially or operationally |
 
-## Step 7: Publish the Agent-See Execution Layer as a Public Integration Surface
+This step keeps the project focused. Instead of trying to convert everything at once, we convert the actions that create the most value.
 
-Many businesses stop after publishing discovery content. That is useful for citations, but weak for execution. If you want agents to do more than mention your business, publish the Agent-See-converted runtime as a documented integration surface.
+### Step 3: Convert the Source Into an Agent-Ready Bundle
 
-Create a public page such as `/agents`, `/integrations/agents`, or `/docs/agent-access`. This page should connect discovery to action.
+After the source and workflows are confirmed, Agent-See performs the conversion. This means it reads the source system and turns it into a structured output that agents can use more reliably.
 
-| Section on the page | What to include |
-| --- | --- |
-| **What actions are supported** | Order lookup, appointment booking, quote request, catalog browse, inventory check, checkout preparation, support triage, or other supported tasks |
-| **What requires login** | State which actions need user authentication |
-| **What requires approval** | State where human confirmation or approval gates exist |
-| **How to connect** | Link the runtime endpoint, OpenAPI spec, agent card, AGENTS guidance, or harness docs |
-| **What is not supported** | List current boundaries honestly |
-| **How to get help** | Provide support or integration contact information |
-
-The practical rule is simple: if an LLM can retrieve your business but cannot find the page that explains how agents should use it, the conversion has not yet become commercially operational.
-
-## Step 8: Push Updates Fast When the Business Changes
-
-This is where most businesses lose agentic visibility after a promising start. The business changes, but the discovery and execution surfaces do not.
-
-IndexNow exists to notify participating search systems when URLs are added, updated, or deleted, and the documentation recommends automating submission as content changes rather than doing this manually forever [12]. Bing’s guidance pairs this with XML sitemaps and accurate `lastmod` signals as the strongest current foundation for AI-powered discovery [2].
-
-After any meaningful change, follow this sequence.
-
-| Change type | What to update immediately |
-| --- | --- |
-| Product added or removed | Product page, schema, feed, sitemap, IndexNow submission, Merchant Center, runtime docs if relevant |
-| Price or policy change | Visible page text, schema, policy pages, sitemap, IndexNow, and any example docs |
-| Workflow or auth change | Re-run Agent-See, redeploy runtime, update `/agents` page, update AGENTS guidance, update docs links |
-| Booking flow or checkout change | Re-run Agent-See, test generated actions, update FAQs and runtime docs, refresh sitemap and IndexNow |
-| Support/contact change | Update site-wide support details, organization markup, Business Profile where relevant, docs and policy pages |
-
-If the business logic changed, do not patch only the marketing site. Re-run the conversion so the executable surface and the public discovery surface remain aligned.
-
-## Step 9: Build a Reference Layer That Models Can Cite
-
-RAG systems and agentic browsers prefer concrete, citable material. That means your site should include pages whose main purpose is to reduce ambiguity and make recommendation easier.
-
-A business owner using Agent-See should create the following supporting references over time.
-
-| Reference page | Why it matters |
-| --- | --- |
-| **How agents can use this business** | Explains supported actions, boundaries, and connection methods |
-| **Coverage and limitations** | Prevents overclaiming and gives models safe boundaries to cite |
-| **Pricing and eligibility** | Makes recommendation easier during comparison |
-| **Policies** | Lowers trust friction and gives models stable facts |
-| **Examples / case studies** | Supplies proof and contextual retrieval hooks |
-| **Support / escalation** | Gives an agent a safe next step when full execution is not possible |
-
-These pages are not filler. They are part of the commercial truth layer. When a model compares vendors, these are often the exact places it looks for disambiguation.
-
-## Step 10: Use a Real Maintenance Loop, Not a One-Time Launch
-
-Agentic discovery is an operating discipline. Search systems, product catalogs, policies, and workflows drift over time. Your maintenance loop should therefore be explicit.
-
-| Cadence | What to review |
-| --- | --- |
-| **Weekly** | Broken links, stale prices, outdated availability, runtime uptime, support details, and primary CTA paths |
-| **Monthly** | Search Console signals, Merchant Center visibility, sitemap freshness, `robots.txt`, schema validity, and top commercial pages |
-| **After every material business change** | Re-run Agent-See where business logic changed, redeploy runtime, update integration docs, resubmit changed URLs through IndexNow, refresh sitemap `lastmod` |
-| **Quarterly** | Reassess top prompts customers may ask, add new task pages, review competitor comparison gaps, and expand public reference pages |
-
-## What to Do With Agent-See Artifacts Specifically
-
-This guide is not only about general SEO hygiene. It is about fully integrating **Agent-See** into the business’ public operating model.
-
-Use the following mapping after each conversion.
-
-| Agent-See artifact | What you should do with it |
-| --- | --- |
-| **Generated runtime / MCP server** | Deploy it to a stable environment and monitor uptime |
-| **OpenAPI output** | Link it from your public agent integration page or partner docs |
-| **AGENTS guidance** | Use it as the public-facing explanation of how an agent should interact with your business |
-| **Skill-style outputs** | Publish or adapt them for harness-specific guidance where relevant |
-| **Validation artifacts** | Turn them into trust material, examples, or internal QA checklists |
-| **Re-conversion workflow** | Use it whenever paths, forms, auth, or business rules materially change |
-
-The business owner should treat these artifacts as operational infrastructure. They should not sit quietly in a repository after generation.
-
-## What Not to Overclaim
-
-It is important to be honest about what these steps can and cannot do. Publishing `llms.txt`, schema, sitemaps, feeds, and agent integration pages does **not** guarantee that ChatGPT, Claude, Copilot, Perplexity, or any other system will cite or execute your business in every relevant answer. What these steps do is improve the conditions that matter: crawlability, freshness, entity clarity, retrieval quality, trust, and executable readiness [1] [2] [5] [6] [7].
-
-The right promise is therefore operational rather than magical: after conversion with Agent-See, your business becomes much easier for AI systems to **find**, **understand**, **trust**, and **act on**, provided you also publish and maintain the discovery and truth surfaces described in this playbook.
-
-## Step-by-Step Launch Checklist
-
-Use this as your first complete pass after a fresh conversion.
-
-| Order | Action | Done when |
+| What Agent-See does | Outcome | What you must do next |
 | --- | --- | --- |
-| **1** | List your canonical task URLs | Every core commercial action has a dedicated URL |
-| **2** | Rewrite high-value pages into answer-first pages | Each page states audience, action, constraints, and next step clearly |
-| **3** | Publish `robots.txt` and reference the sitemap | Bot access rules are intentional and the sitemap is discoverable |
-| **4** | Publish a complete XML sitemap with accurate `lastmod` | Important business and docs URLs are covered |
-| **5** | Publish `llms.txt` and markdown-friendly docs where helpful | Models have a curated guide to the site |
-| **6** | Add JSON-LD markup to key pages | Organization, product, FAQ, and breadcrumb data are live and validated |
-| **7** | Verify Search Console and claim Business Profile if relevant | Official ownership and entity details are established |
-| **8** | Configure Merchant Center if you sell products | Visibility, approval, and freshness can be monitored |
-| **9** | Deploy the Agent-See runtime and publish an agent integration page | Agents have a live execution path and clear docs |
-| **10** | Set up IndexNow and submit changed URLs automatically | Important updates propagate quickly |
-| **11** | Re-run Agent-See whenever business logic changes | Discovery surface and execution surface stay aligned |
+| Converts the source into a grounded bundle with runtime, contract, and guidance artifacts | You get an agent-ready output directory | Review the generated bundle instead of assuming it is complete |
 
-## References
+In simple terms, this is where the business surface becomes something agents can connect to and reason about.
 
-[1]: https://developers.google.com/search/docs/appearance/ai-features "Google Search Central: AI Features and Your Website"
-[2]: https://blogs.bing.com/webmaster/July-2025/Keeping-Content-Discoverable-with-Sitemaps-in-AI-Powered-Search "Bing Webmaster Blog: Keeping Content Discoverable with Sitemaps in AI Powered Search"
-[3]: https://www.bcg.com/x/the-multiplier/how-to-structure-website-content-for-llm-discovery "BCG: How to Structure Website Content for LLM Discovery"
-[4]: https://gitbook.com/docs/guides/seo-and-llm-optimization/geo-guide "GitBook: GEO Guide — How to Optimize Your Docs for AI Search and LLM Ingestion"
-[5]: https://developers.openai.com/api/docs/bots/ "OpenAI Developers: Overview of OpenAI Crawlers"
-[6]: https://privacy.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler "Anthropic Privacy: Does Anthropic crawl data from the web, and how can site owners block the crawler?"
-[7]: https://llmstxt.org/ "llms.txt"
-[8]: https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data "Google Search Central: Intro to How Structured Data Markup Works"
-[9]: https://developers.google.com/search/docs/appearance/establish-business-details "Google Search Central: Add Business Details to Google"
-[10]: https://developers.google.com/search/docs/appearance/structured-data/product "Google Search Central: Product Structured Data"
-[11]: https://support.google.com/merchants/answer/12488713?hl=en "Google Merchant Center Help: Check product visibility and status in Merchant Center"
-[12]: https://www.indexnow.org/documentation "IndexNow Documentation"
+### Step 4: Explain What Was Generated
+
+After conversion, Agent-See gives you a set of outputs. These outputs are not random files. Each one has a clear purpose.
+
+| Output | What it does for you |
+| --- | --- |
+| `mcp_server/` | Provides the runtime surface that agents can call |
+| `openapi.yaml` | Describes the actions in a machine-readable contract |
+| `agent_card.json` | Defines identity and discovery metadata |
+| `AGENTS.md` | Explains how agents and operators should use the system |
+| `skills/` | Provides reusable workflow guidance |
+| `plugins/` | Provides packaging and harness-facing connection assets |
+
+| What Agent-See does | Outcome | What you must do next |
+| --- | --- | --- |
+| Organizes the generated bundle into understandable artifacts | You know what each part of the output is for | Confirm that the important workflows are actually represented |
+
+This step is where the work becomes understandable. You should be able to look at the outputs and know what they are meant to do.
+
+### Step 5: Review the Bundle Before You Move Forward
+
+Not every conversion is ready for launch on the first pass. A good workflow is not just about generating files. It is about checking whether the bundle truthfully captures the workflows you care about and whether any login, approval, or manual boundaries are clearly stated.
+
+| What Agent-See does | Outcome | What you must do next |
+| --- | --- | --- |
+| Helps you inspect whether the bundle is complete, truthful, and usable | You know whether the output is ready or needs refinement | Approve the bundle or request a scoped re-run if something important is missing |
+
+If a key workflow is missing, this is the moment to fix it. If an action requires login or human approval, this is the moment to state that clearly.
+
+### Step 6: Create the Public Discovery Layer
+
+Once the grounded bundle is good enough, the next job is to make it easier for agents to discover and understand it. This is the public-facing layer.
+
+| What Agent-See does | Outcome | What you must do next |
+| --- | --- | --- |
+| Helps generate the public files and pages that explain the system | You get materials such as `llms.txt`, `/agents` pages, and reference content | Publish these files and pages to your public website or documentation surface |
+
+This step matters because a runtime alone is not enough. Agents also need a clean public explanation of what the system does, what it can access, and where it can connect.
+
+### Step 7: Deploy the Live Runtime
+
+The public layer explains the system, but the runtime is the system agents actually call. That runtime must be deployed and reachable.
+
+| What Agent-See does | Outcome | What you must do next |
+| --- | --- | --- |
+| Prepares the runtime and related artifacts so they can be deployed as a live service | You have a deployable execution surface | Deploy the runtime to your chosen hosting environment and confirm that it is reachable |
+
+This is an important distinction. The public page tells agents how to use your system. The runtime is the system they actually use.
+
+### Step 8: Package the Bundle for Your Harness
+
+After the runtime and public layer are in place, Agent-See can package the bundle so it is easier to use inside the harness you care about.
+
+| What Agent-See does | Outcome | What you must do next |
+| --- | --- | --- |
+| Creates harness-facing plugin assets and connection guidance | You get a plugin-ready package for Claude, Manus, OpenClaw, or similar systems | Choose the harness you want to use and plug in the generated package or connector |
+
+This step makes the output easier to adopt in real agent systems without forcing users to build their own packaging from scratch.
+
+### Step 9: Maintain and Refresh the System Over Time
+
+A business changes over time. Pricing changes, workflows change, product details change, support boundaries change, and launch surfaces change. That means the agent-ready bundle must also stay current.
+
+| What Agent-See does | Outcome | What you must do next |
+| --- | --- | --- |
+| Supports a repeatable refresh workflow for updated business logic | You avoid stale agent behavior and outdated public guidance | Re-run conversion first when the business changes, then refresh launch and plugin outputs as needed |
+
+This keeps the plugin aligned with reality instead of letting it drift away from the business.
+
+## What You Must Do at Each Stage
+
+Agent-See can do a great deal of the heavy lifting, but there are still important actions that only you can take.
+
+| Stage | What Agent-See can do | What you must do |
+| --- | --- | --- |
+| Source definition | Help identify the right input surface | Confirm the exact website, SaaS area, or API |
+| Workflow scoping | Help prioritize the most important actions | Tell us which workflows matter most |
+| Conversion | Generate the bundle | Review the output honestly |
+| Review | Help check completeness and truthfulness | Approve or request changes |
+| Public launch | Generate launch-facing materials | Publish them on your site or docs |
+| Deployment | Prepare the runtime for go-live | Deploy and host it |
+| Harness packaging | Create plugin-ready packaging | Plug it into the harness you want to use |
+| Maintenance | Support refresh and regeneration | Re-run when business logic changes |
+
+## What Success Looks Like
+
+A successful Agent-See rollout is one where you can answer these questions clearly.
+
+| Question | What should be true |
+| --- | --- |
+| What did we turn into a plugin? | The source system is clearly defined |
+| What actions does the plugin support? | The important workflows are captured clearly |
+| What was generated? | The bundle, public assets, and plugin packaging are understandable |
+| What still needs to be done? | The next user action is obvious at every step |
+| How do we keep it current? | There is a clear refresh path when the business changes |
+
+## The Simple Operating Rule
+
+Keep the process simple. First define the source. Then define the workflows. Then convert. Then review. Then publish. Then deploy. Then package for the harness. Then maintain it over time.
+
+If something is unclear, do not guess. Clarify it before moving on.
+
+## Final Outcome
+
+When this process is followed, your business is easier for agents to understand, easier to trust, easier to connect to, and easier to use in real workflows.
+
+All this can be accomplished using **Agent-See**.

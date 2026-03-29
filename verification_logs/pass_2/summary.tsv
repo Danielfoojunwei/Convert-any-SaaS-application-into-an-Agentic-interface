@@ -1,0 +1,7 @@
+scenario	test_target	exit_code
+S1	tests/test_full_pipeline.py	0
+S2	tests/test_sprint2.py	0
+S3	tests/test_sprint3_5.py	0
+S4	tests/test_e2e.py	0
+S5	tests/test_launch_integration.py	0
+S6	tests/test_plugin_integration.py	0
